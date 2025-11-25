@@ -1,0 +1,19 @@
+# internal/api/environment/*
+app/api/logs
+app/assets/rfq/*
+
+
+api_log_*.log
+*.test
+.DS_Store
+/report.json
+/report.xml
+/app/api/logs/api.log
+/app/api/.env
+*.env
+
+data.ms
+db_data
+mongo_data
+minio_data
+.vscode
