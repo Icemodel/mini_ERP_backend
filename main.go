@@ -6,6 +6,7 @@ import (
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/logging"
+	"mini-erp-backend/model"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,6 +27,12 @@ func main() {
 
 	// region Service
 	// product.NewService(log.Slogger, db, productRepo)
+	// endregion
+
+	// region Migrations
+	if err := db.AutoMigrate(&model.Product{}, &model.StockTransaction{}, &model.Category{}); err != nil {
+		log.Slogger.Error("Migration failed", "error", err)
+	}
 	// endregion
 
 	// region Routes
