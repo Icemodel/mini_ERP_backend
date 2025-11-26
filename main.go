@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"mini-erp-backend/api"
+	"mini-erp-backend/api/repository"
+	"mini-erp-backend/api/service/category"
+	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/logging"
@@ -22,11 +25,13 @@ func main() {
 	fmt.Println(db)
 
 	// region Repository
-	// productRepo := repository.NewProduct(log.Slogger)
+	categoryRepo := repository.NewCategory(log.Slogger)
+	productRepo := repository.NewProduct(log.Slogger)
 	// endregion
 
 	// region Service
-	// product.NewService(log.Slogger, db, productRepo)
+	category.NewService(log.Slogger, db, categoryRepo)
+	product.NewService(log.Slogger, db, productRepo)
 	// endregion
 
 	// region Migrations
