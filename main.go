@@ -30,7 +30,16 @@ func main() {
 	// endregion
 
 	// region Migrations
-	if err := db.AutoMigrate(&model.Product{}, &model.StockTransaction{}, &model.Category{}); err != nil {
+	if err := db.AutoMigrate(
+		&model.Product{},
+		&model.StockTransaction{},
+		&model.Category{},
+		&model.User{},
+		&model.AuditLog{},
+		&model.Supplier{},
+		&model.PurchaseOrder{},
+		&model.PurchaseOrderItem{},
+	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
 	// endregion

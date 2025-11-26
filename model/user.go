@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Role represents user role stored as a string in DB and JSON.
@@ -44,7 +46,7 @@ func (r *Role) Scan(src interface{}) error {
 }
 
 type User struct {
-	UserId    string    `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
+	UserId    uuid.UUID `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
 	Username  string    `gorm:"column:username;not null;uniqueIndex" json:"username"`
 	FirstName string    `gorm:"column:first_name;not null" json:"first_name"`
 	LastName  string    `gorm:"column:last_name;not null" json:"last_name"`
@@ -53,5 +55,5 @@ type User struct {
 	CreatedAt time.Time `gorm:"column:created_at;not null;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;not null;autoUpdateTime" json:"updated_at"`
 
-	AuditLogs []AuditLog `gorm:"foreignKey:UserID;references:UserID" json:"-"`
+	AuditLogs []AuditLog `gorm:"foreignKey:UserId;references:UserId" json:"-"`
 }

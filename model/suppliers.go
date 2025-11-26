@@ -2,14 +2,17 @@ package model
 
 import (
 	"time"
+
 	"github.com/google/uuid"
 )
 
 type Supplier struct {
-	SupplierId  uuid.UUID `gorm:"type:uuid;primaryKey" json:"supplier_id"`
-	Name string `json:"name"`
-	Phone string `json:"phone"`
-	Email string `json:"email"`
-	Address string `json:"address"`
-	CreatedAt time.Time `json:"created_at"`
+	SupplierId uuid.UUID `gorm:"type:uuid;primaryKey" json:"supplier_id"`
+	Name       string    `gorm:"not null" json:"name"`
+	Phone      string    `gorm:"not null" json:"phone"`
+	Email      string    `gorm:"not null" json:"email"`
+	Address    string    `gorm:"not null" json:"address"`
+	CreatedAt  time.Time `gorm:"not null" json:"created_at"`
+
+	PurchaseOrders []PurchaseOrder `gorm:"foreignKey:SupplierId;references:SupplierId"`
 }
