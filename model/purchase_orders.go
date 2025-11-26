@@ -8,13 +8,15 @@ import (
 
 type PurchaseOrder struct {
 	PurchaseOrderId uuid.UUID           `gorm:"type:uuid;primaryKey" json:"purchase_order_id"`
-	SupplierId      uuid.UUID           `gorm:"type:uuid;not null;index;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"supplier_id"`
-	Supplier        Supplier            `gorm:"foreignKey:SupplierId" json:"-"`
-	Items           []PurchaseOrderItem `gorm:"foreignKey:PurchaseOrderId" json:"items"`
-	Status          PurchaseOrderStatus `json:"status"`
-	TotalAmount     uint64              `json:"total_amount"`
-	CreatedAt       time.Time           `json:"created_at"`
-	CreatedBy       string              `gorm:"type:uuid" json:"created_by"`
+	SupplierId      uuid.UUID           `gorm:"type:uuid;not null;" json:"supplier_id"`
+	Status          PurchaseOrderStatus `gorm:"not null" json:"status"`
+	TotalAmount     uint64              `gorm:"not null" json:"total_amount"`
+	CreatedAt       time.Time           `gorm:"not null" json:"created_at"`
+	CreatedBy       string              `gorm:"type:uuid;not null" json:"created_by"`
+
+	PurchaseOrderItem []PurchaseOrderItem `gorm:"foreignKey:PurchaseOrderId" json:"purchase_order_items"`
+	StockTransaction  []StockTransaction  `gorm:"foreignKey:ReferenceId;constraint:OnDelete:SET NULL;" json:"stock_transactions"`
+	Supplier          Supplier            `gorm:"constraint:OnDelete:SET NULL;" json:"-"`
 }
 
 type PurchaseOrderStatus string

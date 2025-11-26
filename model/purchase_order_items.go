@@ -6,12 +6,11 @@ import (
 
 type PurchaseOrderItem struct {
 	PurchaseOrderItemId uuid.UUID `gorm:"type:uuid;primaryKey" json:"purchase_order_item_id"`
-	PurchaseOrderId     uuid.UUID `gorm:"type:uuid;index;not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"purchase_order_id"`
-	ProductId           uuid.UUID `gorm:"type:uuid;index;not null;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"product_id"`
-	Quantity            uint64    `json:"quantity"`
-	Price               float64   `json:"price"`
+	PurchaseOrderId     uuid.UUID `gorm:"type:uuid;not null;" json:"purchase_order_id"`
+	ProductId           uuid.UUID `gorm:"type:uuid;not null;" json:"product_id"`
+	Quantity            uint64    `gorm:"not null;" json:"quantity"`
+	Price               float64   `gorm:"not null;" json:"price"`
 
-	PurchaseOrder PurchaseOrder `gorm:"foreignKey:PurchaseOrderId;references:PurchaseOrderId" json:"-"`
-	Product       Product       `gorm:"foreignKey:ProductId;references:ProductId" json:"-"`
+	PurchaseOrder PurchaseOrder `gorm:"foconstraint:OnDelete:CASCADE;" json:"-"`
+	Product       Product       `gorm:"constraint:OnDelete:SET NULL;" json:"-"`
 }
-
