@@ -44,7 +44,7 @@ func (r *Role) Scan(src interface{}) error {
 }
 
 type User struct {
-	UserID    string    `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
+	UserId    string    `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
 	Username  string    `gorm:"column:username;not null;uniqueIndex" json:"username"`
 	FirstName string    `gorm:"column:first_name;not null" json:"first_name"`
 	LastName  string    `gorm:"column:last_name;not null" json:"last_name"`

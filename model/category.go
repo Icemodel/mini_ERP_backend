@@ -8,10 +8,10 @@ import (
 
 type Category struct {
 	CategoryId  uuid.UUID `gorm:"type:uuid;primaryKey" json:"category_id"`
-	Name        string    `json:"name"`
+	Name        string    `gorm:"not null" json:"name"`
 	Description *string   `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `gorm:"not null" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"not null" json:"updated_at"`
 
 	Products []Product `gorm:"foreignKey:CategoryId;references:CategoryId"`
 }
