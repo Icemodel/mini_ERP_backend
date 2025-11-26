@@ -31,14 +31,14 @@ func main() {
 
 	// region Migrations
 	if err := db.AutoMigrate(
-		&model.Product{},
-		&model.StockTransaction{},
-		&model.Category{},
 		&model.User{},
-		&model.AuditLog{},
-		&model.Supplier{},
-		&model.PurchaseOrder{},
-		&model.PurchaseOrderItem{},
+    	&model.Category{},
+    	&model.Product{},
+    	&model.Supplier{},
+    	&model.PurchaseOrder{},
+    	&model.PurchaseOrderItem{},
+    	&model.StockTransaction{},
+    	&model.AuditLog{},
 	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}

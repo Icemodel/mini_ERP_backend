@@ -20,4 +20,5 @@ type Product struct {
 
 	Category          Category           `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
 	StockTransactions []StockTransaction `gorm:"foreignKey:ProductId;references:ProductId"`
+	PurchaseOrderItems []PurchaseOrderItem `gorm:"foreignKey:ProductId;references:ProductId" json:"-"`
 }
