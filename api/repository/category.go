@@ -15,8 +15,8 @@ type CategorySearchFilters struct {
 type Category interface {
 	// Get
 	Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.Category, error)
-	Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]model.Category, error)
-	SearchesWithPagination(db *gorm.DB, conditions map[string]interface{}, orderBy string, offset, limit int) ([]model.Category, int64, error)
+	// Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]model.Category, error)
+	// SearchesWithPagination(db *gorm.DB, conditions map[string]interface{}, orderBy string, offset, limit int) ([]model.Category, int64, error)
 	SearchWithFilters(db *gorm.DB, filters CategorySearchFilters, orderBy string) ([]model.Category, error)
 	SearchWithFiltersAndPagination(db *gorm.DB, filters CategorySearchFilters, orderBy string, page, pageSize int) ([]model.Category, int64, error)
 	ExitedByName(db *gorm.DB, name string) (bool, error)
@@ -54,34 +54,6 @@ func (c category) Search(db *gorm.DB, conditions map[string]interface{}, orderBy
 	}
 
 	return &category[0], nil
-}
-
-func (c category) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]model.Category, error) {
-	categories := []model.Category{}
-	if err := db.Where(conditions).Order(orderBy).Find(&categories).Error; err != nil {
-		c.logger.Error("Failed to search categories", slog.String("error", err.Error()))
-		return nil, err
-	}
-	return categories, nil
-}
-
-func (c category) SearchesWithPagination(db *gorm.DB, conditions map[string]interface{}, orderBy string, offset, limit int) ([]model.Category, int64, error) {
-	categories := []model.Category{}
-	var total int64
-
-	// นับจำนวนทั้งหมด
-	if err := db.Model(&model.Category{}).Where(conditions).Count(&total).Error; err != nil {
-		c.logger.Error("Failed to count categories", slog.String("error", err.Error()))
-		return nil, 0, err
-	}
-
-	// ดึงข้อมูลแบบ pagination
-	if err := db.Where(conditions).Order(orderBy).Offset(offset).Limit(limit).Find(&categories).Error; err != nil {
-		c.logger.Error("Failed to search categories with pagination", slog.String("error", err.Error()))
-		return nil, 0, err
-	}
-
-	return categories, total, nil
 }
 
 func (c category) ExitedByName(db *gorm.DB, name string) (bool, error) {
