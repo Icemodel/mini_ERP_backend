@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type PurchaseOrderItem struct {
@@ -11,6 +12,7 @@ type PurchaseOrderItem struct {
 	Quantity            uint64    `json:"quantity"`
 	Price               float64   `json:"price"`
 
-	PurchaseOrder PurchaseOrder `gorm:"foreignKey:PurchaseOrderId;references:PurchaseOrderId" json:"purchase_order"`
-	Product       Product       `gorm:"foreignKey:ProductId;references:ProductId" json:"product"`
+	PurchaseOrder PurchaseOrder `gorm:"foreignKey:PurchaseOrderId;references:PurchaseOrderId" json:"-"`
+	Product       Product       `gorm:"foreignKey:ProductId;references:ProductId" json:"-"`
 }
+
