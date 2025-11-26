@@ -27,12 +27,12 @@ func (r Role) String() string {
 }
 
 type User struct {
-	UserID    string    `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
+	UserId    string    `gorm:"column:user_id;type:uuid;default:gen_random_uuid();primaryKey" json:"user_id"`
 	Username  string    `gorm:"column:username;not null;uniqueIndex" json:"username"`
 	FirstName string    `gorm:"column:first_name;not null" json:"first_name"`
 	LastName  string    `gorm:"column:last_name;not null" json:"last_name"`
 	Password  string    `gorm:"column:password;not null" json:"-"`
-	RoleID    Role      `gorm:"column:role_id;not null" json:"role_id"`
+	Role      Role      `gorm:"column:role_id;not null" json:"role_id"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;not null;autoUpdateTime" json:"updated_at"`
 
