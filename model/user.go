@@ -35,4 +35,6 @@ type User struct {
 	RoleID    Role      `gorm:"column:role_id;not null" json:"role_id"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;not null;autoUpdateTime" json:"updated_at"`
+
+	AuditLogs []AuditLog `gorm:"foreignKey:UserID;references:UserID" json:"-"`
 }
