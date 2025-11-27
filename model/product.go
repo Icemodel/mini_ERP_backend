@@ -7,7 +7,7 @@ import (
 )
 
 type Product struct {
-	ProductId    uuid.UUID `gorm:"type:uuid;primaryKey" json:"product_id"`
+	ProductId    uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"product_id"`
 	ProductCode  string    `gorm:"not null;uniqueIndex" json:"product_code"`
 	CategoryId   uuid.UUID `gorm:"type:uuid;not null" json:"category_id"`
 	Name         string    `gorm:"not null" json:"name"`

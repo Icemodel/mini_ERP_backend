@@ -5,7 +5,7 @@ import (
 )
 
 type PurchaseOrderItem struct {
-	PurchaseOrderItemId uuid.UUID `gorm:"type:uuid;primaryKey" json:"purchase_order_item_id"`
+	PurchaseOrderItemId uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"purchase_order_item_id"`
 	PurchaseOrderId     uuid.UUID `gorm:"type:uuid;not null;" json:"purchase_order_id"`
 	ProductId           uuid.UUID `gorm:"type:uuid;not null;" json:"product_id"`
 	Quantity            uint64    `gorm:"not null;" json:"quantity"`

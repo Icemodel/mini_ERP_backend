@@ -7,7 +7,7 @@ import (
 )
 
 type StockTransaction struct {
-	StockTransactionId uuid.UUID  `gorm:"type:uuid;primaryKey" json:"stock_transaction_id"`
+	StockTransactionId uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"stock_transaction_id"`
 	ProductId          uuid.UUID  `gorm:"type:uuid;not null" json:"product_id"`
 	Quantity           int64      `gorm:"not null" json:"quantity"`
 	Type               string     `gorm:"not null" json:"transaction_type"` // e.g., "IN" or "OUT" or "ADJUST"

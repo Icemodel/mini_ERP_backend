@@ -7,7 +7,7 @@ import (
 )
 
 type RefreshToken struct {
-	RefreshId  uuid.UUID `gorm:"column:refresh_id;type:uuid;primaryKey" json:"refresh_id"`
+	RefreshId  uuid.UUID `gorm:"column:refresh_id;type:uuid;default:uuid_generate_v4();primaryKey" json:"refresh_id"`
 	UserNumber uuid.UUID `gorm:"column:user_id;type:uuid;not null;index" json:"user_id"`
 	Token      string    `gorm:"column:token;not null;uniqueIndex" json:"token"`
 	IssueAt    time.Time `gorm:"column:issue_at;not null" json:"issue_at"`
