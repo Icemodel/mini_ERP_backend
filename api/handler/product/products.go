@@ -1,22 +1,31 @@
-package category_handler
+package product_handler
 
 import (
 	"log/slog"
-	"mini-erp-backend/api/service/category/query"
+	"mini-erp-backend/api/service/product/query"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-func Categories(logger *slog.Logger) fiber.Handler {
+func Products(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		// รับ query parameters
 		page, _ := strconv.Atoi(c.Query("page", "1"))
 		pageSize, _ := strconv.Atoi(c.Query("pageSize", "10"))
 		search := c.Query("search", "")
+		categoryId := c.Query("category_id", "")
 		sortBy := c.Query("sortBy", "")
 		sortOrder := c.Query("sortOrder", "")
+
+		var parsedCategoryId *uuid.UUID
+		if categoryId != "" {
+			id, err := uuid.Parse(categoryId)
+			if err == nil {
+				parsedCategoryId = &id
+			}
+		}
 
 		// จัดการ page ให้ไม่ต่ำกว่า 1
 		if page < 1 {
@@ -31,19 +40,21 @@ func Categories(logger *slog.Logger) fiber.Handler {
 			pageSize = 100 // จำกัดค่าสูงสุด
 		}
 
-		request := query.CategoriesRequest{
-			Page:      page,
-			PageSize:  pageSize,
-			Search:    search,
-			SortBy:    sortBy,
-			SortOrder: sortOrder,
+		request := query.ProductsRequest{
+			Page:       page,
+			PageSize:   pageSize,
+			Search:     search,
+			CategoryId: parsedCategoryId,
+			SortBy:     sortBy,
+			SortOrder:  sortOrder,
 		}
 
-		response, err := mediatr.Send[query.CategoriesRequest, *query.CategoriesResult](c.Context(), request)
+		response, err := mediatr.Send[query.ProductsRequest, *query.ProductsResult](c.Context(), request)
+
 		if err != nil {
-			logger.Error("Failed to get categories", slog.String("error", err.Error()))
+			logger.Error("Failed to get products", slog.String("error", err.Error()))
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to get categories",
+				"error": "Failed to get products",
 			})
 		}
 

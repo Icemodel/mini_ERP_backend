@@ -8,7 +8,6 @@ import (
 	"mini-erp-backend/model"
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -50,7 +49,7 @@ func (c *Create) Handle(ctx context.Context, request CreateRequest) (*CreateResu
 
 	// สร้าง category ใหม่
 	category := &model.Category{
-		CategoryId:  uuid.New(),
+		// CategoryId:  uuid.New(),
 		Name:        request.Name,
 		Description: request.Description,
 		CreatedAt:   time.Now(),

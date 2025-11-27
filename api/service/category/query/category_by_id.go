@@ -21,7 +21,7 @@ type CategoryByIdRequest struct {
 }
 
 type CategoryByIdResult struct {
-	model.Category
+	Category model.Category `json:"category"`
 }
 
 func NewCategoryById(logger *slog.Logger, db *gorm.DB, categoryRepo repository.Category) *CategoryById {

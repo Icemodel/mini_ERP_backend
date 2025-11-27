@@ -16,9 +16,11 @@ type Categories struct {
 }
 
 type CategoriesRequest struct {
-	Page     int    `json:"page"`
-	PageSize int    `json:"page_size"`
-	Search   string `json:"search"` // ค้นหาทั้งชื่อและคำอธิบาย
+	Page      int    `json:"page"`
+	PageSize  int    `json:"page_size"`
+	Search    string `json:"search"`     // ค้นหาทั้งชื่อและคำอธิบาย
+	SortBy    string `json:"sort_by"`    // ฟิลด์ที่ต้องการ sort
+	SortOrder string `json:"sort_order"` // asc หรือ desc
 }
 
 type CategoriesResult struct {
@@ -43,34 +45,39 @@ func (c *Categories) Handle(ctx context.Context, request CategoriesRequest) (*Ca
 		Search: request.Search,
 	}
 
-	// ถ้าไม่มี pagination ให้ดึงทั้งหมด
-	if request.Page <= 0 || request.PageSize <= 0 {
-		result, err := c.categoryRepo.SearchWithFilters(c.db, filters, "created_at DESC")
-		if err != nil {
-			c.logger.Error("Failed to get categories", slog.String("error", err.Error()))
-			return nil, err
+	// สร้าง orderBy string
+	orderBy := "created_at DESC" // default
+	if request.SortBy != "" {
+		// กำหนดฟิลด์ที่อนุญาตให้ sort
+		allowedSortFields := map[string]bool{
+			"name":       true,
+			"created_at": true,
+			"updated_at": true,
 		}
 
-		response := &CategoriesResult{
-			Categories: result,
-			Total:      int64(len(result)),
-			Page:       1,
-			PageSize:   len(result),
-			TotalPages: 1,
+		if allowedSortFields[request.SortBy] {
+			sortOrder := "DESC"
+			if request.SortOrder == "asc" || request.SortOrder == "ASC" {
+				sortOrder = "ASC"
+			}
+			orderBy = request.SortBy + " " + sortOrder
 		}
-		return response, nil
 	}
 
-	// ใช้ pagination พร้อม filters
-	result, total, err := c.categoryRepo.SearchWithFiltersAndPagination(c.db, filters, "created_at DESC", request.Page, request.PageSize)
+	// ดึงข้อมูลแบบ pagination เสมอ
+	result, total, err := c.categoryRepo.SearchWithFiltersAndPagination(c.db, filters, orderBy, request.Page, request.PageSize)
 	if err != nil {
 		c.logger.Error("Failed to get categories with pagination", slog.String("error", err.Error()))
 		return nil, err
 	}
 
-	totalPages := int(total) / request.PageSize
-	if int(total)%request.PageSize > 0 {
-		totalPages++
+	// คำนวณจำนวนหน้าทั้งหมด
+	totalPages := 0
+	if total > 0 {
+		totalPages = int(total) / request.PageSize
+		if int(total)%request.PageSize > 0 {
+			totalPages++
+		}
 	}
 
 	response := &CategoriesResult{

@@ -1,8 +1,8 @@
-package category_handler
+package product_handler
 
 import (
 	"log/slog"
-	"mini-erp-backend/api/service/category/command"
+	"mini-erp-backend/api/service/product/command"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,38 +12,31 @@ import (
 
 func Update(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		categoryIdParam := c.Params("id")
-		categoryId, err := uuid.Parse(categoryIdParam)
+		productIdParam := c.Params("id")
+		productId, err := uuid.Parse(productIdParam)
 
 		if err != nil {
-			logger.Error("Invalid category ID", slog.String("error", err.Error()))
+			logger.Error("Invalid product ID", slog.String("error", err.Error()))
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid category ID",
+				"error": "Invalid product ID",
 			})
 		}
 
 		request := command.UpdateRequest{
-			CategoryId: categoryId,
+			ProductId: productId,
 		}
 
 		if err := c.BodyParser(&request); err != nil {
-			logger.Error("Failed to parse update category request", slog.String("error", err.Error()))
+			logger.Error("Failed to parse update product request", slog.String("error", err.Error()))
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "Invalid request body",
-			})
-		}
-
-		if request.Name == "" {
-			logger.Error("Category name is required")
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Category name is required",
 			})
 		}
 
 		response, err := mediatr.Send[command.UpdateRequest, *command.UpdateResult](c.Context(), request)
 
 		if err != nil {
-			logger.Error("Failed to update category", slog.String("error", err.Error()))
+			logger.Error("Failed to update product", slog.String("error", err.Error()))
 
 			// ตรวจสอบว่าเป็น error ชื่อซ้ำหรือไม่
 			if strings.Contains(err.Error(), "already exists") {
@@ -60,7 +53,7 @@ func Update(logger *slog.Logger) fiber.Handler {
 			}
 
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error": "Failed to update category",
+				"error": "Failed to update product",
 			})
 		}
 

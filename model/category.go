@@ -13,5 +13,5 @@ type Category struct {
 	CreatedAt   time.Time `gorm:"not null" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"not null" json:"updated_at"`
 
-	Products []Product `gorm:"foreignKey:CategoryId;references:CategoryId"`
+	Products []Product `gorm:"foreignKey:CategoryId;references:CategoryId" json:"-"`
 }

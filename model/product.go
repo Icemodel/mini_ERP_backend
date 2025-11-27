@@ -18,7 +18,7 @@ type Product struct {
 	CreatedAt    time.Time `gorm:"not null" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"not null" json:"updated_at"`
 
-	Category           Category            `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
-	StockTransactions  []StockTransaction  `gorm:"foreignKey:ProductId;references:ProductId"`
+	Category           *Category           `gorm:"constraint:OnDelete:CASCADE;" json:"category,omitempty"`
+	StockTransactions  []StockTransaction  `gorm:"foreignKey:ProductId;references:ProductId" json:"-"`
 	PurchaseOrderItems []PurchaseOrderItem `gorm:"foreignKey:ProductId;references:ProductId" json:"-"`
 }
