@@ -5,6 +5,7 @@ import (
 	"mini-erp-backend/api"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
+	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
 	"mini-erp-backend/model"
 
@@ -14,6 +15,7 @@ import (
 func main() {
 	app := fiber.New()
 	log := logging.New()
+	jwtManager := jwt.New(log.Slogger)
 
 	environment.LoadEnvironment()
 
@@ -21,15 +23,6 @@ func main() {
 
 	fmt.Println(db)
 
-	// region Repository
-	// productRepo := repository.NewProduct(log.Slogger)
-	// endregion
-
-	// region Service
-	// product.NewService(log.Slogger, db, productRepo)
-	// endregion
-
-	// region Migrations
 	if err := db.AutoMigrate(
 		&model.User{},
 		&model.Category{},
@@ -45,7 +38,12 @@ func main() {
 	// endregion
 
 	// region Routes
-	api.Register(app, log.Slogger)
+	api.Register(
+		app,
+		log.Slogger,
+		jwtManager,
+	)
+
 	// endregion
 
 	app.Listen(":" + environment.GetString("PORT"))
