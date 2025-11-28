@@ -18,5 +18,6 @@ func Register(
 	authGroupApi := v1.Group("/auth")
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
+		authGroupApi.Post("/register", auth_handler.Register(logger)) // ใช้ Test เพิ่ม User
 	}
 }

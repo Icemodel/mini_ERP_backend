@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"mini-erp-backend/api"
+	"mini-erp-backend/api/service/auth"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
 	"mini-erp-backend/model"
+	"mini-erp-backend/repository"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,9 +17,9 @@ import (
 func main() {
 	app := fiber.New()
 	log := logging.New()
-	jwtManager := jwt.New(log.Slogger)
-
 	environment.LoadEnvironment()
+
+	jwtManager := jwt.New(log.Slogger)
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))
 
@@ -35,6 +37,7 @@ func main() {
 	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
+
 	// endregion
 
 	// region Routes
@@ -45,6 +48,12 @@ func main() {
 	)
 
 	// endregion
+
+	//region repository
+	userAuthen := repository.NewUserAuthen(log.Slogger)
+
+	//region service
+	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
 
 	app.Listen(":" + environment.GetString("PORT"))
 }
