@@ -2,6 +2,7 @@ package repository
 
 import (
 	"log/slog"
+	"strings"
 
 	"mini-erp-backend/model"
 
@@ -16,12 +17,13 @@ type userAuthen struct {
 	logger *slog.Logger
 }
 
-func NewUserLogin(logger *slog.Logger) UserAuthen {
+func NewUserAuthen(logger *slog.Logger) UserAuthen {
 	return &userAuthen{logger: logger}
 }
 
 func (r *userAuthen) Search(db *gorm.DB, username string) (*model.User, error) {
 	var user model.User
+	username = strings.TrimSpace(strings.ToLower(username))
 	if err := db.
 		Table("users").
 		Select("user_id", "username", "first_name", "last_name", "password", "role", "created_at", "updated_at").

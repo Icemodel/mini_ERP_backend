@@ -3,6 +3,7 @@ package api
 import (
 	"log/slog"
 	auth_handler "mini-erp-backend/api/handler/auth"
+	register_handler "mini-erp-backend/api/handler/register"
 	"mini-erp-backend/lib/jwt"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,6 @@ func Register(
 	authGroupApi := v1.Group("/auth")
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
-		authGroupApi.Post("/register", auth_handler.Register(logger)) // ใช้ Test เพิ่ม User
+		authGroupApi.Post("/register", register_handler.Register(logger))
 	}
 }

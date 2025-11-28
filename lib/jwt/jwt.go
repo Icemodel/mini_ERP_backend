@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"mini-erp-backend/config/environment"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -52,8 +54,9 @@ type manager struct {
 
 type Manager interface {
 	GenerateLoginToken(userId uuid.UUID, role string) (*LoginTokenDetail, error)
-	GetAccessToken(tokenStr string) (*LoginAccessClaims, error)
-	GetRefreshToken(tokenStr string) (*LoginRefreshClaims, error)
+	GetAccessTokenFromContext(c *fiber.Ctx) (token string, err error)
+	ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error)
+	ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error)
 }
 
 func New(logger *slog.Logger) Manager {
@@ -185,7 +188,7 @@ func (m *manager) GenerateLoginToken(userId uuid.UUID, role string) (*LoginToken
 	return token, nil
 }
 
-func (m manager) GetAccessToken(tokenStr string) (*LoginAccessClaims, error) {
+func (m manager) ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error) {
 	secret := environment.GetString(environment.AccessTokenSecret)
 	if secret == "" {
 		errMsg := "access token secret from environment is empty"
@@ -208,7 +211,28 @@ func (m manager) GetAccessToken(tokenStr string) (*LoginAccessClaims, error) {
 	}
 }
 
-func (m manager) GetRefreshToken(tokenStr string) (*LoginRefreshClaims, error) {
+func (m manager) GetAccessTokenFromContext(c *fiber.Ctx) (token string, err error) {
+	var tokenstr string
+	bearToken := c.Get("Authorization")
+
+	if bearToken == "" {
+		errMsg := "token is empty"
+		m.logger.Error(errMsg)
+		return "", errors.New(errMsg)
+	}
+
+	if len(bearToken) > 7 && strings.ToUpper(bearToken[0:6]) == "BEARER" {
+		tokenstr = bearToken[7:]
+		return tokenstr, nil
+	} else {
+		errMsg := "invalid authorize token header"
+		m.logger.Error(errMsg)
+		return "", errors.New(errMsg)
+	}
+
+}
+
+func (m manager) ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error) {
 	secret := environment.GetString(environment.RefreshTokenSecret)
 	if secret == "" {
 		errMsg := "refresh token secret from environment is empty"

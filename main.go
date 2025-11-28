@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mini-erp-backend/api"
 	"mini-erp-backend/api/service/auth"
+	"mini-erp-backend/api/service/register"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
@@ -22,6 +23,11 @@ func main() {
 	jwtManager := jwt.New(log.Slogger)
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))
+
+	defer func() {
+		sqlDB, _ := db.DB()
+		sqlDB.Close()
+	}()
 
 	fmt.Println(db)
 
@@ -51,9 +57,11 @@ func main() {
 
 	//region repository
 	userAuthen := repository.NewUserAuthen(log.Slogger)
+	userRegister := repository.NewUserRegister(log.Slogger)
 
 	//region service
 	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
+	register.NewService(db, log.Slogger, jwtManager, userRegister)
 
 	app.Listen(":" + environment.GetString("PORT"))
 }

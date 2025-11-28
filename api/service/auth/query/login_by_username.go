@@ -71,8 +71,8 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		return nil, err
 	}
 
-	// ต้องCopy การให้ Token อีก อันนี้ Place holder
-	roleStr := creds.Role.String()
+	// Generate token using role string
+	roleStr := string(creds.Role)
 	_, err = l.jwtManager.GenerateLoginToken(creds.UserId, roleStr)
 	if err != nil {
 		if l.logger != nil {
@@ -84,7 +84,7 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 	res := &LoginResult{
 		UserId:   creds.UserId,
 		Username: creds.Username,
-		Role:     roleStr,
+		Role:     string(creds.Role),
 	}
 
 	return res, nil

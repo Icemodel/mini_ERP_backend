@@ -23,7 +23,7 @@ func Login(logger *slog.Logger) fiber.Handler {
 		}
 
 		if req.Username == "" || req.Password == "" {
-			logger.Error("invalid login parameters")
+			logger.Error("invalid login parameters, either username or password is missing")
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "missing email, password or tenantId"})
 		}
 
