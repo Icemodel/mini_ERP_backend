@@ -24,7 +24,7 @@ type UpdateRequest struct {
 	Name         string    `json:"name"`
 	CostPrice    float64   `json:"cost_price"`
 	SellingPrice float64   `json:"selling_price"`
-	Unit         int64     `json:"unit"`
+	Unit         string    `json:"unit"`
 	MinStock     int64     `json:"min_stock"`
 }
 

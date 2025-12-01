@@ -10,9 +10,15 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewService(logger *slog.Logger, db *gorm.DB, productRepo repository.Product) {
+func NewService(
+	logger *slog.Logger,
+	db *gorm.DB,
+	productRepo repository.Product,
+	stockTransactionRepo repository.StockTransaction,
+) {
 	productService := query.NewProducts(logger, db, productRepo)
 	productByIdService := query.NewProductById(logger, db, productRepo)
+	productStockSummaryService := query.NewProductStockSummary(logger, db, productRepo, stockTransactionRepo)
 	createProductService := command.NewCreate(logger, db, productRepo)
 	updateProductService := command.NewUpdate(logger, db, productRepo)
 	deleteProductByIdService := command.NewDeleteById(logger, db, productRepo)
@@ -23,6 +29,11 @@ func NewService(logger *slog.Logger, db *gorm.DB, productRepo repository.Product
 	}
 
 	err = mediatr.RegisterRequestHandler(productByIdService)
+	if err != nil {
+		panic(err)
+	}
+
+	err = mediatr.RegisterRequestHandler(productStockSummaryService)
 	if err != nil {
 		panic(err)
 	}

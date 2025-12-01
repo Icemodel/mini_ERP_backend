@@ -13,7 +13,7 @@ type Product struct {
 	Name         string    `gorm:"not null" json:"name"`
 	CostPrice    float64   `gorm:"not null" json:"cost_price"`
 	SellingPrice float64   `gorm:"not null" json:"selling_price"`
-	Unit         int64     `gorm:"not null" json:"unit"`
+	Unit         string    `gorm:"not null" json:"unit"`
 	MinStock     int64     `gorm:"not null" json:"min_stock"`
 	CreatedAt    time.Time `gorm:"not null" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"not null" json:"updated_at"`
