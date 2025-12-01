@@ -34,14 +34,14 @@ type LoginByUsername struct {
 	domainDb   *gorm.DB
 	logger     *slog.Logger
 	jwtManager jwt.Manager
-	userRepo   repository.UserAuthen
+	userRepo   repository.User
 }
 
 func NewLoginByUsername(
 	domainDb *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userRepo repository.UserAuthen,
+	userRepo repository.User,
 ) *LoginByUsername {
 	return &LoginByUsername{
 		domainDb:   domainDb,
