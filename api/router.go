@@ -5,12 +5,24 @@ import (
 	category_handler "mini-erp-backend/api/handler/category"
 	product_handler "mini-erp-backend/api/handler/product"
 	stocktransaction_handler "mini-erp-backend/api/handler/stock_transaction"
+	"mini-erp-backend/api/handler/supplier"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func Register(app *fiber.App, logger *slog.Logger) {
 	v1 := app.Group("/api/v1")
+
+	// Supplier routes
+	supplierGroup := v1.Group("/suppliers")
+	{
+		supplierGroup.Get("/search", supplier.SearchSuppliers(logger))
+		supplierGroup.Get("/", supplier.GetAllSuppliers(logger))
+		supplierGroup.Post("/", supplier.CreateSupplier(logger))
+		supplierGroup.Get("/:id", supplier.GetSupplier(logger))
+		supplierGroup.Put("/:id", supplier.UpdateSupplier(logger))
+		supplierGroup.Delete("/:id", supplier.DeleteSupplier(logger))
+	}
 
 	categoryGroupApi := v1.Group("/categories")
 	{

@@ -7,6 +7,7 @@ import (
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/api/service/stock_transaction"
+	"mini-erp-backend/api/service/supplier"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/logging"
@@ -32,12 +33,14 @@ func main() {
 	categoryRepo := repository.NewCategory(log.Slogger)
 	productRepo := repository.NewProduct(log.Slogger)
 	stockTransactionRepo := repository.NewStockTransaction(log.Slogger)
+	supplierRepo := repository.NewSupplierRepository(log.Slogger)
 	// endregion
 
 	// region Service
 	category.NewService(log.Slogger, db, categoryRepo)
 	product.NewService(log.Slogger, db, productRepo, stockTransactionRepo)
 	stock_transaction.NewService(log.Slogger, db, stockTransactionRepo, productRepo)
+	supplier.RegisterSupplierHandler(log.Slogger, db, supplierRepo)
 	// endregion
 
 	// region Migrations

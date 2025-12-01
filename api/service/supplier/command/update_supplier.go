@@ -10,9 +10,9 @@ import (
 )
 
 type UpdateSupplier struct {
-	logger *slog.Logger
-	db     *gorm.DB
-	repo   repository.SupplierRepository
+	logger       *slog.Logger
+	db           *gorm.DB
+	SupplierRepo repository.SupplierRepository
 }
 
 type UpdateSupplierRequest struct {
@@ -25,20 +25,20 @@ type UpdateSupplierRequest struct {
 
 func NewUpdateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *UpdateSupplier {
 	return &UpdateSupplier{
-		logger: logger,
-		db:     db,
-		repo:   repo,
+		logger:       logger,
+		db:           db,
+		SupplierRepo: repo,
 	}
 }
 
-func (h *UpdateSupplier) Handle(ctx context.Context, cmd UpdateSupplierRequest) error {
+func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest) (interface{}, error) {
 	// Check if supplier exists
-	existingSupplier, err := h.repo.Search(h.db, map[string]interface{}{
+	existingSupplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
 	}, "")
 	if err != nil {
 		h.logger.Error("Supplier not found", "supplier_id", cmd.SupplierId)
-		return err
+		return nil, err
 	}
 
 	// Begin transaction
@@ -56,17 +56,17 @@ func (h *UpdateSupplier) Handle(ctx context.Context, cmd UpdateSupplierRequest) 
 	existingSupplier.Address = cmd.Address
 
 	// Save to database
-	if err := h.repo.UpdateBySupplierId(tx, cmd.SupplierId, existingSupplier); err != nil {
+	if err := h.SupplierRepo.UpdateBySupplierId(tx, cmd.SupplierId, existingSupplier); err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
 	}
 
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		h.logger.Error("Failed to commit transaction", "error", err)
-		return err
+		return nil, err
 	}
 
 	h.logger.Info("Supplier updated successfully", "supplier_id", cmd.SupplierId)
-	return nil
+	return nil, nil
 }

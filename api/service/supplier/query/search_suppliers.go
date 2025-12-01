@@ -10,9 +10,9 @@ import (
 )
 
 type SearchSuppliers struct {
-	logger *slog.Logger
-	db     *gorm.DB
-	repo   repository.SupplierRepository
+	logger       *slog.Logger
+	db           *gorm.DB
+	SupplierRepo repository.SupplierRepository
 }
 
 type SearchSuppliersRequest struct {
@@ -21,15 +21,19 @@ type SearchSuppliersRequest struct {
 	OrderBy string `json:"order_by"`
 }
 
+type SearchSuppliersResult struct {
+	Suppliers []*model.Supplier `json:"suppliers"`
+}
+
 func NewSearchSuppliersHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *SearchSuppliers {
 	return &SearchSuppliers{
-		logger: logger,
-		db:     db,
-		repo:   repo,
+		logger:       logger,
+		db:           db,
+		SupplierRepo: repo,
 	}
 }
 
-func (h *SearchSuppliers) Handle(ctx context.Context, req SearchSuppliersRequest) ([]*model.Supplier, error) {
+func (h *SearchSuppliers) Handle(ctx context.Context, req *SearchSuppliersRequest) (interface{}, error) {
 	// Build search conditions
 	conditions := make(map[string]interface{})
 	
@@ -47,11 +51,11 @@ func (h *SearchSuppliers) Handle(ctx context.Context, req SearchSuppliersRequest
 	}
 
 	// Search suppliers from database
-	suppliers, err := h.repo.Searches(h.db, conditions, orderBy)
+	suppliers, err := h.SupplierRepo.Searches(h.db, conditions, orderBy)
 	if err != nil {
 		h.logger.Error("Failed to search suppliers", "error", err)
 		return nil, err
 	}
 
-	return suppliers, nil
+	return SearchSuppliersResult{Suppliers: suppliers}, nil
 }

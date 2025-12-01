@@ -55,7 +55,7 @@ func (r *supplierRepository) Search(db *gorm.DB, conditions map[string]interface
 	suppliers := []model.Supplier{}
 
 	if err := db.Where(conditions).Order(orderBy).Limit(1).Find(&suppliers).Error; err != nil {
-		r.logger.Error("Failed to get supplier", "error", "error" ,err)
+		r.logger.Error("Failed to get supplier", "error", err)
 		return nil, err
 	} else {
 		if len(suppliers) == 0 {

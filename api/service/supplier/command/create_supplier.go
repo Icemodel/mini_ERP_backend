@@ -13,7 +13,7 @@ import (
 type CreateSupplier struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	repo   repository.SupplierRepository
+	SupplierRepo   repository.SupplierRepository
 }
 
 type CreateSupplierRequest struct {
@@ -23,17 +23,18 @@ type CreateSupplierRequest struct {
 	Address string `json:"address" validate:"required"`
 }
 
+
 func NewCreateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *CreateSupplier {
 	return &CreateSupplier{
-		logger: logger,
-		db:     db,
-		repo:   repo,
+		logger:       logger,
+		db:           db,
+		SupplierRepo: repo,
 	}
 }
 
-func (h *CreateSupplier) Handle(ctx context.Context, cmd CreateSupplierRequest) (*model.Supplier, error) {
+func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest) (interface{}, error) {
 	// Check if email already exists
-	existingSupplier, err := h.repo.Search(h.db, map[string]interface{}{
+	existingSupplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
 		"email": cmd.Email,
 	}, "")
 	if err == nil && existingSupplier != nil {
@@ -58,7 +59,7 @@ func (h *CreateSupplier) Handle(ctx context.Context, cmd CreateSupplierRequest) 
 	}
 
 	// Save to database
-	if err := h.repo.Create(tx, supplier); err != nil {
+	if err := h.SupplierRepo.Create(tx, supplier); err != nil {
 		tx.Rollback()
 		h.logger.Error("Failed to create supplier", "error", err)
 		return nil, err
