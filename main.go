@@ -52,18 +52,18 @@ func main() {
 	// endregion
 
 	// region Migrations
-	if err := db.AutoMigrate(
-		&model.User{},
-		&model.Category{},
-		&model.Supplier{},
-		&model.Product{},
-		&model.PurchaseOrder{},
-		&model.AuditLog{},
-		&model.PurchaseOrderItem{},
-		&model.StockTransaction{},
-	); err != nil {
-		log.Slogger.Error("Migration failed", "error", err)
-	}
+	// if err := db.AutoMigrate(
+	// 	&model.User{},
+	// 	&model.Category{},
+	// 	&model.Supplier{},
+	// 	&model.Product{},
+	// 	&model.PurchaseOrder{},
+	// 	&model.AuditLog{},
+	// 	&model.PurchaseOrderItem{},
+	// 	&model.StockTransaction{},
+	// ); err != nil {
+	// 	log.Slogger.Error("Migration failed", "error", err)
+	// }
 	// endregion
 
 	// region Routes

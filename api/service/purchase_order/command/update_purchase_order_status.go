@@ -84,10 +84,24 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 
 		// Create Stock IN transactions for each item
 		for _, item := range items {
+			// หา transaction ล่าสุด สำหรับ product_id และ reference_id นี้
+			latestStockTx, err := h.StockRepo.GetLatestByProductAndReference(tx, item.ProductId, req.PurchaseOrderId)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+
+			// คำนวณ quantity ใหม่: PO item quantity + quantity ของ transaction ล่าสุด
+			newQuantity := int64(item.Quantity)
+			if latestStockTx != nil {
+				newQuantity = latestStockTx.Quantity + int64(item.Quantity)
+			}
+
+			// สร้าง transaction ใหม่
 			stockTx := &model.StockTransaction{
 				StockTransactionId: uuid.New(),
 				ProductId:          item.ProductId,
-				Quantity:           int64(item.Quantity), // IN = positive
+				Quantity:           newQuantity,
 				Type:               "IN",
 				Reason:             stringPtr("Purchase Order Received"),
 				ReferenceId:        &req.PurchaseOrderId,
@@ -100,10 +114,19 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				return nil, err
 			}
 
-			h.logger.Info("Stock transaction created",
-				"product_id", item.ProductId,
-				"quantity", item.Quantity,
-				"po_id", req.PurchaseOrderId)
+			if latestStockTx != nil {
+				h.logger.Info("Stock transaction created with cumulative quantity",
+					"product_id", item.ProductId,
+					"po_item_quantity", item.Quantity,
+					"previous_quantity", latestStockTx.Quantity,
+					"new_quantity", newQuantity,
+					"po_id", req.PurchaseOrderId)
+			} else {
+				h.logger.Info("Stock transaction created (first)",
+					"product_id", item.ProductId,
+					"quantity", newQuantity,
+					"po_id", req.PurchaseOrderId)
+			}
 		}
 	}
 
