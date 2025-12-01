@@ -28,6 +28,13 @@ func StockIn(logger *slog.Logger) fiber.Handler {
 			})
 		}
 
+		if request.ReferenceId == nil {
+			logger.Error("ReferenceId is required for stock in")
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "ReferenceId is required for stock IN operation",
+			})
+		}
+
 		response, err := mediatr.Send[command.StockInRequest, *command.StockInResult](c.Context(), request)
 
 		if err != nil {
