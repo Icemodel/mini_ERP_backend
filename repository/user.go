@@ -10,19 +10,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserAuthen interface {
+type User interface {
 	Search(db *gorm.DB, username string) (*model.User, error)
 	SearchByConditions(db *gorm.DB, conditions map[string]interface{}) (*model.User, error)
 	UpdateTokenByUserId(db *gorm.DB, userId uuid.UUID, token *string) error
 	SearchUserByToken(db *gorm.DB, token string) (*model.User, error)
 }
 
-type userAuthen struct {
+type user struct {
 	logger *slog.Logger
 }
 
-func NewUserAuthen(logger *slog.Logger) UserAuthen {
-	return &userAuthen{logger: logger}
+func NewUserAuthen(logger *slog.Logger) User {
+	return &user{logger: logger}
 }
 
 func (r *userAuthen) Search(db *gorm.DB, username string) (*model.User, error) {
@@ -42,7 +42,7 @@ func (r *userAuthen) Search(db *gorm.DB, username string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *userAuthen) SearchByConditions(db *gorm.DB, conditions map[string]interface{}) (*model.User, error) {
+func (r *user) SearchByConditions(db *gorm.DB, conditions map[string]interface{}) (*model.User, error) {
 	var user model.User
 
 	if err := db.
@@ -59,7 +59,7 @@ func (r *userAuthen) SearchByConditions(db *gorm.DB, conditions map[string]inter
 	return &user, nil
 }
 
-func (r userAuthen) UpdateTokenByUserId(db *gorm.DB, userId uuid.UUID, token *string) error {
+func (r user) UpdateTokenByUserId(db *gorm.DB, userId uuid.UUID, token *string) error {
 	if err := db.Model(&model.User{}).
 		Where("user_id = ?", userId).
 		Update("token", token).
@@ -72,7 +72,7 @@ func (r userAuthen) UpdateTokenByUserId(db *gorm.DB, userId uuid.UUID, token *st
 	return nil
 }
 
-func (r *userAuthen) SearchUserByToken(db *gorm.DB, token string) (*model.User, error) {
+func (r *user) SearchUserByToken(db *gorm.DB, token string) (*model.User, error) {
 	var user model.User
 
 	if err := db.
