@@ -14,8 +14,8 @@ import (
 type UpdatePurchaseOrder struct {
 	logger      *slog.Logger
 	db          *gorm.DB
-	PORepo      repository.PurchaseOrderRepository
-	ProductRepo repository.ProductRepository
+	PORepo      repository.PurchaseOrder
+	ProductRepo repository.Product
 }
 
 type UpdatePurchaseOrderRequest struct {
@@ -33,8 +33,8 @@ type UpdatePurchaseOrderItem struct {
 func NewUpdatePurchaseOrderHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrderRepository,
-	productRepo repository.ProductRepository,
+	poRepo repository.PurchaseOrder,
+	productRepo repository.Product,
 ) *UpdatePurchaseOrder {
 	return &UpdatePurchaseOrder{
 		logger:      logger,
@@ -46,7 +46,9 @@ func NewUpdatePurchaseOrderHandler(
 
 func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrderRequest) (interface{}, error) {
 	// Find PO
-	po, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	po, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,9 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 
 	for _, it := range req.Items {
 		// Fetch product to get cost price
-		product, err := h.ProductRepo.FindById(h.db, it.ProductId)
+		product, err := h.ProductRepo.Search(h.db, map[string]interface{}{
+			"product_id": it.ProductId,
+		}, "")
 		if err != nil {
 			tx.Rollback()
 			h.logger.Error("Product not found", "product_id", it.ProductId, "error", err)
@@ -93,7 +97,7 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 	}
 
 	// Delete existing items and replace with new items
-	if err := h.PORepo.DeleteItemsByPOId(tx, po.PurchaseOrderId); err != nil {
+	if err := h.PORepo.DeleteItemsByPurchaseOrderId(tx, po.PurchaseOrderId); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
@@ -119,7 +123,9 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 	}
 
 	// Fetch updated PO
-	updatedPO, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	updatedPO, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		return nil, err
 	}

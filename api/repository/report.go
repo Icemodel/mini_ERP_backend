@@ -8,16 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type ReportRepository interface {
+type Report interface {
 	GetStockSummary(db *gorm.DB) ([]StockSummaryResult, error)
 	GetStockMovements(db *gorm.DB, fromDate, toDate time.Time) ([]StockMovementResult, error)
 	GetPurchaseSummary(db *gorm.DB, year int, month int) ([]PurchaseSummaryResult, error)
 }
 
-type reportRepository struct{}
+type report struct{}
 
-func NewReportRepository() ReportRepository {
-	return &reportRepository{}
+func NewReport() Report {
+	return &report{}
 }
 
 // Result structs
@@ -57,7 +57,7 @@ type PurchaseSummaryResult struct {
 }
 
 // GetStockSummary returns stock summary with cost and selling values
-func (r *reportRepository) GetStockSummary(db *gorm.DB) ([]StockSummaryResult, error) {
+func (r *report) GetStockSummary(db *gorm.DB) ([]StockSummaryResult, error) {
 	var results []StockSummaryResult
 
 	err := db.Model(&model.Product{}).
@@ -81,7 +81,7 @@ func (r *reportRepository) GetStockSummary(db *gorm.DB) ([]StockSummaryResult, e
 }
 
 // GetStockMovements returns stock transactions within a date range
-func (r *reportRepository) GetStockMovements(db *gorm.DB, fromDate, toDate time.Time) ([]StockMovementResult, error) {
+func (r *report) GetStockMovements(db *gorm.DB, fromDate, toDate time.Time) ([]StockMovementResult, error) {
 	var results []StockMovementResult
 
 	err := db.Model(&model.StockTransaction{}).
@@ -108,7 +108,7 @@ func (r *reportRepository) GetStockMovements(db *gorm.DB, fromDate, toDate time.
 }
 
 // GetPurchaseSummary returns monthly purchase order summary grouped by status
-func (r *reportRepository) GetPurchaseSummary(db *gorm.DB, year int, month int) ([]PurchaseSummaryResult, error) {
+func (r *report) GetPurchaseSummary(db *gorm.DB, year int, month int) ([]PurchaseSummaryResult, error) {
 	var results []PurchaseSummaryResult
 
 	// Calculate first and last day of month

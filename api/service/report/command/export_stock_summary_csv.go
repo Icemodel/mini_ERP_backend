@@ -15,7 +15,7 @@ import (
 type ExportStockSummaryCSV struct {
 	logger     *slog.Logger
 	db         *gorm.DB
-	reportRepo repository.ReportRepository
+	reportRepo repository.Report
 }
 
 type ExportStockSummaryCSVRequest struct{}
@@ -28,7 +28,7 @@ type ExportStockSummaryCSVResult struct {
 func NewExportStockSummaryCSVHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	reportRepo repository.ReportRepository,
+	reportRepo repository.Report,
 ) *ExportStockSummaryCSV {
 	return &ExportStockSummaryCSV{
 		logger:     logger,

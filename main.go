@@ -35,7 +35,7 @@ func main() {
 	categoryRepo := repository.NewCategory(log.Slogger)
 	productRepo := repository.NewProduct(log.Slogger)
 	stockTransactionRepo := repository.NewStockTransaction(log.Slogger)
-	supplierRepo := repository.NewSupplierRepository(log.Slogger)
+	supplierRepo := repository.NewSupplier(log.Slogger)
 	// endregion
 
 	// region Service

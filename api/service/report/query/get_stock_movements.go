@@ -12,7 +12,7 @@ import (
 type GetStockMovements struct {
 	logger     *slog.Logger
 	db         *gorm.DB
-	reportRepo repository.ReportRepository
+	reportRepo repository.Report
 }
 
 type GetStockMovementsRequest struct {
@@ -27,7 +27,7 @@ type GetStockMovementsResult struct {
 func NewGetStockMovementsHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	reportRepo repository.ReportRepository,
+	reportRepo repository.Report,
 ) *GetStockMovements {
 	return &GetStockMovements{
 		logger:     logger,

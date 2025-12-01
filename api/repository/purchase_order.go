@@ -8,29 +8,29 @@ import (
 	"gorm.io/gorm"
 )
 
-type PurchaseOrderRepository interface {
+type PurchaseOrder interface {
 	Create(tx *gorm.DB, po *model.PurchaseOrder) error
 	Update(tx *gorm.DB, po *model.PurchaseOrder) error
 	UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.PurchaseOrderStatus) error
-	FindById(db *gorm.DB, poId uuid.UUID) (*model.PurchaseOrder, error)
-	FindAll(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error)
+	Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrder, error)
+	Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error)
 	
 	CreateItem(tx *gorm.DB, item *model.PurchaseOrderItem) error
-	DeleteItemsByPOId(tx *gorm.DB, poId uuid.UUID) error
-	FindItemsByPOId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error)
+	DeleteItemsByPurchaseOrderId(tx *gorm.DB, poId uuid.UUID) error
+	SearchItemsByPurchaseOrderId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error)
 }
 
-type purchaseOrderRepository struct {
+type purchaseOrder struct {
 	logger *slog.Logger
 }
 
-func NewPurchaseOrderRepository(logger *slog.Logger) PurchaseOrderRepository {
-	return &purchaseOrderRepository{
+func NewPurchaseOrder(logger *slog.Logger) PurchaseOrder {
+	return &purchaseOrder{
 		logger: logger,
 	}
 }
 
-func (r *purchaseOrderRepository) Create(tx *gorm.DB, po *model.PurchaseOrder) error {
+func (r *purchaseOrder) Create(tx *gorm.DB, po *model.PurchaseOrder) error {
 	err := tx.Create(po).Error
 	if err != nil {
 		r.logger.Error("Failed to create purchase order", "error", err)
@@ -39,7 +39,7 @@ func (r *purchaseOrderRepository) Create(tx *gorm.DB, po *model.PurchaseOrder) e
 	return nil
 }
 
-func (r *purchaseOrderRepository) Update(tx *gorm.DB, po *model.PurchaseOrder) error {
+func (r *purchaseOrder) Update(tx *gorm.DB, po *model.PurchaseOrder) error {
 	if err := tx.Model(&model.PurchaseOrder{}).
 		Where("purchase_order_id = ?", po.PurchaseOrderId).
 		Select("*").
@@ -51,7 +51,7 @@ func (r *purchaseOrderRepository) Update(tx *gorm.DB, po *model.PurchaseOrder) e
 	return nil
 }
 
-func (r *purchaseOrderRepository) UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.PurchaseOrderStatus) error {
+func (r *purchaseOrder) UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.PurchaseOrderStatus) error {
 	if err := tx.Model(&model.PurchaseOrder{}).
 		Where("purchase_order_id = ?", poId).
 		Update("status", status).Error; err != nil {
@@ -61,43 +61,47 @@ func (r *purchaseOrderRepository) UpdateStatus(tx *gorm.DB, poId uuid.UUID, stat
 	return nil
 }
 
-func (r *purchaseOrderRepository) FindById(db *gorm.DB, poId uuid.UUID) (*model.PurchaseOrder, error) {
-	var po model.PurchaseOrder
-	if err := db.Preload("PurchaseOrderItem").
-		Preload("PurchaseOrderItem.Product").
-		Preload("Supplier").
-		Where("purchase_order_id = ?", poId).
-		First(&po).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			r.logger.Error("Purchase order not found", "po_id", poId)
-		} else {
-			r.logger.Error("Failed to find purchase order", "error", err)
-		}
-		return nil, err
-	}
-	return &po, nil
+func (r *purchaseOrder) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrder, error) {
+    pos := []model.PurchaseOrder{}
+
+    query := db.Preload("PurchaseOrderItem").
+        Preload("PurchaseOrderItem.Product").
+        Preload("Supplier").
+        Where(conditions)
+
+    if orderBy != "" {
+        query = query.Order(orderBy)
+    }
+
+    if err := query.Find(&pos).Error; err != nil {
+        r.logger.Error("Failed to search purchase order", "error", err)
+        return nil, err
+    }
+
+    if len(pos) == 0 {
+        return nil, gorm.ErrRecordNotFound
+    }
+
+    return &pos[0], nil
 }
 
-func (r *purchaseOrderRepository) FindAll(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error) {
-	var pos []*model.PurchaseOrder
-	query := db.Preload("Supplier").Preload("PurchaseOrderItem")
-	
-	if len(conditions) > 0 {
-		query = query.Where(conditions)
-	}
-	
+func (r *purchaseOrder) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error) {
+	pos := []*model.PurchaseOrder{}
+
+	query := db.Preload("Supplier").Preload("PurchaseOrderItem").Where(conditions)
+
 	if orderBy != "" {
 		query = query.Order(orderBy)
 	}
-	
+
 	if err := query.Find(&pos).Error; err != nil {
-		r.logger.Error("Failed to find purchase orders", "error", err)
+		r.logger.Error("Failed to search purchase orders", "error", err)
 		return nil, err
 	}
 	return pos, nil
 }
 
-func (r *purchaseOrderRepository) CreateItem(tx *gorm.DB, item *model.PurchaseOrderItem) error {
+func (r *purchaseOrder) CreateItem(tx *gorm.DB, item *model.PurchaseOrderItem) error {
 	if err := tx.Create(item).Error; err != nil {
 		r.logger.Error("Failed to create purchase order item", "error", err)
 		return err
@@ -105,7 +109,7 @@ func (r *purchaseOrderRepository) CreateItem(tx *gorm.DB, item *model.PurchaseOr
 	return nil
 }
 
-func (r *purchaseOrderRepository) DeleteItemsByPOId(tx *gorm.DB, poId uuid.UUID) error {
+func (r *purchaseOrder) DeleteItemsByPurchaseOrderId(tx *gorm.DB, poId uuid.UUID) error {
 	if err := tx.Where("purchase_order_id = ?", poId).Delete(&model.PurchaseOrderItem{}).Error; err != nil {
 		r.logger.Error("Failed to delete purchase order items", "error", err)
 		return err
@@ -113,12 +117,12 @@ func (r *purchaseOrderRepository) DeleteItemsByPOId(tx *gorm.DB, poId uuid.UUID)
 	return nil
 }
 
-func (r *purchaseOrderRepository) FindItemsByPOId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error) {
-	var items []*model.PurchaseOrderItem
+func (r *purchaseOrder) SearchItemsByPurchaseOrderId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error) {
+	items := []*model.PurchaseOrderItem{}
 	if err := db.Preload("Product").
 		Where("purchase_order_id = ?", poId).
 		Find(&items).Error; err != nil {
-		r.logger.Error("Failed to find purchase order items", "error", err)
+		r.logger.Error("Failed to search purchase order items", "error", err)
 		return nil, err
 	}
 	return items, nil

@@ -12,7 +12,7 @@ import (
 type UpdateSupplier struct {
 	logger       *slog.Logger
 	db           *gorm.DB
-	SupplierRepo repository.SupplierRepository
+	SupplierRepo repository.Supplier
 }
 
 type UpdateSupplierRequest struct {
@@ -23,7 +23,7 @@ type UpdateSupplierRequest struct {
 	Address    string    `json:"address" validate:"required"`
 }
 
-func NewUpdateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *UpdateSupplier {
+func NewUpdateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *UpdateSupplier {
 	return &UpdateSupplier{
 		logger:       logger,
 		db:           db,

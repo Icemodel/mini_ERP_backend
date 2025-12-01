@@ -12,7 +12,7 @@ import (
 type GetAllPurchaseOrders struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	PORepo repository.PurchaseOrderRepository
+	PORepo repository.PurchaseOrder
 }
 
 type GetAllPurchaseOrdersRequest struct {
@@ -27,7 +27,7 @@ type GetAllPurchaseOrdersResult struct {
 func NewGetAllPurchaseOrdersHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrderRepository,
+	poRepo repository.PurchaseOrder,
 ) *GetAllPurchaseOrders {
 	return &GetAllPurchaseOrders{
 		logger: logger,
@@ -48,7 +48,7 @@ func (h *GetAllPurchaseOrders) Handle(ctx context.Context, req *GetAllPurchaseOr
 		orderBy = "created_at DESC"
 	}
 
-	pos, err := h.PORepo.FindAll(h.db, conditions, orderBy)
+	pos, err := h.PORepo.Searches(h.db, conditions, orderBy)
 	if err != nil {
 		h.logger.Error("Failed to get all purchase orders", "error", err)
 		return nil, err

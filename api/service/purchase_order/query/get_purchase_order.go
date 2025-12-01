@@ -13,7 +13,7 @@ import (
 type GetPurchaseOrder struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	PORepo repository.PurchaseOrderRepository
+	PORepo repository.PurchaseOrder
 }
 
 type GetPurchaseOrderRequest struct {
@@ -27,7 +27,7 @@ type GetPurchaseOrderResult struct {
 func NewGetPurchaseOrderHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrderRepository,
+	poRepo repository.PurchaseOrder,
 ) *GetPurchaseOrder {
 	return &GetPurchaseOrder{
 		logger: logger,
@@ -37,7 +37,9 @@ func NewGetPurchaseOrderHandler(
 }
 
 func (h *GetPurchaseOrder) Handle(ctx context.Context, req *GetPurchaseOrderRequest) (*GetPurchaseOrderResult, error) {
-	po, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	po, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		h.logger.Error("Failed to get purchase order", "po_id", req.PurchaseOrderId, "error", err)
 		return nil, err

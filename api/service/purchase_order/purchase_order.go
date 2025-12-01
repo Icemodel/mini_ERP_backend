@@ -12,9 +12,9 @@ import (
 
 func RegisterPurchaseOrderHandler(db *gorm.DB, logger *slog.Logger) error {
 	// Initialize repositories
-	poRepo := repository.NewPurchaseOrderRepository(logger)
-	stockRepo := repository.NewStockTransactionRepository(logger)
-	productRepo := repository.NewProductRepository(logger)
+	poRepo := repository.NewPurchaseOrder(logger)
+	stockRepo := repository.NewStockTransaction(logger)
+	productRepo := repository.NewProduct(logger)
 
 	// Register command handlers
 	createPurchaseOrderHandler := command.NewCreatePurchaseOrderHandler(logger, db, poRepo, productRepo)

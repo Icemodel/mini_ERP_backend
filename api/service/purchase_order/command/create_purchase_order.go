@@ -14,8 +14,8 @@ import (
 type CreatePurchaseOrder struct {
 	logger      *slog.Logger
 	db          *gorm.DB
-	PORepo      repository.PurchaseOrderRepository
-	ProductRepo repository.ProductRepository
+	PORepo      repository.PurchaseOrder
+	ProductRepo repository.Product
 }
 
 type CreatePurchaseOrderRequest struct {
@@ -32,8 +32,8 @@ type CreatePurchaseOrderItem struct {
 func NewCreatePurchaseOrderHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrderRepository,
-	productRepo repository.ProductRepository,
+	poRepo repository.PurchaseOrder,
+	productRepo repository.Product,
 ) *CreatePurchaseOrder {
 	return &CreatePurchaseOrder{
 		logger:      logger,
@@ -58,7 +58,9 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 
 	for _, it := range req.Items {
 		// Fetch product to get cost price
-		product, err := h.ProductRepo.FindById(h.db, it.ProductId)
+		product, err := h.ProductRepo.Search(h.db, map[string]interface{}{
+			"product_id": it.ProductId,
+		}, "")
 		if err != nil {
 			tx.Rollback()
 			h.logger.Error("Product not found", "product_id", it.ProductId, "error", err)
@@ -107,7 +109,9 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 	}
 
 	// Fetch complete PO with relations
-	completePO, err := h.PORepo.FindById(h.db, po.PurchaseOrderId)
+	completePO, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": po.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		return nil, err
 	}

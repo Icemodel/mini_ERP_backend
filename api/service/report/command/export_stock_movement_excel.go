@@ -14,7 +14,7 @@ import (
 type ExportStockMovementExcel struct {
 	logger     *slog.Logger
 	db         *gorm.DB
-	reportRepo repository.ReportRepository
+	reportRepo repository.Report
 }
 
 type ExportStockMovementExcelRequest struct {
@@ -30,7 +30,7 @@ type ExportStockMovementExcelResult struct {
 func NewExportStockMovementExcelHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	reportRepo repository.ReportRepository,
+	reportRepo repository.Report,
 ) *ExportStockMovementExcel {
 	return &ExportStockMovementExcel{
 		logger:     logger,

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterSupplierHandler(logger *slog.Logger, db *gorm.DB, supplierRepo repository.SupplierRepository) {
+func RegisterSupplierHandler(logger *slog.Logger, db *gorm.DB, supplierRepo repository.Supplier) {
 	// Register command handlers
 	createSupplierHandler := command.NewCreateSupplierHandler(logger, db, supplierRepo)
 	updateSupplierHandler := command.NewUpdateSupplierHandler(logger, db, supplierRepo)

@@ -14,7 +14,7 @@ import (
 type CreateSupplier struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	SupplierRepo   repository.SupplierRepository
+	SupplierRepo   repository.Supplier
 }
 
 type CreateSupplierRequest struct {
@@ -25,7 +25,7 @@ type CreateSupplierRequest struct {
 }
 
 
-func NewCreateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *CreateSupplier {
+func NewCreateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *CreateSupplier {
 	return &CreateSupplier{
 		logger:       logger,
 		db:           db,

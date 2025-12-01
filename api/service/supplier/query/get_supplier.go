@@ -13,7 +13,7 @@ import (
 type GetSupplier struct {
 	logger       *slog.Logger
 	db           *gorm.DB
-	SupplierRepo repository.SupplierRepository
+	SupplierRepo repository.Supplier
 }
 
 type GetSupplierRequest struct {
@@ -24,7 +24,7 @@ type GetSupplierResult struct {
 	Supplier *model.Supplier `json:"supplier"`
 }
 
-func NewGetSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *GetSupplier {
+func NewGetSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetSupplier {
 	return &GetSupplier{
 		logger:       logger,
 		db:           db,

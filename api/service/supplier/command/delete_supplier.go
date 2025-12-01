@@ -12,14 +12,14 @@ import (
 type DeleteSupplier struct {
 	logger       *slog.Logger
 	db           *gorm.DB
-	SupplierRepo repository.SupplierRepository
+	SupplierRepo repository.Supplier
 }
 
 type DeleteSupplierRequest struct {
 	SupplierId uuid.UUID `json:"supplier_id"`
 }
 
-func NewDeleteSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *DeleteSupplier {
+func NewDeleteSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *DeleteSupplier {
 	return &DeleteSupplier{
 		logger:       logger,
 		db:           db,

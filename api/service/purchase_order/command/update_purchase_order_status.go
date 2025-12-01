@@ -15,8 +15,8 @@ import (
 type UpdatePOStatus struct {
 	logger    *slog.Logger
 	db        *gorm.DB
-	PORepo    repository.PurchaseOrderRepository
-	StockRepo repository.StockTransactionRepository
+	PORepo    repository.PurchaseOrder
+	StockRepo repository.StockTransaction
 }
 
 type UpdatePOStatusRequest struct {
@@ -27,8 +27,8 @@ type UpdatePOStatusRequest struct {
 func NewUpdatePOStatusHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrderRepository,
-	stockRepo repository.StockTransactionRepository,
+	poRepo repository.PurchaseOrder,
+	stockRepo repository.StockTransaction,
 ) *UpdatePOStatus {
 	return &UpdatePOStatus{
 		logger:    logger,
@@ -40,14 +40,16 @@ func NewUpdatePOStatusHandler(
 
 func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest) (interface{}, error) {
 	// Find PO
-	po, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	po, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		return nil, err
 	}
 
 	// If changing to RECEIVED, validate that items exist
 	if req.Status == model.Received {
-		items, err := h.PORepo.FindItemsByPOId(h.db, req.PurchaseOrderId)
+		items, err := h.PORepo.SearchItemsByPurchaseOrderId(h.db, req.PurchaseOrderId)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +76,7 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 	// If status is RECEIVED, create Stock IN transactions
 	if req.Status == model.Received {
 		// Get PO items
-		items, err := h.PORepo.FindItemsByPOId(h.db, req.PurchaseOrderId)
+		items, err := h.PORepo.SearchItemsByPurchaseOrderId(h.db, req.PurchaseOrderId)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -112,7 +114,9 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 	}
 
 	// Fetch updated PO
-	updatedPO, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	updatedPO, err := h.PORepo.Search(h.db, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		return nil, err
 	}

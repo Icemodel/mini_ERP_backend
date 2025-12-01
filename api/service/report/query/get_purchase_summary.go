@@ -11,7 +11,7 @@ import (
 type GetPurchaseSummary struct {
 	logger     *slog.Logger
 	db         *gorm.DB
-	reportRepo repository.ReportRepository
+	reportRepo repository.Report
 }
 
 type GetPurchaseSummaryRequest struct {
@@ -30,7 +30,7 @@ type GetPurchaseSummaryResult struct {
 func NewGetPurchaseSummaryHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	reportRepo repository.ReportRepository,
+	reportRepo repository.Report,
 ) *GetPurchaseSummary {
 	return &GetPurchaseSummary{
 		logger:     logger,

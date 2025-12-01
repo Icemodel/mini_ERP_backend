@@ -11,7 +11,7 @@ import (
 type GetStockSummary struct {
 	logger     *slog.Logger
 	db         *gorm.DB
-	reportRepo repository.ReportRepository
+	reportRepo repository.Report
 }
 
 type GetStockSummaryRequest struct{}
@@ -28,7 +28,7 @@ type GetStockSummaryResult struct {
 func NewGetStockSummaryHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
-	reportRepo repository.ReportRepository,
+	reportRepo repository.Report,
 ) *GetStockSummary {
 	return &GetStockSummary{
 		logger:     logger,

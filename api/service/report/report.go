@@ -11,7 +11,7 @@ import (
 )
 
 func RegisterReportHandlers(logger *slog.Logger, db *gorm.DB) error {
-	reportRepo := repository.NewReportRepository()
+	reportRepo := repository.NewReport()
 
 	// Register query handlers
 	getStockSummaryHandler := query.NewGetStockSummaryHandler(logger, db, reportRepo)

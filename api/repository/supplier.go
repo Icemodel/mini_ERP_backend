@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
-type SupplierRepository interface {
+type Supplier interface {
 	Create(tx *gorm.DB, supplier *model.Supplier) error
 	UpdateBySupplierId(tx *gorm.DB, supplierId uuid.UUID, supplier *model.Supplier) error
 	Delete(tx *gorm.DB, supplier *model.Supplier) error
@@ -15,17 +15,17 @@ type SupplierRepository interface {
 	Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.Supplier, error)
 }
 
-type supplierRepository struct {
+type supplier struct {
 	logger *slog.Logger
 }
 
-func NewSupplierRepository(logger *slog.Logger) SupplierRepository {
-	return &supplierRepository{
+func NewSupplier(logger *slog.Logger) Supplier {
+	return &supplier{
 		logger: logger,
 	}
 }
 
-func (r *supplierRepository) Create(tx *gorm.DB, supplier *model.Supplier) error {
+func (r *supplier) Create(tx *gorm.DB, supplier *model.Supplier) error {
 	err := tx.Create(supplier).Error
 	if err != nil {
 		r.logger.Error("Failed to create supplier", "error", err)
@@ -35,7 +35,7 @@ func (r *supplierRepository) Create(tx *gorm.DB, supplier *model.Supplier) error
 	return nil
 }
 
-func (r *supplierRepository) UpdateBySupplierId(tx *gorm.DB, supplierId uuid.UUID, supplier *model.Supplier) error {
+func (r *supplier) UpdateBySupplierId(tx *gorm.DB, supplierId uuid.UUID, supplier *model.Supplier) error {
 	if err := tx.Model(&model.Supplier{}).Where("supplier_id = ?", supplierId).Select("*").Omit("created_at").Updates(supplier).Error; err != nil {
 		r.logger.Error("Failed to update supplier", "error", err)
 		return err
@@ -43,7 +43,7 @@ func (r *supplierRepository) UpdateBySupplierId(tx *gorm.DB, supplierId uuid.UUI
 	return nil
 }
 
-func (r *supplierRepository) Delete(tx *gorm.DB, supplier *model.Supplier) error {
+func (r *supplier) Delete(tx *gorm.DB, supplier *model.Supplier) error {
 	if err := tx.Delete(supplier).Error; err != nil {
 		r.logger.Error("Failed to delete supplier", "error", err)
 		return err
@@ -51,7 +51,7 @@ func (r *supplierRepository) Delete(tx *gorm.DB, supplier *model.Supplier) error
 	return nil
 }
 
-func (r *supplierRepository) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.Supplier, error) {
+func (r *supplier) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.Supplier, error) {
 	suppliers := []model.Supplier{}
 
 	if err := db.Where(conditions).Order(orderBy).Limit(1).Find(&suppliers).Error; err != nil {
@@ -68,7 +68,7 @@ func (r *supplierRepository) Search(db *gorm.DB, conditions map[string]interface
 	return &suppliers[0], nil
 }
 
-func (r *supplierRepository) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.Supplier, error) {
+func (r *supplier) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.Supplier, error) {
 	suppliers := []*model.Supplier{}
 	if err := db.Where(conditions).Order(orderBy).Find(&suppliers).Error; err != nil {
 		r.logger.Error("Failed to get all suppliers", "error", err)
