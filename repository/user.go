@@ -21,11 +21,11 @@ type user struct {
 	logger *slog.Logger
 }
 
-func NewUserAuthen(logger *slog.Logger) User {
+func NewUser(logger *slog.Logger) User {
 	return &user{logger: logger}
 }
 
-func (r *userAuthen) Search(db *gorm.DB, username string) (*model.User, error) {
+func (r *user) Search(db *gorm.DB, username string) (*model.User, error) {
 	var user model.User
 	username = strings.TrimSpace(strings.ToLower(username))
 
