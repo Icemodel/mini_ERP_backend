@@ -47,19 +47,18 @@ func main() {
 	}
 
 	//region repository
-	userAuthenRepo := repository.NewUser(log.Slogger)
-	userRegisterRepo := repository.NewUserRegister(log.Slogger)
+	userRepo := repository.NewUser(log.Slogger)
 
 	//region service
-	auth.NewService(db, log.Slogger, jwtManager, userAuthenRepo)
-	register.NewService(db, log.Slogger, jwtManager, userRegisterRepo)
+	auth.NewService(db, log.Slogger, jwtManager, userRepo)
+	register.NewService(db, log.Slogger, jwtManager, userRepo)
 
 	//middleware
 	mid := middleware.NewFiberMiddleware(
 		db,
 		log.Slogger,
 		jwtManager,
-		userAuthenRepo,
+		userRepo,
 	)
 	app.Use(mid.CORS())
 

@@ -30,14 +30,14 @@ type UserRegister struct {
 	domainDb   *gorm.DB
 	logger     *slog.Logger
 	jwtManager jwt.Manager
-	regisRepo  repository.UserRegister
+	regisRepo  repository.User
 }
 
 func NewUserRegister(
 	domainDb *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	regisRepo repository.UserRegister,
+	regisRepo repository.User,
 ) *UserRegister {
 	return &UserRegister{
 		domainDb:   domainDb,
