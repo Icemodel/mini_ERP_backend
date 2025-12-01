@@ -20,7 +20,11 @@ type GetPurchaseSummaryRequest struct {
 }
 
 type GetPurchaseSummaryResult struct {
-	Summary []repository.PurchaseSummaryResult `json:"summary"`
+	Summary        []repository.PurchaseSummaryResult `json:"summary"`
+	TotalOrders    int64                              `json:"total_orders"`
+	TotalAmount    uint64                             `json:"total_amount"`
+	ReceivedOrders int64                              `json:"received_orders"`
+	ReceivedAmount uint64                             `json:"received_amount"`
 }
 
 func NewGetPurchaseSummaryHandler(
@@ -42,5 +46,25 @@ func (h *GetPurchaseSummary) Handle(ctx context.Context, req *GetPurchaseSummary
 		return nil, err
 	}
 
-	return &GetPurchaseSummaryResult{Summary: summary}, nil
+	var totalOrders int64
+	var totalAmount uint64
+	var receivedOrders int64
+	var receivedAmount uint64
+
+	for _, s := range summary {
+		totalOrders += s.TotalOrders
+		totalAmount += s.TotalAmount
+		if s.Status == "RECEIVED" {
+			receivedOrders = s.TotalOrders
+			receivedAmount = s.TotalAmount
+		}
+	}
+
+	return &GetPurchaseSummaryResult{
+		Summary:        summary,
+		TotalOrders:    totalOrders,
+		TotalAmount:    totalAmount,
+		ReceivedOrders: receivedOrders,
+		ReceivedAmount: receivedAmount,
+	}, nil
 }

@@ -38,12 +38,12 @@ func RegisterPurchaseOrderHandler(db *gorm.DB, logger *slog.Logger) error {
 	}
 
 	// Register query handlers
-	err = mediatr.RegisterRequestHandler(getPurchaseOrderHandler)
+	err = mediatr.RegisterRequestHandler[*query.GetPurchaseOrderRequest, *query.GetPurchaseOrderResult](getPurchaseOrderHandler)
 	if err != nil {
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler(getAllPurchaseOrdersHandler)
+	err = mediatr.RegisterRequestHandler[*query.GetAllPurchaseOrdersRequest, *query.GetAllPurchaseOrdersResult](getAllPurchaseOrdersHandler)
 	if err != nil {
 		return err
 	}

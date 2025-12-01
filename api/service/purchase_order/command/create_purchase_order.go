@@ -18,12 +18,12 @@ type CreatePurchaseOrder struct {
 }
 
 type CreatePurchaseOrderRequest struct {
-	SupplierId uuid.UUID       `json:"supplier_id" validate:"required"`
-	Items      []POItemRequest `json:"items" validate:"required,min=1"`
-	CreatedBy  string          `json:"created_by" validate:"required"`
+	SupplierId uuid.UUID                 `json:"supplier_id" validate:"required"`
+	CreatedBy  uuid.UUID                 `json:"created_by" validate:"required"`
+	Items      []CreatePurchaseOrderItem `json:"items" validate:"required,min=1,dive"`
 }
 
-type POItemRequest struct {
+type CreatePurchaseOrderItem struct {
 	ProductId uuid.UUID `json:"product_id" validate:"required"`
 	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
 	Price     float64   `json:"price" validate:"required,min=0"`
@@ -42,12 +42,6 @@ func NewCreatePurchaseOrderHandler(
 }
 
 func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrderRequest) (interface{}, error) {
-	// Calculate total amount
-	var totalAmount uint64
-	for _, item := range req.Items {
-		totalAmount += uint64(item.Price * float64(item.Quantity))
-	}
-
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -55,6 +49,12 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 			tx.Rollback()
 		}
 	}()
+
+	// Calculate total amount from items
+	var totalAmount uint64
+	for _, it := range req.Items {
+		totalAmount += uint64(it.Price * float64(it.Quantity))
+	}
 
 	// Create Purchase Order
 	po := &model.PurchaseOrder{
@@ -72,15 +72,14 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 	}
 
 	// Create Purchase Order Items
-	for _, itemReq := range req.Items {
+	for _, it := range req.Items {
 		item := &model.PurchaseOrderItem{
 			PurchaseOrderItemId: uuid.New(),
 			PurchaseOrderId:     po.PurchaseOrderId,
-			ProductId:           itemReq.ProductId,
-			Quantity:            itemReq.Quantity,
-			Price:               itemReq.Price,
+			ProductId:           it.ProductId,
+			Quantity:            it.Quantity,
+			Price:               it.Price,
 		}
-
 		if err := h.PORepo.CreateItem(tx, item); err != nil {
 			tx.Rollback()
 			return nil, err

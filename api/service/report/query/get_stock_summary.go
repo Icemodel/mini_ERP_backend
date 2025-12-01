@@ -17,7 +17,12 @@ type GetStockSummary struct {
 type GetStockSummaryRequest struct{}
 
 type GetStockSummaryResult struct {
-	Products []repository.StockSummaryResult `json:"products"`
+	Products          []repository.StockSummaryResult `json:"products"`
+	TotalStockOnHand  int64                           `json:"total_stock_on_hand"`
+	TotalCostValue    float64                         `json:"total_cost_value"`
+	TotalSellingValue float64                         `json:"total_selling_value"`
+	LowStock          []repository.StockSummaryResult `json:"low_stock"`
+	LowStockCount     int                             `json:"low_stock_count"`
 }
 
 func NewGetStockSummaryHandler(
@@ -39,5 +44,28 @@ func (h *GetStockSummary) Handle(ctx context.Context, req *GetStockSummaryReques
 		return nil, err
 	}
 
-	return &GetStockSummaryResult{Products: products}, nil
+	var totalStock int64
+	var totalCost float64
+	var totalSelling float64
+	var lowStock []repository.StockSummaryResult
+
+	for i := range products {
+		p := &products[i]
+		totalStock += p.StockOnHand
+		totalCost += p.TotalCostValue
+		totalSelling += p.TotalSellingValue
+		if p.StockOnHand < p.MinStock {
+			p.IsLowStock = true
+			lowStock = append(lowStock, *p)
+		}
+	}
+
+	return &GetStockSummaryResult{
+		Products:          products,
+		TotalStockOnHand:  totalStock,
+		TotalCostValue:    totalCost,
+		TotalSellingValue: totalSelling,
+		LowStock:          lowStock,
+		LowStockCount:     len(lowStock),
+	}, nil
 }

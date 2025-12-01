@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"mini-erp-backend/api/repository"
 	"mini-erp-backend/model"
@@ -19,9 +20,8 @@ type UpdatePOStatus struct {
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID                 `json:"purchase_order_id" validate:"required"`
+	PurchaseOrderId uuid.UUID               
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
-	UpdatedBy       string                    `json:"updated_by"`
 }
 
 func NewUpdatePOStatusHandler(
@@ -40,9 +40,21 @@ func NewUpdatePOStatusHandler(
 
 func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest) (interface{}, error) {
 	// Find PO
-	_, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
+	po, err := h.PORepo.FindById(h.db, req.PurchaseOrderId)
 	if err != nil {
 		return nil, err
+	}
+
+	// If changing to RECEIVED, validate that items exist
+	if req.Status == model.Received {
+		items, err := h.PORepo.FindItemsByPOId(h.db, req.PurchaseOrderId)
+		if err != nil {
+			return nil, err
+		}
+		if len(items) == 0 {
+			h.logger.Error("Cannot receive purchase order without items", "po_id", req.PurchaseOrderId)
+			return nil, errors.New("cannot receive purchase order without items")
+		}
 	}
 
 	// Begin transaction
@@ -78,7 +90,7 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				Reason:             stringPtr("Purchase Order Received"),
 				ReferenceId:        &req.PurchaseOrderId,
 				CreatedAt:          time.Now(),
-				CreatedBy:          req.UpdatedBy,
+				CreatedBy:          po.CreatedBy.String(),
 			}
 
 			if err := h.StockRepo.Create(tx, stockTx); err != nil {

@@ -33,7 +33,7 @@ func GetAllPurchaseOrders(logger *slog.Logger) fiber.Handler {
 		}
 		req.OrderBy = c.Query("order_by")
 
-		result, err := mediatr.Send[*query.GetAllPurchaseOrdersRequest, interface{}](c.Context(), &req)
+		result, err := mediatr.Send[*query.GetAllPurchaseOrdersRequest, *query.GetAllPurchaseOrdersResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to get all purchase orders", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -73,7 +73,7 @@ func GetPurchaseOrder(logger *slog.Logger) fiber.Handler {
 			PurchaseOrderId: poId,
 		}
 
-		result, err := mediatr.Send[*query.GetPurchaseOrderRequest, interface{}](c.Context(), req)
+		result, err := mediatr.Send[*query.GetPurchaseOrderRequest, *query.GetPurchaseOrderResult](c.Context(), req)
 		if err != nil {
 			logger.Error("Failed to get purchase order", "po_id", poId, "error", err)
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

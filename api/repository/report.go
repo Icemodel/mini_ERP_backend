@@ -32,6 +32,7 @@ type StockSummaryResult struct {
 	TotalSellingValue float64   `json:"total_selling_value"`
 	MinStock          int64     `json:"min_stock"`
 	CategoryName      string    `json:"category_name"`
+	IsLowStock        bool      `json:"is_low_stock"`
 }
 
 type StockMovementResult struct {

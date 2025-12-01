@@ -12,7 +12,7 @@ import (
 // GetStockSummary
 //
 //	@Summary		Get stock summary
-//	@Description	Get current stock summary for all products
+//	@Description	Get current stock summary including aggregates and low stock products
 //	@Tags			Report
 //	@Accept			json
 //	@Produce		json
@@ -42,8 +42,8 @@ func GetStockSummary(logger *slog.Logger) fiber.Handler {
 //	@Tags			Report
 //	@Accept			json
 //	@Produce		json
-//	@Param			from	query	string	true	"From date (YYYY-MM-DD)"
-//	@Param			to		query	string	true	"To date (YYYY-MM-DD)"
+//	@Param			from	query	string	true	"From date (DD-MM-YYYY)"
+//	@Param			to		query	string	true	"To date (DD-MM-YYYY)"
 //	@Success		200	{object}	query.GetStockMovementsResult
 //	@Failure		400	{object}	fiber.Map
 //	@Failure		500	{object}	fiber.Map
@@ -55,23 +55,25 @@ func GetStockMovements(logger *slog.Logger) fiber.Handler {
 
 		if fromStr == "" || toStr == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "from and to query parameters are required (format: YYYY-MM-DD)",
+				"error": "from and to query parameters are required (format: DD-MM-YYYY)",
 			})
 		}
 
-		fromDate, err := time.Parse("2006-01-02", fromStr)
+		// Parse DD-MM-YYYY format (layout: 02-01-2006)
+		fromDate, err := time.Parse("02-01-2006", fromStr)
 		if err != nil {
 			logger.Error("Invalid from date", "from", fromStr, "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid from date format (expected: YYYY-MM-DD)",
+				"error": "Invalid from date format (expected: DD-MM-YYYY)",
 			})
 		}
 
-		toDate, err := time.Parse("2006-01-02", toStr)
+		// Parse DD-MM-YYYY format (layout: 02-01-2006)
+		toDate, err := time.Parse("02-01-2006", toStr)
 		if err != nil {
 			logger.Error("Invalid to date", "to", toStr, "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid to date format (expected: YYYY-MM-DD)",
+				"error": "Invalid to date format (expected: DD-MM-YYYY)",
 			})
 		}
 
@@ -98,11 +100,11 @@ func GetStockMovements(logger *slog.Logger) fiber.Handler {
 // GetPurchaseSummary
 //
 //	@Summary		Get purchase summary
-//	@Description	Get purchase order summary by month
+//	@Description	Get purchase order summary by month including aggregate totals
 //	@Tags			Report
 //	@Accept			json
 //	@Produce		json
-//	@Param			month	query	string	true	"Month (YYYY-MM)"
+//	@Param			month	query	string	true	"Month (MM-YYYY)"
 //	@Success		200	{object}	query.GetPurchaseSummaryResult
 //	@Failure		400	{object}	fiber.Map
 //	@Failure		500	{object}	fiber.Map
@@ -113,16 +115,16 @@ func GetPurchaseSummary(logger *slog.Logger) fiber.Handler {
 
 		if monthStr == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "month query parameter is required (format: YYYY-MM)",
+				"error": "month query parameter is required (format: MM-YYYY)",
 			})
 		}
 
-		// Parse YYYY-MM format
-		monthDate, err := time.Parse("2006-01", monthStr)
+		// Parse MM-YYYY format (layout: 01-2006)
+		monthDate, err := time.Parse("01-2006", monthStr)
 		if err != nil {
 			logger.Error("Invalid month format", "month", monthStr, "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "Invalid month format (expected: YYYY-MM)",
+				"error": "Invalid month format (expected: MM-YYYY)",
 			})
 		}
 

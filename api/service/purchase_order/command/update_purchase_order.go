@@ -18,10 +18,15 @@ type UpdatePurchaseOrder struct {
 }
 
 type UpdatePurchaseOrderRequest struct {
-	PurchaseOrderId uuid.UUID       `json:"purchase_order_id" validate:"required"`
-	SupplierId      uuid.UUID       `json:"supplier_id" validate:"required"`
-	Items           []POItemRequest `json:"items" validate:"required,min=1"`
-	UpdatedBy       string          `json:"updated_by" validate:"required"`
+	PurchaseOrderId uuid.UUID 
+	SupplierId      uuid.UUID                 `json:"supplier_id" validate:"required"`
+	Items           []UpdatePurchaseOrderItem `json:"items" validate:"required,min=1,dive"`
+}
+
+type UpdatePurchaseOrderItem struct {
+	ProductId uuid.UUID `json:"product_id" validate:"required"`
+	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
+	Price     float64   `json:"price" validate:"required,min=0"`
 }
 
 
@@ -50,12 +55,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		return nil, errors.New("can only update draft purchase orders")
 	}
 
-	// Calculate total amount
-	var totalAmount uint64
-	for _, item := range req.Items {
-		totalAmount += uint64(item.Price * float64(item.Quantity))
-	}
-
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -63,6 +62,12 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 			tx.Rollback()
 		}
 	}()
+
+	// Calculate total amount from items
+	var totalAmount uint64
+	for _, it := range req.Items {
+		totalAmount += uint64(it.Price * float64(it.Quantity))
+	}
 
 	// Update PO
 	po.SupplierId = req.SupplierId
@@ -73,22 +78,20 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		return nil, err
 	}
 
-	// Delete old items
-	if err := h.PORepo.DeleteItemsByPOId(tx, req.PurchaseOrderId); err != nil {
+	// Delete existing items and replace with new items
+	if err := h.PORepo.DeleteItemsByPOId(tx, po.PurchaseOrderId); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	// Create new items
-	for _, itemReq := range req.Items {
+	for _, it := range req.Items {
 		item := &model.PurchaseOrderItem{
 			PurchaseOrderItemId: uuid.New(),
-			PurchaseOrderId:     req.PurchaseOrderId,
-			ProductId:           itemReq.ProductId,
-			Quantity:            itemReq.Quantity,
-			Price:               itemReq.Price,
+			PurchaseOrderId:     po.PurchaseOrderId,
+			ProductId:           it.ProductId,
+			Quantity:            it.Quantity,
+			Price:               it.Price,
 		}
-
 		if err := h.PORepo.CreateItem(tx, item); err != nil {
 			tx.Rollback()
 			return nil, err
