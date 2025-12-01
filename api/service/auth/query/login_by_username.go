@@ -19,9 +19,13 @@ type LoginRequest struct {
 }
 
 type LoginResult struct {
-	UserId   uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Role     string    `json:"role"`
+	UserId          uuid.UUID `json:"id"`
+	Username        string    `json:"username"`
+	Role            string    `json:"role"`
+	AccessToken     string    `json:"access_token"`
+	AccessTokenExp  int64     `json:"access_token_exp"`
+	RefreshToken    string    `json:"refresh_token"`
+	RefreshTokenExp int64     `json:"refresh_token_exp"`
 }
 
 type LoginByUsername struct {
@@ -73,7 +77,7 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 
 	// Generate token using role string
 	roleStr := string(creds.Role)
-	_, err = l.jwtManager.GenerateLoginToken(creds.UserId, roleStr)
+	token, err := l.jwtManager.GenerateLoginToken(creds.UserId, roleStr)
 	if err != nil {
 		if l.logger != nil {
 			l.logger.Error("generate token failed", "user", creds.UserId.String(), "error", err)
@@ -82,9 +86,13 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 	}
 
 	res := &LoginResult{
-		UserId:   creds.UserId,
-		Username: creds.Username,
-		Role:     string(creds.Role),
+		UserId:          creds.UserId,
+		Username:        creds.Username,
+		Role:            string(creds.Role),
+		AccessToken:     token.AccessToken,
+		AccessTokenExp:  token.AtExpires,
+		RefreshToken:    token.RefreshToken,
+		RefreshTokenExp: token.RtExpires,
 	}
 
 	return res, nil

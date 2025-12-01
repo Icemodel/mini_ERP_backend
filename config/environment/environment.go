@@ -7,10 +7,12 @@ import (
 )
 
 var (
-	AccessTokenSecret   = "LOGIN_ACCESS_SECRET"
-	RefreshTokenSecret  = "LOGIN_REFRESH_SECRET"
-	AccessTokenExpMins  = "LOGIN_ACCESS_EXP_MINS"
-	RefreshTokenExpMins = "LOGIN_REFRESH_EXP_MINS"
+	AccessTokenSecretKey   = "LOGIN_ACCESS_SECRET"
+	RefreshTokenSecretKey  = "LOGIN_REFRESH_SECRET"
+	AccessTokenExpMinsKey  = "LOGIN_ACCESS_EXP_MINS"
+	RefreshTokenExpMinsKey = "LOGIN_REFRESH_EXP_MINS"
+	AllowOriginKey         = "ORIGIN_ALLOWED"
+	AllowCredentialKey     = "ALLOW_CREDENTIALS"
 )
 
 func LoadEnvironment() {

@@ -68,10 +68,10 @@ func New(logger *slog.Logger) Manager {
 
 	return &manager{
 		loginConfig: loginConfig{
-			AccessExpMinsLogin:  environment.GetInt(environment.AccessTokenExpMins),
-			RefreshExpMinsLogin: environment.GetInt(environment.RefreshTokenExpMins),
-			AccessSecret:        environment.GetString(environment.AccessTokenSecret),
-			RefreshSecret:       environment.GetString(environment.RefreshTokenSecret),
+			AccessExpMinsLogin:  environment.GetInt(environment.AccessTokenExpMinsKey),
+			RefreshExpMinsLogin: environment.GetInt(environment.RefreshTokenExpMinsKey),
+			AccessSecret:        environment.GetString(environment.AccessTokenSecretKey),
+			RefreshSecret:       environment.GetString(environment.RefreshTokenSecretKey),
 		},
 		logger: logger,
 	}
@@ -189,7 +189,7 @@ func (m *manager) GenerateLoginToken(userId uuid.UUID, role string) (*LoginToken
 }
 
 func (m manager) ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error) {
-	secret := environment.GetString(environment.AccessTokenSecret)
+	secret := environment.GetString(environment.AccessTokenSecretKey)
 	if secret == "" {
 		errMsg := "access token secret from environment is empty"
 		m.logger.Error(errMsg)
@@ -233,7 +233,7 @@ func (m manager) GetAccessTokenFromContext(c *fiber.Ctx) (token string, err erro
 }
 
 func (m manager) ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error) {
-	secret := environment.GetString(environment.RefreshTokenSecret)
+	secret := environment.GetString(environment.RefreshTokenSecretKey)
 	if secret == "" {
 		errMsg := "refresh token secret from environment is empty"
 		m.logger.Error(errMsg)
