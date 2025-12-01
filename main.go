@@ -13,11 +13,14 @@ import (
 	"mini-erp-backend/model"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
 	app := fiber.New()
 	log := logging.New()
+
+	app.Use(cors.New())
 
 	environment.LoadEnvironment()
 
