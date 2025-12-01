@@ -39,8 +39,11 @@ func Register(app *fiber.App, logger *slog.Logger) {
 	reportGroup := v1.Group("/reports")
 	{
 		reportGroup.Get("/stock-summary", report.GetStockSummary(logger))
+		reportGroup.Get("/stock-summary/export", report.ExportStockSummaryCSV(logger))
 		reportGroup.Get("/stock-movements", report.GetStockMovements(logger))
+		reportGroup.Get("/stock-movements/export", report.ExportStockMovementExcel(logger))
 		reportGroup.Get("/purchase-summary", report.GetPurchaseSummary(logger))
+		reportGroup.Get("/purchase-summary/export", report.ExportPurchaseReportExcel(logger))
 	}
 
 	categoryGroupApi := v1.Group("/categories")

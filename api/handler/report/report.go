@@ -2,6 +2,7 @@ package report
 
 import (
 	"log/slog"
+	reportCommand "mini-erp-backend/api/service/report/command"
 	"mini-erp-backend/api/service/report/query"
 	"time"
 
@@ -142,5 +143,140 @@ func GetPurchaseSummary(logger *slog.Logger) fiber.Handler {
 		}
 
 		return c.Status(fiber.StatusOK).JSON(result)
+	}
+}
+
+// ExportStockSummaryCSV
+//
+//	@Summary		Export stock summary to CSV
+//	@Description	Export current stock summary to CSV file
+//	@Tags			Report
+//	@Produce		text/csv
+//	@Success		200	{file}	file
+//	@Failure		500	{object}	fiber.Map
+//	@Router			/api/v1/reports/stock-summary/export [get]
+func ExportStockSummaryCSV(logger *slog.Logger) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		req := &reportCommand.ExportStockSummaryCSVRequest{}
+
+		result, err := mediatr.Send[*reportCommand.ExportStockSummaryCSVRequest, *reportCommand.ExportStockSummaryCSVResult](c.Context(), req)
+		if err != nil {
+			logger.Error("Failed to export stock summary CSV", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to export stock summary",
+			})
+		}
+
+		c.Set("Content-Type", "text/csv")
+		c.Set("Content-Disposition", "attachment; filename="+result.Filename)
+		return c.Send(result.Data)
+	}
+}
+
+// ExportStockMovementExcel
+//
+//	@Summary		Export stock movements to Excel
+//	@Description	Export stock movements within a date range to Excel file
+//	@Tags			Report
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Param			from	query	string	true	"From date (DD-MM-YYYY)"
+//	@Param			to		query	string	true	"To date (DD-MM-YYYY)"
+//	@Success		200	{file}	file
+//	@Failure		400	{object}	fiber.Map
+//	@Failure		500	{object}	fiber.Map
+//	@Router			/api/v1/reports/stock-movements/export [get]
+func ExportStockMovementExcel(logger *slog.Logger) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		fromStr := c.Query("from")
+		toStr := c.Query("to")
+
+		if fromStr == "" || toStr == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "from and to query parameters are required (format: DD-MM-YYYY)",
+			})
+		}
+
+		fromDate, err := time.Parse("02-01-2006", fromStr)
+		if err != nil {
+			logger.Error("Invalid from date", "from", fromStr, "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid from date format (expected: DD-MM-YYYY)",
+			})
+		}
+
+		toDate, err := time.Parse("02-01-2006", toStr)
+		if err != nil {
+			logger.Error("Invalid to date", "to", toStr, "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid to date format (expected: DD-MM-YYYY)",
+			})
+		}
+
+		toDate = toDate.Add(24*time.Hour - time.Second)
+
+		req := &reportCommand.ExportStockMovementExcelRequest{
+			FromDate: fromDate,
+			ToDate:   toDate,
+		}
+
+		result, err := mediatr.Send[*reportCommand.ExportStockMovementExcelRequest, *reportCommand.ExportStockMovementExcelResult](c.Context(), req)
+		if err != nil {
+			logger.Error("Failed to export stock movement Excel", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to export stock movements",
+			})
+		}
+
+		c.Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		c.Set("Content-Disposition", "attachment; filename="+result.Filename)
+		return c.Send(result.Data)
+	}
+}
+
+// ExportPurchaseReportExcel
+//
+//	@Summary		Export purchase report to Excel
+//	@Description	Export purchase order summary by month to Excel file
+//	@Tags			Report
+//	@Produce		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+//	@Param			month	query	string	true	"Month (MM-YYYY)"
+//	@Success		200	{file}	file
+//	@Failure		400	{object}	fiber.Map
+//	@Failure		500	{object}	fiber.Map
+//	@Router			/api/v1/reports/purchase-summary/export [get]
+func ExportPurchaseReportExcel(logger *slog.Logger) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		monthStr := c.Query("month")
+
+		if monthStr == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "month query parameter is required (format: MM-YYYY)",
+			})
+		}
+
+		monthDate, err := time.Parse("01-2006", monthStr)
+		if err != nil {
+			logger.Error("Invalid month format", "month", monthStr, "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid month format (expected: MM-YYYY)",
+			})
+		}
+
+		req := &reportCommand.ExportPurchaseReportExcelRequest{
+			Year:  monthDate.Year(),
+			Month: int(monthDate.Month()),
+		}
+
+		result, err := mediatr.Send[*reportCommand.ExportPurchaseReportExcelRequest, *reportCommand.ExportPurchaseReportExcelResult](c.Context(), req)
+		if err != nil {
+			logger.Error("Failed to export purchase report Excel", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to export purchase report",
+			})
+		}
+
+		c.Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+		c.Set("Content-Disposition", "attachment; filename="+result.Filename)
+		return c.Send(result.Data)
 	}
 }

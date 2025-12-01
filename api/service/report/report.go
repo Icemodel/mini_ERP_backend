@@ -3,6 +3,7 @@ package report
 import (
 	"log/slog"
 	"mini-erp-backend/api/repository"
+	reportCommand "mini-erp-backend/api/service/report/command"
 	"mini-erp-backend/api/service/report/query"
 
 	"github.com/mehdihadeli/go-mediatr"
@@ -28,6 +29,26 @@ func RegisterReportHandlers(logger *slog.Logger, db *gorm.DB) error {
 	}
 
 	err = mediatr.RegisterRequestHandler(getPurchaseSummaryHandler)
+	if err != nil {
+		return err
+	}
+
+	// Register export handlers
+	exportStockSummaryCSVHandler := reportCommand.NewExportStockSummaryCSVHandler(logger, db, reportRepo)
+	exportStockMovementExcelHandler := reportCommand.NewExportStockMovementExcelHandler(logger, db, reportRepo)
+	exportPurchaseReportExcelHandler := reportCommand.NewExportPurchaseReportExcelHandler(logger, db, reportRepo)
+
+	err = mediatr.RegisterRequestHandler(exportStockSummaryCSVHandler)
+	if err != nil {
+		return err
+	}
+
+	err = mediatr.RegisterRequestHandler(exportStockMovementExcelHandler)
+	if err != nil {
+		return err
+	}
+
+	err = mediatr.RegisterRequestHandler(exportPurchaseReportExcelHandler)
 	if err != nil {
 		return err
 	}
