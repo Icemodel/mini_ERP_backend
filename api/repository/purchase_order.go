@@ -119,8 +119,7 @@ func (r *purchaseOrder) DeleteItemsByPurchaseOrderId(tx *gorm.DB, poId uuid.UUID
 
 func (r *purchaseOrder) SearchItemsByPurchaseOrderId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error) {
 	items := []*model.PurchaseOrderItem{}
-	if err := db.Preload("Product").
-		Where("purchase_order_id = ?", poId).
+	if err := db.Where("purchase_order_id = ?", poId).
 		Find(&items).Error; err != nil {
 		r.logger.Error("Failed to search purchase order items", "error", err)
 		return nil, err

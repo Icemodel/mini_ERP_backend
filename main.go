@@ -35,19 +35,17 @@ func main() {
 	productRepo := repository.NewProduct(log.Slogger)
 	stockTransactionRepo := repository.NewStockTransaction(log.Slogger)
 	supplierRepo := repository.NewSupplier(log.Slogger)
+	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
+	reportRepo := repository.NewReport(log.Slogger)
 	// endregion
 
 	// region Service
 	category.NewService(log.Slogger, db, categoryRepo)
 	product.NewService(log.Slogger, db, productRepo, stockTransactionRepo)
 	stock_transaction.NewService(log.Slogger, db, stockTransactionRepo, productRepo)
-	supplier.RegisterSupplierHandler(log.Slogger, db, supplierRepo)
-	if err := purchase_order.RegisterPurchaseOrderHandler(db, log.Slogger); err != nil {
-		log.Slogger.Error("Failed to register purchase order handlers", "error", err)
-	}
-	if err := report.RegisterReportHandlers(log.Slogger, db); err != nil {
-		log.Slogger.Error("Failed to register report handlers", "error", err)
-	}
+	purchase_order.NewService(db, log.Slogger, purchase_orderRepo)
+	supplier.NewService(log.Slogger, db, supplierRepo)
+	report.NewService(log.Slogger, db, reportRepo)
 	// endregion
 
 	// region Migrations

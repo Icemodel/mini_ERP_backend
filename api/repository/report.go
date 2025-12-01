@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"log/slog"
 	"mini-erp-backend/model"
 	"time"
 
@@ -14,10 +15,14 @@ type Report interface {
 	GetPurchaseSummary(db *gorm.DB, year int, month int) ([]PurchaseSummaryResult, error)
 }
 
-type report struct{}
+type report struct{
+	logger *slog.Logger
+}
 
-func NewReport() Report {
-	return &report{}
+func NewReport(logger *slog.Logger) Report {
+	return &report{
+		logger: logger,
+	}
 }
 
 // Result structs

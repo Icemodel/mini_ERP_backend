@@ -10,8 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterReportHandlers(logger *slog.Logger, db *gorm.DB) error {
-	reportRepo := repository.NewReport()
+func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) error {
 
 	// Register query handlers
 	getStockSummaryHandler := query.NewGetStockSummaryHandler(logger, db, reportRepo)

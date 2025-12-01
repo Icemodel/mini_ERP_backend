@@ -97,7 +97,7 @@ func (r *stockTransaction) FindByProductAndReference(db *gorm.DB, productId uuid
 
 func (r *stockTransaction) GetLatestByProductAndReference(db *gorm.DB, productId uuid.UUID, referenceId uuid.UUID) (*model.StockTransaction, error) {
 	var stockTx model.StockTransaction
-	err := db.Where("product_id = ? AND reference_id = ?", productId, referenceId).
+	err := db.Where("product_id = ?", productId, referenceId).
 		Order("created_at DESC").
 		First(&stockTx).Error
 	if err != nil {
