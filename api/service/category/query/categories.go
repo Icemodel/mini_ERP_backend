@@ -16,11 +16,12 @@ type Categories struct {
 }
 
 type CategoriesRequest struct {
-	Page      int    `json:"page"`
-	PageSize  int    `json:"page_size"`
-	Search    string `json:"search"`     // ค้นหาทั้งชื่อและคำอธิบาย
-	SortBy    string `json:"sort_by"`    // ฟิลด์ที่ต้องการ sort
-	SortOrder string `json:"sort_order"` // asc หรือ desc
+	Page          int    `json:"page"`
+	PageSize      int    `json:"page_size"`
+	Search        string `json:"search"`         // ค้นหาทั้งชื่อและคำอธิบาย
+	SortBy        string `json:"sort_by"`        // ฟิลด์ที่ต้องการ sort
+	SortOrder     string `json:"sort_order"`     // asc หรือ desc
+	UsePagination bool   `json:"use_pagination"` // ใช้ pagination หรือไม่
 }
 
 type CategoriesResult struct {
@@ -64,7 +65,28 @@ func (c *Categories) Handle(ctx context.Context, request CategoriesRequest) (*Ca
 		}
 	}
 
-	// ดึงข้อมูลแบบ pagination เสมอ
+	// ตรวจสอบว่าจะใช้ pagination หรือไม่
+	if !request.UsePagination {
+		// ดึงข้อมูลทั้งหมดโดยไม่ใช้ pagination
+		result, err := c.categoryRepo.SearchWithFilters(c.db, filters, orderBy)
+		if err != nil {
+			c.logger.Error("Failed to get all categories", slog.String("error", err.Error()))
+			return nil, err
+		}
+
+		total := int64(len(result))
+		response := &CategoriesResult{
+			Categories: result,
+			Total:      total,
+			Page:       1,
+			PageSize:   int(total),
+			TotalPages: 1,
+		}
+
+		return response, nil
+	}
+
+	// ดึงข้อมูลแบบ pagination
 	result, total, err := c.categoryRepo.SearchWithFiltersAndPagination(c.db, filters, orderBy, request.Page, request.PageSize)
 	if err != nil {
 		c.logger.Error("Failed to get categories with pagination", slog.String("error", err.Error()))

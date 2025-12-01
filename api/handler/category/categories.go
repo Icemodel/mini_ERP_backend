@@ -11,6 +11,11 @@ import (
 
 func Categories(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		// ตรวจสอบว่ามี query parameters สำหรับ pagination หรือไม่
+		hasPageParam := c.Query("page") != ""
+		hasPageSizeParam := c.Query("pageSize") != ""
+		usePagination := hasPageParam || hasPageSizeParam
+
 		// รับ query parameters
 		page, _ := strconv.Atoi(c.Query("page", "1"))
 		pageSize, _ := strconv.Atoi(c.Query("pageSize", "10"))
@@ -32,11 +37,12 @@ func Categories(logger *slog.Logger) fiber.Handler {
 		}
 
 		request := query.CategoriesRequest{
-			Page:      page,
-			PageSize:  pageSize,
-			Search:    search,
-			SortBy:    sortBy,
-			SortOrder: sortOrder,
+			Page:          page,
+			PageSize:      pageSize,
+			Search:        search,
+			SortBy:        sortBy,
+			SortOrder:     sortOrder,
+			UsePagination: usePagination,
 		}
 
 		response, err := mediatr.Send[query.CategoriesRequest, *query.CategoriesResult](c.Context(), request)
