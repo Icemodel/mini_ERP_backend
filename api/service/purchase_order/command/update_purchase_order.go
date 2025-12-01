@@ -12,9 +12,10 @@ import (
 )
 
 type UpdatePurchaseOrder struct {
-	logger *slog.Logger
-	db     *gorm.DB
-	PORepo repository.PurchaseOrderRepository
+	logger      *slog.Logger
+	db          *gorm.DB
+	PORepo      repository.PurchaseOrderRepository
+	ProductRepo repository.ProductRepository
 }
 
 type UpdatePurchaseOrderRequest struct {
@@ -26,7 +27,6 @@ type UpdatePurchaseOrderRequest struct {
 type UpdatePurchaseOrderItem struct {
 	ProductId uuid.UUID `json:"product_id" validate:"required"`
 	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
-	Price     float64   `json:"price" validate:"required,min=0"`
 }
 
 
@@ -34,11 +34,13 @@ func NewUpdatePurchaseOrderHandler(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrderRepository,
+	productRepo repository.ProductRepository,
 ) *UpdatePurchaseOrder {
 	return &UpdatePurchaseOrder{
-		logger: logger,
-		db:     db,
-		PORepo: poRepo,
+		logger:      logger,
+		db:          db,
+		PORepo:      poRepo,
+		ProductRepo: productRepo,
 	}
 }
 
@@ -63,10 +65,22 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		}
 	}()
 
-	// Calculate total amount from items
+	// Fetch product prices and calculate total amount
 	var totalAmount uint64
+	itemPrices := make(map[uuid.UUID]float64)
+
 	for _, it := range req.Items {
-		totalAmount += uint64(it.Price * float64(it.Quantity))
+		// Fetch product to get cost price
+		product, err := h.ProductRepo.FindById(h.db, it.ProductId)
+		if err != nil {
+			tx.Rollback()
+			h.logger.Error("Product not found", "product_id", it.ProductId, "error", err)
+			return nil, err
+		}
+
+		// Store price snapshot
+		itemPrices[it.ProductId] = product.CostPrice
+		totalAmount += uint64(product.CostPrice * float64(it.Quantity))
 	}
 
 	// Update PO
@@ -90,7 +104,7 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 			PurchaseOrderId:     po.PurchaseOrderId,
 			ProductId:           it.ProductId,
 			Quantity:            it.Quantity,
-			Price:               it.Price,
+			Price:               itemPrices[it.ProductId],
 		}
 		if err := h.PORepo.CreateItem(tx, item); err != nil {
 			tx.Rollback()

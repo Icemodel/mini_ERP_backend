@@ -14,10 +14,11 @@ func RegisterPurchaseOrderHandler(db *gorm.DB, logger *slog.Logger) error {
 	// Initialize repositories
 	poRepo := repository.NewPurchaseOrderRepository(logger)
 	stockRepo := repository.NewStockTransactionRepository(logger)
+	productRepo := repository.NewProductRepository(logger)
 
 	// Register command handlers
-	createPurchaseOrderHandler := command.NewCreatePurchaseOrderHandler(logger, db, poRepo)
-	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrderHandler(logger, db, poRepo)
+	createPurchaseOrderHandler := command.NewCreatePurchaseOrderHandler(logger, db, poRepo, productRepo)
+	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrderHandler(logger, db, poRepo, productRepo)
 	updatePOStatusHandler := command.NewUpdatePOStatusHandler(logger, db, poRepo, stockRepo)
 	getPurchaseOrderHandler := query.NewGetPurchaseOrderHandler(logger, db, poRepo)
 	getAllPurchaseOrdersHandler := query.NewGetAllPurchaseOrdersHandler(logger, db, poRepo)
