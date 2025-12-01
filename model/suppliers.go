@@ -7,7 +7,7 @@ import (
 )
 
 type Supplier struct {
-	SupplierId uuid.UUID `gorm:"type:uuid;primaryKey" json:"supplier_id"`
+	SupplierId uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"supplier_id"`
 	Name       string    `gorm:"not null" json:"name"`
 	Phone      string    `gorm:"not null" json:"phone"`
 	Email      string    `gorm:"not null" json:"email"`
