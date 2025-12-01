@@ -32,16 +32,17 @@ func NewGetSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Sup
 	}
 }
 
-func (h *GetSupplier) Handle(ctx context.Context, req *GetSupplierRequest) (interface{}, error) {
+func (h *GetSupplier) Handle(ctx context.Context, req *GetSupplierRequest) (*GetSupplierResult, error) {
 	// Find supplier by ID
-	supplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
+	supplier_id := map[string]interface{}{
 		"supplier_id": req.SupplierId,
-	}, "")
+	}
+	supplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
 	
 	if err != nil {
 		h.logger.Error("Failed to get supplier", "supplier_id", req.SupplierId, "error", err)
 		return nil, err
 	}
 
-	return GetSupplierResult{Supplier: supplier}, nil
+	return &GetSupplierResult{Supplier: supplier}, nil
 }

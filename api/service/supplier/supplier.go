@@ -15,9 +15,9 @@ func RegisterSupplierHandler(logger *slog.Logger, db *gorm.DB, supplierRepo repo
 	createSupplierHandler := command.NewCreateSupplierHandler(logger, db, supplierRepo)
 	updateSupplierHandler := command.NewUpdateSupplierHandler(logger, db, supplierRepo)
 	deleteSupplierHandler := command.NewDeleteSupplierHandler(logger, db, supplierRepo)
+	
 	getSupplierHandler := query.NewGetSupplierHandler(logger, db, supplierRepo)
 	getAllSuppliersHandler := query.NewGetAllSuppliersHandler(logger, db, supplierRepo)
-	searchSuppliersHandler := query.NewSearchSuppliersHandler(logger, db, supplierRepo)
 	
 	err := mediatr.RegisterRequestHandler(createSupplierHandler)
 	if err != nil {
@@ -41,11 +41,6 @@ func RegisterSupplierHandler(logger *slog.Logger, db *gorm.DB, supplierRepo repo
 	}
 
 	err = mediatr.RegisterRequestHandler(getAllSuppliersHandler)
-	if err != nil {
-		panic(err)
-	}
-
-	err = mediatr.RegisterRequestHandler(searchSuppliersHandler)
 	if err != nil {
 		panic(err)
 	}

@@ -16,7 +16,7 @@ type DeleteSupplier struct {
 }
 
 type DeleteSupplierRequest struct {
-	SupplierId uuid.UUID `json:"supplier_id" validate:"required"`
+	SupplierId uuid.UUID `json:"supplier_id"`
 }
 
 func NewDeleteSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.SupplierRepository) *DeleteSupplier {
@@ -29,9 +29,10 @@ func NewDeleteSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.
 
 func (h *DeleteSupplier) Handle(ctx context.Context, cmd *DeleteSupplierRequest) (interface{}, error) {
 	// Check if supplier exists
-	supplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
+	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
-	}, "")
+	}
+	supplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
 	if err != nil {
 		h.logger.Error("Supplier not found", "supplier_id", cmd.SupplierId)
 		return nil, err

@@ -7,6 +7,8 @@ import (
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/api/service/stock_transaction"
+	"mini-erp-backend/api/service/purchase_order"
+	"mini-erp-backend/api/service/report"
 	"mini-erp-backend/api/service/supplier"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
@@ -41,6 +43,12 @@ func main() {
 	product.NewService(log.Slogger, db, productRepo, stockTransactionRepo)
 	stock_transaction.NewService(log.Slogger, db, stockTransactionRepo, productRepo)
 	supplier.RegisterSupplierHandler(log.Slogger, db, supplierRepo)
+	if err := purchase_order.RegisterPurchaseOrderHandler(db, log.Slogger); err != nil {
+		log.Slogger.Error("Failed to register purchase order handlers", "error", err)
+	}
+	if err := report.RegisterReportHandlers(log.Slogger, db); err != nil {
+		log.Slogger.Error("Failed to register report handlers", "error", err)
+	}
 	// endregion
 
 	// region Migrations

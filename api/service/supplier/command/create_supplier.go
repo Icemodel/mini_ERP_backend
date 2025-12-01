@@ -6,6 +6,7 @@ import (
 	"mini-erp-backend/api/repository"
 	"mini-erp-backend/model"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,10 +18,10 @@ type CreateSupplier struct {
 }
 
 type CreateSupplierRequest struct {
-	Name    string `json:"name" validate:"required"`
-	Phone   string `json:"phone" validate:"required"`
-	Email   string `json:"email" validate:"required,email"`
-	Address string `json:"address" validate:"required"`
+	Name    string `json:"name"`
+	Phone   string `json:"phone"`
+	Email   string `json:"email"`
+	Address string `json:"address"`
 }
 
 
@@ -33,10 +34,14 @@ func NewCreateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.
 }
 
 func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest) (interface{}, error) {
+
 	// Check if email already exists
-	existingSupplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
+	email := map[string]interface{}{
 		"email": cmd.Email,
-	}, "")
+	}
+
+	existingSupplier, err := h.SupplierRepo.Search(h.db, email, "")
+	
 	if err == nil && existingSupplier != nil {
 		h.logger.Warn("Supplier with this email already exists", "email", cmd.Email)
 		return nil, gorm.ErrDuplicatedKey
@@ -52,10 +57,11 @@ func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest)
 
 	// Create supplier model
 	supplier := &model.Supplier{
-		Name:    cmd.Name,
-		Phone:   cmd.Phone,
-		Email:   cmd.Email,
-		Address: cmd.Address,
+		SupplierId: uuid.New(),
+		Name:       cmd.Name,
+		Phone:      cmd.Phone,
+		Email:      cmd.Email,
+		Address:    cmd.Address,
 	}
 
 	// Save to database

@@ -31,7 +31,7 @@ func NewGetAllSuppliersHandler(logger *slog.Logger, db *gorm.DB, repo repository
 	}
 }
 
-func (h *GetAllSuppliers) Handle(ctx context.Context, req *GetAllSuppliersRequest) (interface{}, error) {
+func (h *GetAllSuppliers) Handle(ctx context.Context, req *GetAllSuppliersRequest) (*GetAllSuppliersResult, error) {
 	// Set default order by
 	orderBy := req.OrderBy
 	if orderBy == "" {
@@ -39,11 +39,12 @@ func (h *GetAllSuppliers) Handle(ctx context.Context, req *GetAllSuppliersReques
 	}
 
 	// Get all suppliers from database
-	suppliers, err := h.SupplierRepo.Searches(h.db, map[string]interface{}{}, orderBy)
+	conditions := map[string]interface{}{}
+	suppliers, err := h.SupplierRepo.Searches(h.db, conditions, orderBy)
 	if err != nil {
 		h.logger.Error("Failed to get all suppliers", "error", err)
 		return nil, err
 	}
 
-	return GetAllSuppliersResult{Suppliers: suppliers}, nil
+	return &GetAllSuppliersResult{Suppliers: suppliers}, nil
 }

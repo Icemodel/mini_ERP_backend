@@ -33,9 +33,10 @@ func NewUpdateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.
 
 func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest) (interface{}, error) {
 	// Check if supplier exists
-	existingSupplier, err := h.SupplierRepo.Search(h.db, map[string]interface{}{
+	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
-	}, "")
+	}
+	existingSupplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
 	if err != nil {
 		h.logger.Error("Supplier not found", "supplier_id", cmd.SupplierId)
 		return nil, err
