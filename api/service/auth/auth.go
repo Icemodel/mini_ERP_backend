@@ -2,6 +2,7 @@ package auth
 
 import (
 	"log/slog"
+	"mini-erp-backend/api/service/auth/command"
 	"mini-erp-backend/api/service/auth/query"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/repository"
@@ -22,8 +23,19 @@ func NewService(
 		jwtManager,
 		userRepo,
 	)
+	RefreshLoginTokenService := command.NewRefreshLoginToken(
+		domainDb,
+		logger,
+		jwtManager,
+		userRepo,
+	)
 
 	err := mediatr.RegisterRequestHandler(LoginService)
+	if err != nil {
+		panic(err)
+	}
+
+	err = mediatr.RegisterRequestHandler(RefreshLoginTokenService)
 	if err != nil {
 		panic(err)
 	}

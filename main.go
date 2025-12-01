@@ -9,6 +9,7 @@ import (
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
+	"mini-erp-backend/middleware"
 	"mini-erp-backend/model"
 	"mini-erp-backend/repository"
 
@@ -44,24 +45,30 @@ func main() {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
 
-	// endregion
+	//region repository
+	userAuthenRepo := repository.NewUserAuthen(log.Slogger)
+	userRegisterRepo := repository.NewUserRegister(log.Slogger)
+
+	//region service
+	auth.NewService(db, log.Slogger, jwtManager, userAuthenRepo)
+	register.NewService(db, log.Slogger, jwtManager, userRegisterRepo)
+
+	//middleware
+	mid := middleware.NewFiberMiddleware(
+		db,
+		log.Slogger,
+		jwtManager,
+		userAuthenRepo,
+	)
+	app.Use(mid.CORS())
 
 	// region Routes
 	api.Register(
 		app,
 		log.Slogger,
 		jwtManager,
+		mid,
 	)
-
-	// endregion
-
-	//region repository
-	userAuthen := repository.NewUserAuthen(log.Slogger)
-	userRegister := repository.NewUserRegister(log.Slogger)
-
-	//region service
-	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
-	register.NewService(db, log.Slogger, jwtManager, userRegister)
 
 	app.Listen(":" + environment.GetString("PORT"))
 }

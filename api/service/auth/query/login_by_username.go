@@ -22,6 +22,8 @@ type LoginResult struct {
 	UserId          uuid.UUID `json:"id"`
 	Username        string    `json:"username"`
 	Role            string    `json:"role"`
+	FirstName       string    `json:"first_name"`
+	LastName        string    `json:"last_name"`
 	AccessToken     string    `json:"access_token"`
 	AccessTokenExp  int64     `json:"access_token_exp"`
 	RefreshToken    string    `json:"refresh_token"`
@@ -59,7 +61,7 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		return nil, errors.New("username and password are required")
 	}
 
-	creds, err := l.userRepo.Search(l.domainDb, username)
+	user, err := l.userRepo.Search(l.domainDb, username)
 	if err != nil {
 		if l.logger != nil {
 			l.logger.Error("user lookup failed", "username", username, "error", err)
@@ -67,8 +69,7 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		return nil, err
 	}
 
-	//ต้องมาแก้ให้ใช้ bcrypt
-	if err := bcrypt.CompareHashAndPassword([]byte(creds.Password), []byte(request.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
 		if l.logger != nil {
 			l.logger.Error("invalid credentials", "username", username)
 		}
@@ -76,19 +77,29 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 	}
 
 	// Generate token using role string
-	roleStr := string(creds.Role)
-	token, err := l.jwtManager.GenerateLoginToken(creds.UserId, roleStr)
+	roleStr := string(user.Role)
+	token, err := l.jwtManager.GenerateLoginToken(user.UserId, roleStr)
 	if err != nil {
 		if l.logger != nil {
-			l.logger.Error("generate token failed", "user", creds.UserId.String(), "error", err)
+			l.logger.Error("generate token failed", "user", user.UserId.String(), "error", err)
+		}
+		return nil, err
+	}
+
+	// persist access token to user record (for token validation/mismatch checks)
+	if err := l.userRepo.UpdateTokenByUserId(l.domainDb, user.UserId, &token.AccessToken); err != nil {
+		if l.logger != nil {
+			l.logger.Error("update user token failed", "user", user.UserId.String(), "error", err)
 		}
 		return nil, err
 	}
 
 	res := &LoginResult{
-		UserId:          creds.UserId,
-		Username:        creds.Username,
-		Role:            string(creds.Role),
+		UserId:          user.UserId,
+		Username:        user.Username,
+		Role:            string(user.Role),
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
 		AccessToken:     token.AccessToken,
 		AccessTokenExp:  token.AtExpires,
 		RefreshToken:    token.RefreshToken,
