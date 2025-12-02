@@ -24,7 +24,7 @@ type FiberMiddleware struct {
 	corsSetUp  corsSetUp
 	logger     *slog.Logger
 	jwtManager jwt.Manager
-	userRepo   repository.UserAuthen
+	userRepo   repository.User
 }
 
 type corsSetUp struct {
@@ -43,7 +43,7 @@ func getFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userAuthenRepo repository.UserAuthen,
+	userAuthenRepo repository.User,
 ) *FiberMiddleware {
 	if fiberMiddlewareInstance == nil {
 		fiberMiddlewareLock.Lock()
@@ -66,7 +66,7 @@ func NewFiberMiddleware(
 	db *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userAuthenRepo repository.UserAuthen,
+	userAuthenRepo repository.User,
 ) *FiberMiddleware {
 	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo)
 }
@@ -76,7 +76,7 @@ func createFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userRepo repository.UserAuthen,
+	userRepo repository.User,
 ) *FiberMiddleware {
 	allowCredential, err := strconv.ParseBool(environment.GetString(environment.AllowCredentialKey))
 	if err != nil {

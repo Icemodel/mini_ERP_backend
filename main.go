@@ -80,20 +80,21 @@ func main() {
 	// endregion
 
 	if err := db.AutoMigrate(
-		&model.User{},
-		&model.Category{},
-		&model.Supplier{},
-		&model.Product{},
-		&model.PurchaseOrder{},
-		&model.AuditLog{},
-		&model.PurchaseOrderItem{},
-		&model.StockTransaction{},
+		//&model.User{},
+		//&model.Category{},
+		//&model.Supplier{},
+		//&model.Product{},
+		//&model.PurchaseOrder{},
+		//&model.AuditLog{},
+		//&model.PurchaseOrderItem{},
+		//&model.StockTransaction{},
+		&model.UserSession{},
 	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
 
 	//region repository
-	userAuthenRepo := repository.NewUserAuthen(log.Slogger)
+	userAuthenRepo := repository.NewUser(log.Slogger)
 	userRegisterRepo := repository.NewUserRegister(log.Slogger)
 
 	//region service

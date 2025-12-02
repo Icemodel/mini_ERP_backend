@@ -28,14 +28,14 @@ type RefreshLoginToken struct {
 	domainDb   *gorm.DB
 	logger     *slog.Logger
 	jwtManager jwt.Manager
-	userRepo   repository.UserAuthen
+	userRepo   repository.User
 }
 
 func NewRefreshLoginToken(
 	domainDb *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userRepo repository.UserAuthen,
+	userRepo repository.User,
 ) *RefreshLoginToken {
 	return &RefreshLoginToken{
 		domainDb:   domainDb,
