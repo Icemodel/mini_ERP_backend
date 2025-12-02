@@ -15,13 +15,12 @@ import (
 //	@Description	Get details of a specific purchase order item
 //	@Tags			PurchaseOrderItem
 //	@Produce		json
-//	@Param			po_id	path	string	true	"Purchase Order ID"
 //	@Param			item_id	path	string	true	"Purchase Order Item ID"
 //	@Success		200	{object}	model.PurchaseOrderItem
 //	@Failure		400	{object}	api.ErrorResponse
 //	@Failure		404	{object}	api.ErrorResponse
 //	@Failure		500	{object}	api.ErrorResponse
-//	@Router			/purchase-orders/{po_id}/items/{item_id} [get]
+//	@Router			/purchase-order-items/item/{item_id} [get]
 func PurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		itemIdStr := c.Params("item_id")

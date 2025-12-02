@@ -29,7 +29,7 @@ func NewAllPurchaseOrderItems(
 }
 
 func (h *AllPurchaseOrderItems) Handle(ctx context.Context, req *AllPurchaseOrderItemsRequest) (interface{}, error) {
-	items, err := h.ItemRepo.Searches(h.db, map[string]interface{}{}, "")
+	items, err := h.ItemRepo.Searches(h.db, map[string]interface{}{}, "created_at DESC")
 	if err != nil {
 		return nil, err
 	}
