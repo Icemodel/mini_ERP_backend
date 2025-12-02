@@ -5,6 +5,8 @@ import (
 	"mini-erp-backend/model"
 
 	"github.com/google/uuid"
+
+
 	"gorm.io/gorm"
 )
 
@@ -13,6 +15,7 @@ type StockTransaction interface {
 	StockSummary(db *gorm.DB, productId uuid.UUID) (int64, int64, int64, error)
 	// Create
 	Create(tx *gorm.DB, transaction *model.StockTransaction) error
+	GetLatestByProduct(db *gorm.DB, productId uuid.UUID) (*model.StockTransaction, error)
 }
 
 type stockTransaction struct {
@@ -75,4 +78,19 @@ func (s *stockTransaction) GetTransactionsByProduct(db *gorm.DB, productId uuid.
 	}
 
 	return transactions, nil
+}
+
+func (r *stockTransaction) GetLatestByProduct(db *gorm.DB, productId uuid.UUID) (*model.StockTransaction, error) {
+	var stockTx model.StockTransaction
+	err := db.Where("product_id = ?", productId).
+		Order("created_at DESC").
+		First(&stockTx).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		r.logger.Error("Failed to find latest stock transaction", "error", err)
+		return nil, err
+	}
+	return &stockTx, nil
 }
