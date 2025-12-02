@@ -17,7 +17,8 @@ type PurchaseOrderItem struct {
 }
 
 type PurchaseOrderItemRequest struct {
-	PurchaseOrderItemId uuid.UUID `json:"purchase_order_item_id"`
+	PurchaseOrderItemId uuid.UUID
+	PurchaseOrderId     uuid.UUID
 }
 
 type PurchaseOrderItemResult struct {
@@ -39,8 +40,8 @@ func NewPurchaseOrderItem(
 func (h *PurchaseOrderItem) Handle(ctx context.Context, req *PurchaseOrderItemRequest) (*PurchaseOrderItemResult, error) {
 	item_id := map[string]interface{}{
 		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}
-	item, err := h.POItemRepo.Search(h.db, item_id, "")
+		"purchase_order_id":      req.PurchaseOrderId,
+	}, "Product")
 	if err != nil {
 		return nil, err
 	}

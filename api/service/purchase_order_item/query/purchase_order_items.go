@@ -13,7 +13,7 @@ import (
 type PurchaseOrderItems struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	POItemRepo repository.PurchaseOrderItem
+	PORepo repository.PurchaseOrder
 }
 
 type PurchaseOrderItemsRequest struct {
@@ -27,12 +27,12 @@ type PurchaseOrderItemsResult struct {
 func NewPurchaseOrderItems(
 	logger *slog.Logger,
 	db *gorm.DB,
-	POItemRepo repository.PurchaseOrderItem,
+	poRepo repository.PurchaseOrder,
 ) *PurchaseOrderItems {
 	return &PurchaseOrderItems{
 		logger: logger,
 		db:     db,
-		POItemRepo: POItemRepo,
+		PORepo: poRepo,
 	}
 }
 

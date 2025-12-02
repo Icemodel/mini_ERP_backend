@@ -15,12 +15,13 @@ import (
 //	@Tags			PurchaseOrderItem
 //	@Accept			json
 //	@Produce		json
+//	@Param			po_id	path	string	true	"Purchase Order ID"
 //	@Param			item	body	command.CreatePurchaseOrderItemRequest	true	"Item information"
 //	@Success		201	{object}	model.PurchaseOrderItem
 //	@Failure		400	{object}	api.ErrorResponse
 //	@Failure		404	{object}	api.ErrorResponse
 //	@Failure		500	{object}	api.ErrorResponse
-//	@Router			/purchase-order-items [post]
+//	@Router			/purchase-orders/{po_id}/items [post]
 func CreatePurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
