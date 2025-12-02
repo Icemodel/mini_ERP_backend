@@ -100,6 +100,73 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
+  command.UpdatePurchaseOrderItem:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        description: + เพิ่ม, - ลด
+        type: integer
+      reason:
+        description: REQUIRED สำหรับ ADJUST
+        type: string
+    type: object
+  command.StockAdjustResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
+  command.StockInRequest:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      reference_id:
+        type: string
+    type: object
+  command.StockInResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
+  command.StockOutRequest:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+    type: object
+  command.StockOutResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
   command.UpdatePOStatusRequest:
     properties:
       status:
@@ -134,6 +201,13 @@ definitions:
       name:
         type: string
       phone:
+        type: string
+    type: object
+  mini-erp-backend_api_service_category_command.CreateRequest:
+    properties:
+      description:
+        type: string
+      name:
         type: string
     type: object
   mini-erp-backend_api_service_category_command.CreateRequest:
@@ -1394,6 +1468,109 @@ paths:
       summary: Export stock summary to CSV
       tags:
       - Report
+  /stock/adjust:
+    post:
+      consumes:
+      - application/json
+      description: Adjust stock for a product
+      parameters:
+      - description: Stock Adjust Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockAdjustRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockAdjustResult'
+        "400":
+          description: 'Bad Request: Invalid input, reason required, or quantity cannot
+            be zero'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Adjust Stock
+      tags:
+      - StockTransaction
+  /stock/in:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock in for a product
+      parameters:
+      - description: Stock In Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockInRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockInResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error"s
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock In
+      tags:
+      - StockTransaction
+  /stock/out:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock out for a product
+      parameters:
+      - description: Stock Out Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockOutRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockOutResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock Out
+      tags:
+      - StockTransaction
   /stocks:
     get:
       consumes:

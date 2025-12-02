@@ -1290,6 +1290,162 @@
                 }
             }
         },
+        "/stock/adjust": {
+            "post": {
+                "description": "Adjust stock for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Adjust Stock",
+                "parameters": [
+                    {
+                        "description": "Stock Adjust Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockAdjustRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockAdjustResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input, reason required, or quantity cannot be zero",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stock/in": {
+            "post": {
+                "description": "Handle stock in for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Stock In",
+                "parameters": [
+                    {
+                        "description": "Stock In Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockInResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\"s",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stock/out": {
+            "post": {
+                "description": "Handle stock out for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Stock Out",
+                "parameters": [
+                    {
+                        "description": "Stock Out Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockOutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockOutResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stocks": {
             "get": {
                 "description": "Get stock transactions list",
@@ -1894,15 +2050,7 @@
                 }
             }
         },
-        "command.UpdatePOStatusRequest": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "$ref": "#/definitions/model.PurchaseOrderStatus"
-                }
-            }
-        },
-        "command.UpdatePurchaseOrderItemRequest": {
+        "command.UpdatePurchaseOrderItem": {
             "type": "object",
             "required": [
                 "price",
@@ -1944,6 +2092,17 @@
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "mini-erp-backend_api_service_category_command.CreateRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
