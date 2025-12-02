@@ -89,9 +89,9 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
-  command.UpdatePOStatusRequest:
+  command.UpdatePurchaseOrderItemRequest:
     properties:
-      created_by:
+      purchaseOrderItemId:
         type: string
       status:
         $ref: '#/definitions/model.PurchaseOrderStatus'

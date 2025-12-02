@@ -19,7 +19,6 @@ type DeletePurchaseOrderItem struct {
 
 type DeletePurchaseOrderItemRequest struct {
 	PurchaseOrderItemId uuid.UUID
-	PurchaseOrderId     uuid.UUID
 }
 type DeletePurchaseOrderItemResult struct {
 	Deleted             bool      `json:"deleted"`
@@ -60,9 +59,18 @@ func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchas
 		}
 	}()
 
+	// Get existing item first to get purchase_order_id
+	item, err := h.POItemRepo.Search(tx, map[string]interface{}{
+		"purchase_order_item_id": req.PurchaseOrderItemId,
+	}, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	// Verify PO is DRAFT
 	po, err := h.PORepo.Search(tx, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
+		"purchase_order_id": item.PurchaseOrderId,
 	}, "")
 	if err != nil {
 		tx.Rollback()
