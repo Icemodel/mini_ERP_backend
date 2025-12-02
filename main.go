@@ -8,6 +8,7 @@ import (
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/api/service/purchase_order"
+	"mini-erp-backend/api/service/register"
 	"mini-erp-backend/api/service/report"
 	"mini-erp-backend/api/service/stock_transaction"
 	"mini-erp-backend/api/service/supplier"
@@ -48,6 +49,11 @@ func main() {
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))
 
+	defer func() {
+		sqlDB, _ := db.DB()
+		sqlDB.Close()
+	}()
+
 	fmt.Println(db)
 
 	// region Repository
@@ -58,6 +64,7 @@ func main() {
 	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
 	reportRepo := repository.NewReport(log.Slogger)
 	userAuthen := repository.NewUserAuthen(log.Slogger)
+	userRegister := repository.NewUserRegister(log.Slogger)
 	// endregion
 
 	// region Service
@@ -68,6 +75,7 @@ func main() {
 	supplier.NewService(log.Slogger, db, supplierRepo)
 	report.NewService(log.Slogger, db, reportRepo)
 	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
+
 	// endregion
 
 	if err := db.AutoMigrate(
@@ -89,7 +97,6 @@ func main() {
 	api.Register(
 		app,
 		log.Slogger,
-		jwtManager,
 	)
 
 	// endregion
@@ -99,4 +106,11 @@ func main() {
 
 		app.Listen(":" + environment.GetString("PORT"))
 	}
+	//region repository
+
+	//region service
+	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
+	register.NewService(db, log.Slogger, jwtManager, userRegister)
+
+	app.Listen(":" + environment.GetString("PORT"))
 }
