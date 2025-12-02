@@ -11,7 +11,7 @@ import (
 
 func RefreshLoginToken(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		req := &command.RefreshLoginTokenRequest{}
+		req := &command.RefreshAccessTokenRequest{}
 
 		if err := c.BodyParser(&req); err != nil {
 			if logger != nil {
@@ -20,7 +20,7 @@ func RefreshLoginToken(logger *slog.Logger) fiber.Handler {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": fmt.Sprintf("invalid request body: %v", err)})
 		}
 
-		response, err := mediatr.Send[*command.RefreshLoginTokenRequest, *command.RefreshLoginTokenResult](c.Context(), req)
+		response, err := mediatr.Send[*command.RefreshAccessTokenRequest, *command.RefreshAccessTokenResult](c.Context(), req)
 		if err != nil {
 			if logger != nil {
 				logger.Error("refresh token command failed", "error", err)

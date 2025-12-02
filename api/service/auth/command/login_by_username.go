@@ -1,10 +1,11 @@
-package query
+package command
 
 import (
 	"context"
 	"errors"
 	"log/slog"
 	"mini-erp-backend/lib/jwt"
+	"mini-erp-backend/model"
 	"mini-erp-backend/repository"
 	"strings"
 
@@ -28,6 +29,7 @@ type LoginResult struct {
 	AccessTokenExp  int64     `json:"access_token_exp"`
 	RefreshToken    string    `json:"refresh_token"`
 	RefreshTokenExp int64     `json:"refresh_token_exp"`
+	SessionId       uuid.UUID `json:"session_id"`
 }
 
 type LoginByUsername struct {
@@ -76,7 +78,6 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		return nil, err
 	}
 
-	// Generate token using role string
 	roleStr := string(user.Role)
 	token, err := l.jwtManager.GenerateLoginToken(user.UserId, roleStr)
 	if err != nil {
@@ -86,10 +87,18 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		return nil, err
 	}
 
-	// persist access token to user record (for token validation/mismatch checks)
-	if err := l.userRepo.UpdateTokenByUserId(l.domainDb, user.UserId, &token.AccessToken); err != nil {
+	session := &model.UserSession{
+		SessionId:    uuid.New(),
+		UserId:       user.UserId,
+		AccessToken:  token.AccessToken,
+		RefreshToken: token.RefreshToken,
+		Revoked:      false,
+	}
+
+	sessRepo := repository.NewUserSession(l.logger)
+	if err := sessRepo.Create(l.domainDb, session); err != nil {
 		if l.logger != nil {
-			l.logger.Error("update user token failed", "user", user.UserId.String(), "error", err)
+			l.logger.Error("create user session failed", "user", user.UserId.String(), "error", err)
 		}
 		return nil, err
 	}
@@ -104,6 +113,7 @@ func (l *LoginByUsername) Handle(ctx context.Context, request *LoginRequest) (*L
 		AccessTokenExp:  token.AtExpires,
 		RefreshToken:    token.RefreshToken,
 		RefreshTokenExp: token.RtExpires,
+		SessionId:       session.SessionId,
 	}
 
 	return res, nil

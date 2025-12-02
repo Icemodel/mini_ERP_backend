@@ -20,11 +20,12 @@ import (
 )
 
 type FiberMiddleware struct {
-	db         *gorm.DB
-	corsSetUp  corsSetUp
-	logger     *slog.Logger
-	jwtManager jwt.Manager
-	userRepo   repository.User
+	db          *gorm.DB
+	corsSetUp   corsSetUp
+	logger      *slog.Logger
+	jwtManager  jwt.Manager
+	userRepo    repository.User
+	sessionRepo repository.UserSession
 }
 
 type corsSetUp struct {
@@ -44,6 +45,7 @@ func getFiberMiddlewareInstance(
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
 	userAuthenRepo repository.User,
+	sessionRepo repository.UserSession,
 ) *FiberMiddleware {
 	if fiberMiddlewareInstance == nil {
 		fiberMiddlewareLock.Lock()
@@ -54,6 +56,7 @@ func getFiberMiddlewareInstance(
 				logger,
 				jwtManager,
 				userAuthenRepo,
+				sessionRepo,
 			)
 		}
 	}
@@ -67,8 +70,9 @@ func NewFiberMiddleware(
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
 	userAuthenRepo repository.User,
+	sessionRepo repository.UserSession,
 ) *FiberMiddleware {
-	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo)
+	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo, sessionRepo)
 }
 
 // create the fiberMiddlewareInstance and set up it
@@ -77,6 +81,7 @@ func createFiberMiddlewareInstance(
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
 	userRepo repository.User,
+	sessionRepo repository.UserSession,
 ) *FiberMiddleware {
 	allowCredential, err := strconv.ParseBool(environment.GetString(environment.AllowCredentialKey))
 	if err != nil {
@@ -90,10 +95,11 @@ func createFiberMiddlewareInstance(
 			AllowOrigins:     environment.GetString(environment.AllowOriginKey),
 			AllowCredentials: allowCredential,
 		},
-		db:         db,
-		logger:     logger,
-		jwtManager: jwtManager,
-		userRepo:   userRepo,
+		db:          db,
+		logger:      logger,
+		jwtManager:  jwtManager,
+		userRepo:    userRepo,
+		sessionRepo: sessionRepo,
 	}
 }
 
@@ -117,31 +123,11 @@ func (f *FiberMiddleware) Authenticated() fiber.Handler {
 		if err != nil {
 			if jwt.IsTokenExpired(err) {
 				f.logger.Error(err.Error())
-				return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "access token expired"})
 			} else {
 				f.logger.Error(err.Error())
-				return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid access token"})
 			}
-		}
-
-		conditions := map[string]interface{}{
-			"user_id": claims.UserId,
-		}
-
-		userDataDetail, err := f.userRepo.SearchByConditions(f.db, conditions)
-		if err != nil {
-			f.logger.Error(err.Error())
-			return c.Status(fiber.StatusBadRequest).JSON(err.Error())
-		}
-
-		if userDataDetail.Token != nil {
-			if tokenStr != *userDataDetail.Token {
-				f.logger.Error("token mismatch")
-				return c.Status(fiber.StatusBadRequest).JSON("token mismatch")
-			}
-		} else {
-			f.logger.Error("token is nil")
-			return c.Status(fiber.StatusBadRequest).JSON("token is nil")
 		}
 
 		userData := utils.UserDataCtx{

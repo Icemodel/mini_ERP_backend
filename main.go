@@ -49,6 +49,9 @@ func main() {
 	//region repository
 	userRepo := repository.NewUser(log.Slogger)
 
+	// session repository (user sessions: access/refresh tokens)
+	sessionRepo := repository.NewUserSession(log.Slogger)
+
 	//region service
 	auth.NewService(db, log.Slogger, jwtManager, userRepo)
 	register.NewService(db, log.Slogger, jwtManager, userRepo)
@@ -59,6 +62,7 @@ func main() {
 		log.Slogger,
 		jwtManager,
 		userRepo,
+		sessionRepo,
 	)
 	app.Use(mid.CORS())
 
