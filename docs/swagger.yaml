@@ -1,0 +1,82 @@
+basePath: /api/v1
+definitions:
+  model.Category:
+    properties:
+      category_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  query.CategoriesResult:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is Mini ERP Backend API doc
+  termsOfService: http://swagger.io/terms/
+  title: Mini ERP Bakckend API
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get category list
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search term for name and description
+        in: query
+        name: search
+        type: string
+      - description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.CategoriesResult'
+      summary: Get Category list
+      tags:
+      - Category
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    description: 'Example of "Value": Bearer <your_token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
