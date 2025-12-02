@@ -19,6 +19,22 @@ type ProductQuery struct {
 	SortOrder  string     `query:"sortOrder"`
 }
 
+// Products is a function to get all products
+//
+//	@Summary		Get Product list
+//	@Description	Get product list
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	query.ProductsResult
+//	@Router			/products [get]
+//
+//	@param			page		query	int		false	"Page number"
+//	@param			pageSize	query	int		false	"Number of items per page"
+//	@param			search		query	string	false	"Search term for name and description"
+//	@param			categoryId	query	string	false	"Filter by Category ID"
+//	@param			sortBy		query	string	false	"Field to sort by"
+//	@param			sortOrder	query	string	false	"Sort order (asc or desc)"
 func Products(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var q ProductQuery

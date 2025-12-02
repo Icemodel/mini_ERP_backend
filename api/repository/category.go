@@ -105,7 +105,7 @@ func (c category) SearchWithFilters(db *gorm.DB, filters CategorySearchFilters, 
 	// ค้นหาจาก search (ค้นหาทั้งชื่อและ description)
 	if filters.Search != "" {
 		searchPattern := "%" + filters.Search + "%"
-		query = query.Where("name LIKE ? OR description LIKE ?", searchPattern, searchPattern)
+		query = query.Where("name ILIKE ? OR description ILIKE ?", searchPattern, searchPattern)
 	}
 
 	// เรียงลำดับ
@@ -130,7 +130,7 @@ func (c category) SearchWithFiltersAndPagination(db *gorm.DB, filters CategorySe
 	// ค้นหาจาก search (ค้นหาทั้งชื่อและ description)
 	if filters.Search != "" {
 		searchPattern := "%" + filters.Search + "%"
-		query = query.Where("name LIKE ? OR description LIKE ?", searchPattern, searchPattern)
+		query = query.Where("name ILIKE ? OR description ILIKE ?", searchPattern, searchPattern)
 	}
 
 	// นับจำนวนทั้งหมด

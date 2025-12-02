@@ -9,6 +9,17 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// DeleteById is a function to delete category by id
+//
+//	@Summary		Delete Category by ID
+//	@Description	Delete category by ID
+//	@Tags			Category
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	command.DeleteByIdResult
+//	@Router			/categories/{id} [delete]
+//
+//	@param			id	path	string	true	"Category ID"
 func DeleteById(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		categoryIdParam := c.Params("id")

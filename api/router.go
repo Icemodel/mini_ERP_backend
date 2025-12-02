@@ -33,6 +33,7 @@ func Register(app *fiber.App, logger *slog.Logger) {
 
 	stockGroupApi := v1.Group("/stocks")
 	{
+		stockGroupApi.Get("/", stocktransaction_handler.StockTransactions(logger))
 		stockGroupApi.Post("/in", stocktransaction_handler.StockIn(logger))
 		stockGroupApi.Post("/out", stocktransaction_handler.StockOut(logger))
 		stockGroupApi.Post("/adjust", stocktransaction_handler.StockAdjust(logger))

@@ -9,6 +9,17 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// CategoryById is a function to get category by id
+//
+//	@Summary		Get Category by ID
+//	@Description	Get category by ID
+//	@Tags			Category
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	query.CategoryByIdResult
+//	@Router			/categories/{id} [get]
+//
+//	@param			id	path	string	true	"Category ID"
 func CategoryById(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

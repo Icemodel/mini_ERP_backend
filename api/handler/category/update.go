@@ -10,6 +10,19 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// Update is a function to update category by id
+//
+//	@Summary		Update Category by ID
+//	@Description	Update category by ID
+//	@Tags			Category
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	command.UpdateResult
+//	@Router			/categories/{id} [put]
+//
+//	@param			id			path	string	true	"Category ID"
+//	@param			name		body	string	true	"Category Name"
+//	@param			description	body	string	false	"Category Description"
 func Update(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		categoryIdParam := c.Params("id")
