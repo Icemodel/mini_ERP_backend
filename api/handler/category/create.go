@@ -16,11 +16,12 @@ import (
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Success		201	{object}	command.CreateResult
+//	@Param			request	body		command.CreateRequest	true	"Create Request"
+//	@Success		201		{object}	command.CreateResult
+//	@Failure		409		{object}	map[string]string	"Conflict: Category already exists"
+//	@Failure		400		{object}	map[string]string	"Bad Request: Invalid input"
+//	@Failure		500		{object}	map[string]string	"Internal Server Error"
 //	@Router			/categories [post]
-//
-//	@param			name		body	string	true	"Category Name"
-//	@param			description	body	string	false	"Category Description"
 func Create(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.CreateRequest{}

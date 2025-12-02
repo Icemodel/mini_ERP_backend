@@ -17,12 +17,14 @@ import (
 //	@Tags			Category
 //	@Accept			json
 //	@Produce		json
-//	@Success		200	{object}	command.UpdateResult
+//	@param			id		path		string					true	"Category ID"
+//	@Param			request	body		command.UpdateRequest	true	"Update Request"
+//	@Success		200		{object}	command.UpdateResult
+//	@Failure		409		{object}	map[string]string		"Conflict: Category already exists"
+//	@Failure		400		{object}	map[string]string		"Bad Request: Invalid input"
+//	@Failure		404		{object}	map[string]string		"Not Found: Category does not exist"
+//	@Failure		500		{object}	map[string]string		"Internal Server Error"
 //	@Router			/categories/{id} [put]
-//
-//	@param			id			path	string	true	"Category ID"
-//	@param			name		body	string	true	"Category Name"
-//	@param			description	body	string	false	"Category Description"
 func Update(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		categoryIdParam := c.Params("id")
