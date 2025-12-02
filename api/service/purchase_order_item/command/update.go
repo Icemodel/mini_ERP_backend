@@ -18,7 +18,8 @@ type UpdatePurchaseOrderItem struct {
 }
 
 type UpdatePurchaseOrderItemRequest struct {
-	PurchaseOrderItemId uuid.UUID `json:"-" swaggerignore:"true"`
+	PurchaseOrderItemId uuid.UUID
+	PurchaseOrderId     uuid.UUID
 	Quantity            uint64 `json:"quantity" validate:"required,min=1"`
 }
 
@@ -44,21 +45,10 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		}
 	}()
 
-	// Get existing item first to get purchase_order_id
-	item_id := map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}
-	item, err := h.POItemRepo.Search(tx, item_id, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
 	// Verify PO is DRAFT
-	po_id := map[string]interface{}{
-		"purchase_order_id": item.PurchaseOrderId,
-	}
-	po, err := h.PORepo.Search(tx, po_id, "")
+	po, err := h.PORepo.Search(tx, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -70,10 +60,25 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		return nil, gorm.ErrInvalidData
 	}
 
+	// Get existing item
+	item, err := h.POItemRepo.Search(tx, map[string]interface{}{
+		"purchase_order_item_id": req.PurchaseOrderItemId,
+		"purchase_order_id":      req.PurchaseOrderId,
+	}, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	// Update quantity
 	item.Quantity = req.Quantity
 
 	if err := h.POItemRepo.Update(tx, req.PurchaseOrderItemId, item); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
 		return nil, err
 	}
