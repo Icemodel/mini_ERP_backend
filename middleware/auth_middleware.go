@@ -124,10 +124,10 @@ func (f *FiberMiddleware) Authenticated() fiber.Handler {
 			if jwt.IsTokenExpired(err) {
 				f.logger.Error(err.Error())
 				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "access token expired"})
-			} else {
-				f.logger.Error(err.Error())
-				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid access token"})
 			}
+
+			f.logger.Error(err.Error())
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid access token"})
 		}
 
 		userData := utils.UserDataCtx{

@@ -21,7 +21,7 @@ func Register(
 	authGroupApi := v1.Group("/auth")
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
-		authGroupApi.Post("/token/refresh", auth_handler.RefreshLoginToken(logger))
+		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
 	}
 	roleGroupApi := v1.Group("/role")
 	{

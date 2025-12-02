@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"mini-erp-backend/lib/jwt"
@@ -11,10 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type RefreshAccessTokenRequest struct {
-	AccessToken  string `json:"access_token" form:"access_token" query:"access_token"`
-	RefreshToken string `json:"refresh_token" form:"refresh_token" query:"refresh_token"`
-}
+type RefreshAccessTokenRequest struct{}
 
 type RefreshAccessTokenResult struct {
 	UserId         uuid.UUID `json:"user_id"`
@@ -29,6 +27,10 @@ type RefreshAccessToken struct {
 	jwtManager jwt.Manager
 	userRepo   repository.User
 }
+
+type refreshCtxKey string
+
+const RefreshTokenContextKey refreshCtxKey = "refresh_token"
 
 func NewRefreshAccessToken(
 	domainDb *gorm.DB,
@@ -46,7 +48,21 @@ func NewRefreshAccessToken(
 
 func (r *RefreshAccessToken) Handle(ctx context.Context, request *RefreshAccessTokenRequest) (*RefreshAccessTokenResult, error) {
 	var result *RefreshAccessTokenResult
-	claims, err := r.jwtManager.ExtractRefreshToken(request.RefreshToken)
+	// Read refresh token from context (set by HTTP handler)
+	var refreshToken string
+	if v := ctx.Value(RefreshTokenContextKey); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			refreshToken = s
+		}
+	}
+	if refreshToken == "" {
+		if r.logger != nil {
+			r.logger.Error("missing refresh token in context")
+		}
+		return nil, fmt.Errorf("missing refresh token")
+	}
+
+	claims, err := r.jwtManager.ExtractRefreshToken(refreshToken)
 	if err != nil {
 		if r.logger != nil {
 			r.logger.Error("failed to extract refresh token", "error", err)
@@ -59,9 +75,16 @@ func (r *RefreshAccessToken) Handle(ctx context.Context, request *RefreshAccessT
 
 	sessionRepo := repository.NewUserSession(r.logger)
 
-	session, err := sessionRepo.GetSessionByRefreshToken(r.domainDb, request.RefreshToken)
+	session, err := sessionRepo.GetSessionByRefreshToken(r.domainDb, refreshToken)
 
-	if err != nil || session == nil {
+	if err != nil {
+		if errors.Is(err, repository.ErrSessionRevoked) {
+			if r.logger != nil {
+				r.logger.Error("refresh token has been revoked", "error", err)
+			}
+			return nil, fmt.Errorf("refresh token revoked")
+		}
+
 		if r.logger != nil {
 			r.logger.Error("refresh token not found in session store", "error", err)
 		}
