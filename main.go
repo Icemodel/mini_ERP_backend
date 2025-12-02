@@ -41,11 +41,10 @@ import (
 func main() {
 	app := fiber.New()
 	log := logging.New()
+	environment.LoadEnvironment()
 
 	app.Use(cors.New())
 	jwtManager := jwt.New(log.Slogger)
-
-	environment.LoadEnvironment()
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))
 
@@ -63,7 +62,7 @@ func main() {
 	supplierRepo := repository.NewSupplier(log.Slogger)
 	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
 	reportRepo := repository.NewReport(log.Slogger)
-	userRepo := repository.NewUserAuthen(log.Slogger)
+	userRepo := repository.NewUser(log.Slogger)
 	sessionRepo := repository.NewUserSession(log.Slogger)
 	// endregion
 
@@ -93,10 +92,6 @@ func main() {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
 
-	//region service
-	auth.NewService(db, log.Slogger, jwtManager, userRepo)
-	register.NewService(db, log.Slogger, jwtManager, userRepo)
-
 	//middleware
 	mid := middleware.NewFiberMiddleware(
 		db,
@@ -122,7 +117,6 @@ func main() {
 
 		app.Listen(":" + environment.GetString("PORT"))
 	}
-	//region repository
 
 	//region service
 

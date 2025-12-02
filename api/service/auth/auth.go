@@ -2,9 +2,9 @@ package auth
 
 import (
 	"log/slog"
+	"mini-erp-backend/api/repository"
 	"mini-erp-backend/api/service/auth/command"
 	"mini-erp-backend/lib/jwt"
-	"mini-erp-backend/repository"
 
 	"github.com/mehdihadeli/go-mediatr"
 	"gorm.io/gorm"

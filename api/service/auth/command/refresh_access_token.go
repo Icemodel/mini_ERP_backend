@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"mini-erp-backend/api/repository"
 	"mini-erp-backend/lib/jwt"
-	"mini-erp-backend/repository"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

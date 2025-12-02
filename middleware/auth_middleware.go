@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"log/slog"
+	"mini-erp-backend/api/repository"
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
-	"mini-erp-backend/repository"
 	"mini-erp-backend/utils"
 	"os"
 	"strconv"

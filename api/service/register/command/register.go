@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"mini-erp-backend/api/repository"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/model"
-	"mini-erp-backend/repository"
 	"strings"
 
 	"github.com/google/uuid"
