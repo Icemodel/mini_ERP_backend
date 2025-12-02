@@ -57,6 +57,7 @@ type Manager interface {
 	GetAccessTokenFromContext(c *fiber.Ctx) (token string, err error)
 	ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error)
 	ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error)
+	GenerateAccessToken(userId uuid.UUID, role string) (*LoginTokenDetail, error)
 }
 
 func New(logger *slog.Logger) Manager {
@@ -188,46 +189,58 @@ func (m *manager) GenerateLoginToken(userId uuid.UUID, role string) (*LoginToken
 	return token, nil
 }
 
-func (m manager) ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error) {
-	secret := environment.GetString(environment.AccessTokenSecretKey)
-	if secret == "" {
+// GenerateAccessToken creates only an access token (no refresh token)
+func (m *manager) GenerateAccessToken(userId uuid.UUID, role string) (*LoginTokenDetail, error) {
+	if userId == uuid.Nil {
+		errMsg := "UserID is empty"
+		if m.logger != nil {
+			m.logger.Error(errMsg)
+		}
+		return nil, errors.New(errMsg)
+	}
+
+	accessSecret := m.loginConfig.AccessSecret
+	if accessSecret == "" {
 		errMsg := "access token secret from environment is empty"
 		m.logger.Error(errMsg)
 		return nil, errors.New(errMsg)
 	}
 
-	token, err := jwt.ParseWithClaims(tokenStr, &LoginAccessClaims{}, m.validateToken(secret))
+	accessExp := time.Now().Add(time.Duration(m.loginConfig.AccessExpMinsLogin) * time.Minute)
+
+	accessUUID := uuid.New().String()
+	loginAccessClaims := LoginAccessClaims{
+		AccessUuid: accessUUID,
+		Authorized: true,
+		UserId:     userId,
+		Role:       role,
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(accessExp),
+		},
+	}
+
+	accessToken, err := m.createJwt(accessSecret, loginAccessClaims)
 	if err != nil {
-		m.logger.Error("can not parse token", "error", err.Error())
+		if m.logger != nil {
+			m.logger.Error("failed to create access token", "error", err)
+		}
 		return nil, err
 	}
 
-	if claims, ok := token.Claims.(*LoginAccessClaims); ok {
-		return claims, nil
-	} else {
-		err = errors.New("unknown claims type, cannot proceed")
-		m.logger.Error("can not get claims", "error", err.Error())
-		return nil, err
+	token := &LoginTokenDetail{
+		AccessToken: accessToken,
+		AtExpires:   accessExp.Unix(),
+		AccessUuid:  accessUUID,
+		UserId:      userId,
 	}
+
+	return token, nil
 }
 
 func (m manager) GetAccessTokenFromContext(c *fiber.Ctx) (token string, err error) {
 	// Try to read Authorization header first
 	bearToken := strings.TrimSpace(c.Get("Authorization"))
-
-	// Fallback to cookie named `access_token` when header is absent
-	if bearToken == "" {
-		cookie := strings.TrimSpace(c.Cookies("access_token"))
-		if cookie != "" {
-			return strings.Trim(cookie, "\"'"), nil
-		}
-
-		errMsg := "token is empty"
-		if m.logger != nil {
-			m.logger.Debug(errMsg)
-		}
-		return "", errors.New(errMsg)
-	}
 
 	// Accept case-insensitive "bearer " prefix and tolerate extra whitespace or quoted token
 	lower := strings.ToLower(bearToken)
@@ -249,6 +262,29 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func (m manager) ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error) {
+	secret := environment.GetString(environment.AccessTokenSecretKey)
+	if secret == "" {
+		errMsg := "access token secret from environment is empty"
+		m.logger.Error(errMsg)
+		return nil, errors.New(errMsg)
+	}
+
+	token, err := jwt.ParseWithClaims(tokenStr, &LoginAccessClaims{}, m.validateToken(secret))
+	if err != nil {
+		m.logger.Error("can not parse token", "error", err.Error())
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*LoginAccessClaims); ok {
+		return claims, nil
+	} else {
+		err = errors.New("unknown claims type, cannot proceed")
+		m.logger.Error("can not get claims", "error", err.Error())
+		return nil, err
+	}
 }
 
 func (m manager) ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error) {

@@ -3,7 +3,6 @@ package auth
 import (
 	"log/slog"
 	"mini-erp-backend/api/service/auth/command"
-	"mini-erp-backend/api/service/auth/query"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/repository"
 
@@ -17,13 +16,13 @@ func NewService(
 	jwtManager jwt.Manager,
 	userRepo repository.User,
 ) {
-	LoginService := query.NewLoginByUsername(
+	LoginService := command.NewLoginByUsername(
 		domainDb,
 		logger,
 		jwtManager,
 		userRepo,
 	)
-	RefreshLoginTokenService := command.NewRefreshLoginToken(
+	RefreshLoginTokenService := command.NewRefreshAccessToken(
 		domainDb,
 		logger,
 		jwtManager,

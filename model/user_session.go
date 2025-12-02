@@ -11,8 +11,6 @@ type UserSession struct {
 	UserId       uuid.UUID `gorm:"type:uuid;not null;index" json:"user_id"`
 	AccessToken  string    `gorm:"not null;uniqueIndex" json:"access_token"`
 	RefreshToken string    `gorm:"not null;uniqueIndex" json:"refresh_token"`
-	IssuedAt     time.Time `gorm:"not null" json:"issued_at"`
-	ExpiresAt    time.Time `gorm:"not null" json:"expires_at"`
 	Revoked      bool      `gorm:"not null;default:false" json:"revoked"`
 	CreatedAt    time.Time `gorm:"not null;autoCreateTime" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"not null;autoUpdateTime" json:"updated_at"`
