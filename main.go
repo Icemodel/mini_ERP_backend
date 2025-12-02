@@ -14,10 +14,26 @@ import (
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/logging"
 
+	_ "mini-erp-backend/docs"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/swagger"
 )
 
+// Main function
+//
+//	@title						Mini ERP Bakckend API
+//	@version					1.0
+//	@description				This is Mini ERP Backend API doc
+//	@termsOfService				http://swagger.io/terms/
+//	@BasePath					/api/v1
+//
+//	@securityDefinitions.apikey	BearerAuth
+//	@in							header
+//	@name						Authorization
+//	@description				Example of "Value": Bearer <your_token>
+//	@securityDefinitions.basic	BasicAuth
 func main() {
 	app := fiber.New()
 	log := logging.New()
@@ -66,6 +82,10 @@ func main() {
 	// region Routes
 	api.Register(app, log.Slogger)
 	// endregion
+
+	if environment.GetString("ENV") == "development" {
+		app.Get("/swagger/*", swagger.HandlerDefault)
+	}
 
 	app.Listen(":" + environment.GetString("PORT"))
 }

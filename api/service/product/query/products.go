@@ -70,6 +70,23 @@ func (p *Products) Handle(ctx context.Context, request ProductsRequest) (*Produc
 		}
 	}
 
+	if request.Page <= 0 || request.PageSize <= 0 {
+		result, err := p.productRepo.SearchWithFilters(p.db, filters, "created_at DESC")
+		if err != nil {
+			p.logger.Error("Failed to get products", slog.String("error", err.Error()))
+			return nil, err
+		}
+
+		response := &ProductsResult{
+			Products:   result,
+			Total:      int64(len(result)),
+			Page:       1,
+			PageSize:   len(result),
+			TotalPages: 1,
+		}
+		return response, nil
+	}
+
 	// ดึงข้อมูลแบบ pagination เสมอ
 	result, total, err := p.productRepo.SearchWithFiltersAndPagination(p.db, filters, orderBy, request.Page, request.PageSize)
 	if err != nil {

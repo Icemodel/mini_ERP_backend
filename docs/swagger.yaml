@@ -1,0 +1,458 @@
+basePath: /api/v1
+definitions:
+  mini-erp-backend_api_service_category_command.CreateResult:
+    properties:
+      category:
+        $ref: '#/definitions/model.Category'
+    type: object
+  mini-erp-backend_api_service_category_command.DeleteByIdResult:
+    properties:
+      deleted:
+        type: boolean
+      message:
+        type: string
+    type: object
+  mini-erp-backend_api_service_category_command.UpdateResult:
+    properties:
+      category:
+        $ref: '#/definitions/model.Category'
+    type: object
+  mini-erp-backend_api_service_product_command.CreateResult:
+    properties:
+      product:
+        $ref: '#/definitions/model.Product'
+    type: object
+  model.Category:
+    properties:
+      category_id:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.Product:
+    properties:
+      category:
+        $ref: '#/definitions/model.Category'
+      category_id:
+        type: string
+      cost_price:
+        type: number
+      created_at:
+        type: string
+      min_stock:
+        type: integer
+      name:
+        type: string
+      product_code:
+        type: string
+      product_id:
+        type: string
+      selling_price:
+        type: number
+      unit:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.StockTransaction:
+    properties:
+      Product:
+        $ref: '#/definitions/model.Product'
+      created_at:
+        type: string
+      created_by:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      reference_id:
+        type: string
+      stock_transaction_id:
+        type: string
+      type:
+        allOf:
+        - $ref: '#/definitions/model.TransactionType'
+        description: e.g., "IN" or "OUT" or "ADJUST"
+    type: object
+  model.TransactionType:
+    enum:
+    - IN
+    - OUT
+    - ADJUST
+    type: string
+    x-enum-varnames:
+    - TransactionTypeIn
+    - TransactionTypeOut
+    - TransactionTypeAdjust
+  query.CategoriesResult:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  query.CategoryByIdResult:
+    properties:
+      category:
+        $ref: '#/definitions/model.Category'
+    type: object
+  query.ProductResult:
+    properties:
+      product:
+        $ref: '#/definitions/model.Product'
+    type: object
+  query.ProductsResult:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/model.Product'
+        type: array
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  query.StocksResult:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      stocks:
+        items:
+          $ref: '#/definitions/model.StockTransaction'
+        type: array
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: This is Mini ERP Backend API doc
+  termsOfService: http://swagger.io/terms/
+  title: Mini ERP Bakckend API
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get category list
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search term for name and description
+        in: query
+        name: search
+        type: string
+      - description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.CategoriesResult'
+      summary: Get Category list
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Category Description
+        in: body
+        name: description
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateResult'
+      summary: Create Category
+      tags:
+      - Category
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mini-erp-backend_api_service_category_command.DeleteByIdResult'
+      summary: Delete Category by ID
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: Get category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.CategoryByIdResult'
+      summary: Get Category by ID
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Update category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category Name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Category Description
+        in: body
+        name: description
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateResult'
+      summary: Update Category by ID
+      tags:
+      - Category
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get product list
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search term for name and description
+        in: query
+        name: search
+        type: string
+      - description: Filter by Category ID
+        in: query
+        name: categoryId
+        type: string
+      - description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.ProductsResult'
+      summary: Get Product list
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Create a new product
+      parameters:
+      - description: Product Code
+        in: body
+        name: ProductCode
+        required: true
+        schema:
+          type: string
+      - description: Category ID
+        in: body
+        name: CategoryId
+        required: true
+        schema:
+          type: string
+      - description: Product Name
+        in: body
+        name: Name
+        required: true
+        schema:
+          type: string
+      - description: Product CostPrice
+        in: body
+        name: CostPrice
+        required: true
+        schema:
+          type: number
+      - description: SellingPrice Product
+        in: body
+        name: SellingPrice
+        required: true
+        schema:
+          type: number
+      - description: Product Unit
+        in: body
+        name: Unit
+        required: true
+        schema:
+          type: string
+      - description: MinStock Product
+        in: body
+        name: MinStock
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/mini-erp-backend_api_service_product_command.CreateResult'
+      summary: Create Product
+      tags:
+      - Product
+  /products/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.ProductResult'
+      summary: Get Product by ID
+      tags:
+      - Product
+  /stocks:
+    get:
+      consumes:
+      - application/json
+      description: Get stock transactions list
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page
+        in: query
+        name: pageSize
+        type: integer
+      - description: Search term for quantity, type, and reason
+        in: query
+        name: search
+        type: string
+      - description: Filter by Product ID
+        in: query
+        name: productId
+        type: string
+      - description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.StocksResult'
+      summary: Get Stock Transactions list
+      tags:
+      - StockTransactions
+securityDefinitions:
+  BasicAuth:
+    type: basic
+  BearerAuth:
+    description: 'Example of "Value": Bearer <your_token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -9,6 +9,17 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// ProductById is a function to get product by id
+//
+//	@Summary		Get Product by ID
+//	@Description	Get product by ID
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	query.ProductResult
+//	@Router			/products/{id} [get]
+//
+//	@param			id	path	string	true	"Product ID"
 func ProductById(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		productIdParam := c.Params("id")

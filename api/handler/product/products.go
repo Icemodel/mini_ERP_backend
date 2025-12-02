@@ -1,52 +1,58 @@
 package product_handler
 
 import (
+	"fmt"
 	"log/slog"
 	"mini-erp-backend/api/service/product/query"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+type ProductQuery struct {
+	Page       int        `query:"page"`
+	PageSize   int        `query:"pageSize"`
+	Search     string     `query:"search"`
+	CategoryId *uuid.UUID `query:"categoryId"`
+	SortBy     string     `query:"sortBy"`
+	SortOrder  string     `query:"sortOrder"`
+}
+
+// Products is a function to get all products
+//
+//	@Summary		Get Product list
+//	@Description	Get product list
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	query.ProductsResult
+//	@Router			/products [get]
+//
+//	@param			page		query	int		false	"Page number"
+//	@param			pageSize	query	int		false	"Number of items per page"
+//	@param			search		query	string	false	"Search term for name and description"
+//	@param			categoryId	query	string	false	"Filter by Category ID"
+//	@param			sortBy		query	string	false	"Field to sort by"
+//	@param			sortOrder	query	string	false	"Sort order (asc or desc)"
 func Products(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		page, _ := strconv.Atoi(c.Query("page", "1"))
-		pageSize, _ := strconv.Atoi(c.Query("pageSize", "10"))
-		search := c.Query("search", "")
-		categoryId := c.Query("category_id", "")
-		sortBy := c.Query("sortBy", "")
-		sortOrder := c.Query("sortOrder", "")
+		var q ProductQuery
 
-		var parsedCategoryId *uuid.UUID
-		if categoryId != "" {
-			id, err := uuid.Parse(categoryId)
-			if err == nil {
-				parsedCategoryId = &id
-			}
-		}
-
-		// จัดการ page ให้ไม่ต่ำกว่า 1
-		if page < 1 {
-			page = 1
-		}
-
-		// จัดการ pageSize
-		if pageSize < 1 {
-			pageSize = 10 // ค่า default
-		}
-		if pageSize > 100 {
-			pageSize = 100 // จำกัดค่าสูงสุด
+		if err := c.QueryParser(&q); err != nil {
+			logger.Error("Failed to parse query parameters", slog.String("error", err.Error()))
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": fmt.Sprintf("Invalid query parameters: %v", err),
+			})
 		}
 
 		request := query.ProductsRequest{
-			Page:       page,
-			PageSize:   pageSize,
-			Search:     search,
-			CategoryId: parsedCategoryId,
-			SortBy:     sortBy,
-			SortOrder:  sortOrder,
+			Page:       q.Page,
+			PageSize:   q.PageSize,
+			Search:     q.Search,
+			CategoryId: q.CategoryId,
+			SortBy:     q.SortBy,
+			SortOrder:  q.SortOrder,
 		}
 
 		response, err := mediatr.Send[query.ProductsRequest, *query.ProductsResult](c.Context(), request)

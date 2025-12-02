@@ -66,23 +66,20 @@ func (c *Categories) Handle(ctx context.Context, request CategoriesRequest) (*Ca
 	}
 
 	// ตรวจสอบว่าจะใช้ pagination หรือไม่
-	if !request.UsePagination {
-		// ดึงข้อมูลทั้งหมดโดยไม่ใช้ pagination
-		result, err := c.categoryRepo.SearchWithFilters(c.db, filters, orderBy)
+	if request.Page <= 0 || request.PageSize <= 0 {
+		result, err := c.categoryRepo.SearchWithFilters(c.db, filters, "created_at DESC")
 		if err != nil {
-			c.logger.Error("Failed to get all categories", slog.String("error", err.Error()))
+			c.logger.Error("Failed to get categories", slog.String("error", err.Error()))
 			return nil, err
 		}
 
-		total := int64(len(result))
 		response := &CategoriesResult{
 			Categories: result,
-			Total:      total,
+			Total:      int64(len(result)),
 			Page:       1,
-			PageSize:   int(total),
+			PageSize:   len(result),
 			TotalPages: 1,
 		}
-
 		return response, nil
 	}
 
