@@ -19,7 +19,7 @@ import (
 // 	@Param			status		query	string	false	"Filter by status"
 // 	@Param			order_by	query	string	false	"Order by field"
 // 	@Success		200	{array}	model.PurchaseOrder
-// 	@Failure		500	{object}	fiber.Map
+// 	@Failure		500	{object}	api.ErrorResponse
 // 	@Router			/api/v1/purchase-orders [get]
 func AllPurchaseOrders(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {

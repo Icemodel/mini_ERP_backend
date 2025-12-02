@@ -18,8 +18,8 @@ import (
 // 	@Produce		json
 // 	@Param			month	query	string	true	"Month (MM-YYYY)"
 // 	@Success		200	{object}	query.PurchaseSummaryResult
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
+// 	@Failure		400	{object}	api.ErrorResponse
+// 	@Failure		500	{object}	api.ErrorResponse
 // 	@Router			/api/v1/reports/purchase-summary [get]
 func PurchaseSummary(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {

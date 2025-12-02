@@ -17,8 +17,8 @@ import (
 // 	@Produce		json
 // 	@Param			supplier	body	command.CreateSupplierRequest	true	"Supplier information"
 // 	@Success		201	{object}	model.Supplier
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
+// 	@Failure		400	{object}	api.ErrorResponse
+// 	@Failure		500	{object}	api.ErrorResponse
 // 	@Router			/api/v1/suppliers [post]
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {

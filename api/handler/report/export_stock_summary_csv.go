@@ -15,7 +15,7 @@ import (
 // 	@Tags			Report
 // 	@Produce		text/csv
 // 	@Success		200	{file}	file
-// 	@Failure		500	{object}	fiber.Map
+// 	@Failure		500	{object}	api.ErrorResponse
 // 	@Router			/api/v1/reports/stock-summary/export [get]
 func ExportStockSummaryCSV(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {

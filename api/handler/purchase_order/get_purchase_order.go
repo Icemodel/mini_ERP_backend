@@ -18,9 +18,9 @@ import (
 // 	@Produce		json
 // 	@Param			id	path	string	true	"Purchase Order ID (UUID)"
 // 	@Success		200	{object}	model.PurchaseOrder
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		404	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
+// 	@Failure		400	{object}	api.ErrorResponse
+// 	@Failure		404	{object}	api.ErrorResponse
+// 	@Failure		500	{object}	api.ErrorResponse
 // 	@Router			/api/v1/purchase-orders/{id} [get]
 func PurchaseOrder(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
