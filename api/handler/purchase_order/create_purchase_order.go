@@ -10,36 +10,36 @@ import (
 
 // CreatePurchaseOrder
 //
-// 	@Summary		Create a new purchase order
-// 	@Description	Create a new purchase order with items
-// 	@Tags			PurchaseOrder
-// 	@Accept			json
-// 	@Produce		json
-// 	@Param			purchaseOrder	body	command.CreatePurchaseOrderRequest	true	"Purchase Order information"
-// 	@Success		201	{object}	model.PurchaseOrder
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
-// 	@Router			/api/v1/purchase-orders [post]
+//	@Summary		Create a new purchase order
+//	@Description	Create a new purchase order with items
+//	@Tags			PurchaseOrder
+//	@Accept			json
+//	@Produce		json
+//	@Param			purchaseOrder	body		command.CreatePurchaseOrderRequest	true	"Purchase Order information"
+//	@Success		201				{object}	model.PurchaseOrder
+//	@Failure		400				{object}	fiber.Map
+//	@Failure		500				{object}	fiber.Map
+//	@Router			/api/v1/purchase-orders [post]
 func CreatePurchaseOrder(logger *slog.Logger) fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        var req command.CreatePurchaseOrderRequest
+	return func(c *fiber.Ctx) error {
+		var req command.CreatePurchaseOrderRequest
 
-        err := c.BodyParser(&req)
-        if err != nil {
-            logger.Error("Failed to parse request body", "error", err)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-                "error": "Invalid request body",
-            })
-        }
+		err := c.BodyParser(&req)
+		if err != nil {
+			logger.Error("Failed to parse request body", "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid request body",
+			})
+		}
 
-        result, err := mediatr.Send[*command.CreatePurchaseOrderRequest, interface{}](c.Context(), &req)
-        if err != nil {
-            logger.Error("Failed to create purchase order", "error", err)
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-                "error": err.Error(),
-            })
-        }
+		result, err := mediatr.Send[*command.CreatePurchaseOrderRequest, interface{}](c.Context(), &req)
+		if err != nil {
+			logger.Error("Failed to create purchase order", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": err.Error(),
+			})
+		}
 
-        return c.Status(fiber.StatusCreated).JSON(result)
-    }
+		return c.Status(fiber.StatusCreated).JSON(result)
+	}
 }

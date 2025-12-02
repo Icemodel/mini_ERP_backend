@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
 type Supplier interface {
 	Create(tx *gorm.DB, supplier *model.Supplier) error
 	UpdateBySupplierId(tx *gorm.DB, supplierId uuid.UUID, supplier *model.Supplier) error
@@ -76,4 +77,3 @@ func (r *supplier) Searches(db *gorm.DB, conditions map[string]interface{}, orde
 	}
 	return suppliers, nil
 }
-

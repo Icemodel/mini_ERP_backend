@@ -11,42 +11,42 @@ import (
 
 // UpdateSupplier
 //
-// 	@Summary		Update a supplier
-// 	@Description	Update supplier information by ID
-// 	@Tags			Supplier
-// 	@Accept			json
-// 	@Produce		json
-// 	@Param			id			path	string	true	"Supplier ID (UUID)"
-// 	@Param			supplier	body	command.UpdateSupplierRequest	true	"Updated supplier information"
-// 	@Success		200
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		404	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
-// 	@Router			/api/v1/suppliers/{id} [put]
+//	@Summary		Update a supplier
+//	@Description	Update supplier information by ID
+//	@Tags			Supplier
+//	@Accept			json
+//	@Produce		json
+//	@Param			id			path	string							true	"Supplier ID (UUID)"
+//	@Param			supplier	body	command.UpdateSupplierRequest	true	"Updated supplier information"
+//	@Success		200
+//	@Failure		400	{object}	fiber.Map
+//	@Failure		404	{object}	fiber.Map
+//	@Failure		500	{object}	fiber.Map
+//	@Router			/api/v1/suppliers/{id} [put]
 func UpdateSupplier(logger *slog.Logger) fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        idParam := c.Params("id")
-        supplierId, err := uuid.Parse(idParam)
-        if err != nil {
-            logger.Error("Invalid supplier ID", "error", err)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid supplier ID"})
-        }
+	return func(c *fiber.Ctx) error {
+		idParam := c.Params("id")
+		supplierId, err := uuid.Parse(idParam)
+		if err != nil {
+			logger.Error("Invalid supplier ID", "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid supplier ID"})
+		}
 
-        var req command.UpdateSupplierRequest
-        err = c.BodyParser(&req)
-        if err != nil {
-            logger.Error("Failed to parse request body", "error", err)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
-        }
+		var req command.UpdateSupplierRequest
+		err = c.BodyParser(&req)
+		if err != nil {
+			logger.Error("Failed to parse request body", "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+		}
 
-        req.SupplierId = supplierId
+		req.SupplierId = supplierId
 
-        _, err = mediatr.Send[*command.UpdateSupplierRequest, interface{}](c.Context(), &req)
-        if err != nil {
-            logger.Error("Failed to update supplier", "error", err)
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-        }
+		_, err = mediatr.Send[*command.UpdateSupplierRequest, interface{}](c.Context(), &req)
+		if err != nil {
+			logger.Error("Failed to update supplier", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
 
-        return c.SendStatus(fiber.StatusOK)
-    }
+		return c.SendStatus(fiber.StatusOK)
+	}
 }

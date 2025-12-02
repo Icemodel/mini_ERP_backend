@@ -9,6 +9,16 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// ProductStockSummary is a function to get product stock summary by its ID
+//
+//	@Summary		Get Product Stock Summary
+//	@Description	Get product stock summary by its ID
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Product ID"
+//	@Success		200	{object}	query.ProductStockSummaryResult
+//	@Router			/products/{id}/stock-summary [get]
 func ProductStockSummary(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		productIdParam := c.Params("id")

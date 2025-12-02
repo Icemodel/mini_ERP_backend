@@ -15,10 +15,10 @@ func NewService(logger *slog.Logger, db *gorm.DB, supplierRepo repository.Suppli
 	createSupplierHandler := command.NewCreateSupplier(logger, db, supplierRepo)
 	updateSupplierHandler := command.NewUpdateSupplier(logger, db, supplierRepo)
 	deleteSupplierHandler := command.NewDeleteSupplier(logger, db, supplierRepo)
-	
+
 	getSupplierHandler := query.NewSupplier(logger, db, supplierRepo)
 	getAllSuppliersHandler := query.NewAllSuppliers(logger, db, supplierRepo)
-	
+
 	err := mediatr.RegisterRequestHandler(createSupplierHandler)
 	if err != nil {
 		panic(err)

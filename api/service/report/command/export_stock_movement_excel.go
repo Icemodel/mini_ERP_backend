@@ -88,7 +88,7 @@ func (h *ExportStockMovementExcel) Handle(ctx context.Context, req *ExportStockM
 		f.SetCellValue(sheetName, fmt.Sprintf("E%d", row), m.CategoryName)
 		f.SetCellValue(sheetName, fmt.Sprintf("F%d", row), m.Type)
 		f.SetCellValue(sheetName, fmt.Sprintf("G%d", row), m.Quantity)
-		
+
 		reason := ""
 		if m.Reason != nil {
 			reason = *m.Reason

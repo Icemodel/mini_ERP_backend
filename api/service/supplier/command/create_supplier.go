@@ -10,11 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-
 type CreateSupplier struct {
-	logger *slog.Logger
-	db     *gorm.DB
-	SupplierRepo   repository.Supplier
+	logger       *slog.Logger
+	db           *gorm.DB
+	SupplierRepo repository.Supplier
 }
 
 type CreateSupplierRequest struct {
@@ -23,7 +22,6 @@ type CreateSupplierRequest struct {
 	Email   string `json:"email"`
 	Address string `json:"address"`
 }
-
 
 func NewCreateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *CreateSupplier {
 	return &CreateSupplier{
@@ -41,7 +39,7 @@ func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest)
 	}
 
 	existingSupplier, err := h.SupplierRepo.Search(h.db, email, "")
-	
+
 	if err == nil && existingSupplier != nil {
 		h.logger.Warn("Supplier with this email already exists", "email", cmd.Email)
 		return nil, gorm.ErrDuplicatedKey
