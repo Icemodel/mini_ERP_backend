@@ -153,7 +153,6 @@ func (f *FiberMiddleware) RequireMinRole(minRole string) fiber.Handler {
 	}
 
 	return func(c *fiber.Ctx) error {
-		// read local safely to avoid panics if not set
 		v := c.Locals(utils.CONTEXT_USER_DATA_KEY)
 		if v == nil {
 			f.logger.Error("authorization: user data missing in context")
@@ -166,7 +165,6 @@ func (f *FiberMiddleware) RequireMinRole(minRole string) fiber.Handler {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
 		}
 
-		// ensure role present
 		role := strings.ToLower(strings.TrimSpace(ud.Role))
 		if role == "" || ud.UserId == uuid.Nil {
 			f.logger.Error("authorization: role or user id missing in user data")
@@ -178,6 +176,43 @@ func (f *FiberMiddleware) RequireMinRole(minRole string) fiber.Handler {
 		}
 
 		f.logger.Error("authorization: forbidden", "required_min_role", minRole, "user_role", role)
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "forbidden role for this action"})
+	}
+}
+
+func (f *FiberMiddleware) RequireRole(roles ...string) fiber.Handler {
+	allowed := make(map[string]struct{}, len(roles))
+	for _, r := range roles {
+		rn := strings.ToLower(strings.TrimSpace(r))
+		if rn != "" {
+			allowed[rn] = struct{}{}
+		}
+	}
+
+	return func(c *fiber.Ctx) error {
+		v := c.Locals(utils.CONTEXT_USER_DATA_KEY)
+		if v == nil {
+			f.logger.Error("authorization: user data missing in context")
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		}
+
+		ud, ok := v.(utils.UserDataCtx)
+		if !ok {
+			f.logger.Error("authorization: invalid user data type in context")
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		}
+
+		role := strings.ToLower(strings.TrimSpace(ud.Role))
+		if role == "" || ud.UserId == uuid.Nil {
+			f.logger.Error("authorization: role or user id missing in user data")
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "role missing or invalid"})
+		}
+
+		if _, ok := allowed[role]; ok {
+			return c.Next()
+		}
+
+		f.logger.Error("authorization: forbidden", "required_roles", roles, "user_role", role)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "forbidden role for this action"})
 	}
 }

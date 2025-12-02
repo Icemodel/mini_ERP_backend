@@ -66,20 +66,24 @@ func Register(
 
 	productGroupApi := v1.Group("/products")
 	{
-		productGroupApi.Get("/", product_handler.Products(logger))
-		productGroupApi.Get("/:id", product_handler.ProductById(logger))
-		productGroupApi.Post("/", product_handler.Create(logger))
-		productGroupApi.Patch("/:id", product_handler.Update(logger))
-		productGroupApi.Delete("/:id", product_handler.DeleteById(logger))
-		productGroupApi.Get("/:id/stock-summary", product_handler.ProductStockSummary(logger))
+		productGroupApi.Use(mid.Authenticated())
+
+		productGroupApi.Get("/", mid.RequireMinRole("viewer"), product_handler.Products(logger))
+		productGroupApi.Get("/:id", mid.RequireMinRole("viewer"), product_handler.ProductById(logger))
+		productGroupApi.Post("/", mid.RequireMinRole("staff"), product_handler.Create(logger))
+		productGroupApi.Patch("/:id", mid.RequireMinRole("staff"), product_handler.Update(logger))
+		productGroupApi.Delete("/:id", mid.RequireMinRole("staff"), product_handler.DeleteById(logger))
+		productGroupApi.Get("/:id/stock-summary", mid.RequireMinRole("viewer"), product_handler.ProductStockSummary(logger))
 	}
 
 	stockGroupApi := v1.Group("/stocks")
 	{
-		stockGroupApi.Get("/", stocktransaction_handler.StockTransactions(logger))
-		stockGroupApi.Post("/in", stocktransaction_handler.StockIn(logger))
-		stockGroupApi.Post("/out", stocktransaction_handler.StockOut(logger))
-		stockGroupApi.Post("/adjust", stocktransaction_handler.StockAdjust(logger))
+		stockGroupApi.Use(mid.Authenticated())
+
+		stockGroupApi.Get("/", mid.RequireMinRole("viewer"), stocktransaction_handler.StockTransactions(logger))
+		stockGroupApi.Post("/in", mid.RequireMinRole("staff"), stocktransaction_handler.StockIn(logger))
+		stockGroupApi.Post("/out", mid.RequireMinRole("staff"), stocktransaction_handler.StockOut(logger))
+		stockGroupApi.Post("/adjust", mid.RequireMinRole("staff"), stocktransaction_handler.StockAdjust(logger))
 	}
 
 	authGroupApi := v1.Group("/auth")
@@ -87,10 +91,11 @@ func Register(
 		authGroupApi.Post("/login", auth_handler.Login(logger))
 		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
 	}
-	roleGroupApi := v1.Group("/role")
-	{
-		roleGroupApi.Use(mid.Authenticated())
 
-		roleGroupApi.Post("/register", mid.RequireMinRole("admin"), register_handler.Register(logger))
+	registerGroupApi := v1.Group("/register") // Test only
+	{
+		registerGroupApi.Use(mid.Authenticated())
+
+		registerGroupApi.Post("/", mid.RequireRole("admin"), register_handler.Register(logger))
 	}
 }
