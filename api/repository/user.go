@@ -15,6 +15,7 @@ type User interface {
 	SearchByConditions(db *gorm.DB, conditions map[string]interface{}) (*model.User, error)
 	UpdateTokenByUserId(db *gorm.DB, userId uuid.UUID, token *string) error
 	SearchUserByToken(db *gorm.DB, token string) (*model.User, error)
+	Create(db *gorm.DB, user model.User) error
 }
 
 type user struct {
@@ -86,4 +87,17 @@ func (r *user) SearchUserByToken(db *gorm.DB, token string) (*model.User, error)
 	}
 
 	return &user, nil
+}
+
+func (r *user) Create(
+	db *gorm.DB,
+	user model.User,
+) error {
+	if err := db.Create(&user).Error; err != nil {
+		if r.logger != nil {
+			r.logger.Error("create user failed", "error", err)
+		}
+		return err
+	}
+	return nil
 }

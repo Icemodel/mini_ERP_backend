@@ -14,7 +14,7 @@ func NewService(
 	domainDb *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	regisRepo repository.UserRegister,
+	regisRepo repository.User,
 ) {
 	RegisterService := command.NewUserRegister(
 		domainDb,
