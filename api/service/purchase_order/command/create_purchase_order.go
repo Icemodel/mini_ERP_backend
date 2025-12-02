@@ -77,7 +77,6 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 		PurchaseOrderId: uuid.New(),
 		SupplierId:      req.SupplierId,
 		Status:          model.Draft,
-		TotalAmount:     totalAmount,
 		CreatedAt:       time.Now(),
 		CreatedBy:       req.CreatedBy,
 	}

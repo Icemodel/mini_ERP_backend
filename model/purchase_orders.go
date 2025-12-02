@@ -10,7 +10,6 @@ type PurchaseOrder struct {
 	PurchaseOrderId uuid.UUID           `gorm:"type:uuid;default:uuid_generate_v4();primaryKey" json:"purchase_order_id"`
 	SupplierId      uuid.UUID           `gorm:"type:uuid;not null;" json:"supplier_id"`
 	Status          PurchaseOrderStatus `gorm:"not null" json:"status"`
-	TotalAmount     uint64              `gorm:"not null" json:"total_amount"`
 	CreatedAt       time.Time           `gorm:"not null" json:"created_at"`
 	CreatedBy       uuid.UUID           `gorm:"type:uuid;not null" json:"created_by"`
 

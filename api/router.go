@@ -24,44 +24,57 @@ func Register(
 ) {
 	v1 := app.Group("/api/v1")
 
+	// Auth routes
+	authGroupApi := v1.Group("/auth")
+	{
+		authGroupApi.Post("/login", auth_handler.Login(logger))
+		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
+	}
+
 	// Supplier routes
 	supplierGroup := v1.Group("/suppliers")
 	{
-		supplierGroup.Get("/", supplier.AllSuppliers(logger))
-		supplierGroup.Post("/", supplier.CreateSupplier(logger))
-		supplierGroup.Get("/:id", supplier.Supplier(logger))
-		supplierGroup.Put("/:id", supplier.UpdateSupplier(logger))
-		supplierGroup.Delete("/:id", supplier.DeleteSupplier(logger))
+		supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
+		supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
+		supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
+		supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
+		supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
 	}
 
 	// Purchase Order routes
 	purchaseOrderGroup := v1.Group("/purchase-orders")
 	{
-		purchaseOrderGroup.Get("/", purchase_order.AllPurchaseOrders(logger))
-		purchaseOrderGroup.Post("/", purchase_order.CreatePurchaseOrder(logger))
-		purchaseOrderGroup.Get("/:id", purchase_order.PurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id", purchase_order.UpdatePurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id/status", purchase_order.UpdatePurchaseOrderStatus(logger))
+		purchaseOrderGroup.Use(mid.Authenticated())
+
+		purchaseOrderGroup.Get("/", mid.RequireMinRole("viewer"), purchase_order.AllPurchaseOrders(logger))
+		purchaseOrderGroup.Post("/", mid.RequireMinRole("staff"), purchase_order.CreatePurchaseOrder(logger))
+		purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
 	}
 
 	// Report routes
 	reportGroup := v1.Group("/reports")
 	{
-		reportGroup.Get("/stock-summary", report.StockSummary(logger))
-		reportGroup.Get("/stock-summary/export", report.ExportStockSummaryCSV(logger))
-		reportGroup.Get("/stock-movements", report.StockMovements(logger))
-		reportGroup.Get("/stock-movements/export", report.ExportStockMovementExcel(logger))
-		reportGroup.Get("/purchase-summary", report.PurchaseSummary(logger))
-		reportGroup.Get("/purchase-summary/export", report.ExportPurchaseReportExcel(logger))
+		reportGroup.Use(mid.Authenticated())
+
+		reportGroup.Get("/stock-summary", mid.RequireMinRole("admin"), report.StockSummary(logger))
+		reportGroup.Get("/stock-summary/export", mid.RequireMinRole("admin"), report.ExportStockSummaryCSV(logger))
+		reportGroup.Get("/stock-movements", mid.RequireMinRole("admin"), report.StockMovements(logger))
+		reportGroup.Get("/stock-movements/export", mid.RequireMinRole("admin"), report.ExportStockMovementExcel(logger))
+		reportGroup.Get("/purchase-summary", mid.RequireMinRole("admin"), report.PurchaseSummary(logger))
+		reportGroup.Get("/purchase-summary/export", mid.RequireMinRole("admin"), report.ExportPurchaseReportExcel(logger))
 	}
 
 	categoryGroupApi := v1.Group("/categories")
 	{
-		categoryGroupApi.Get("/", category_handler.Categories(logger))
-		categoryGroupApi.Get("/:id", category_handler.CategoryById(logger))
-		categoryGroupApi.Post("/", category_handler.Create(logger))
-		categoryGroupApi.Patch("/:id", category_handler.Update(logger))
-		categoryGroupApi.Delete("/:id", category_handler.DeleteById(logger))
+		categoryGroupApi.Use(mid.Authenticated())
+
+		categoryGroupApi.Get("/", mid.RequireMinRole("viewer"), category_handler.Categories(logger))
+		categoryGroupApi.Get("/:id", mid.RequireMinRole("viewer"), category_handler.CategoryById(logger))
+		categoryGroupApi.Post("/", mid.RequireMinRole("admin"), category_handler.Create(logger))
+		categoryGroupApi.Patch("/:id", mid.RequireMinRole("admin"), category_handler.Update(logger))
+		categoryGroupApi.Delete("/:id", mid.RequireMinRole("admin"), category_handler.DeleteById(logger))
 	}
 
 	productGroupApi := v1.Group("/products")
@@ -86,12 +99,7 @@ func Register(
 		stockGroupApi.Post("/adjust", mid.RequireMinRole("staff"), stocktransaction_handler.StockAdjust(logger))
 	}
 
-	authGroupApi := v1.Group("/auth")
-	{
-		authGroupApi.Post("/login", auth_handler.Login(logger))
-		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
-	}
-
+	//Test Route (Add user regis)
 	registerGroupApi := v1.Group("/register") // Test only
 	{
 		registerGroupApi.Use(mid.Authenticated())

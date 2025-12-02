@@ -19,7 +19,7 @@ type UpdatePurchaseOrder struct {
 }
 
 type UpdatePurchaseOrderRequest struct {
-	PurchaseOrderId uuid.UUID 
+	PurchaseOrderId uuid.UUID
 	SupplierId      uuid.UUID                 `json:"supplier_id" validate:"required"`
 	Items           []UpdatePurchaseOrderItem `json:"items" validate:"required,min=1,dive"`
 }
@@ -28,7 +28,6 @@ type UpdatePurchaseOrderItem struct {
 	ProductId uuid.UUID `json:"product_id" validate:"required"`
 	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
 }
-
 
 func NewUpdatePurchaseOrder(
 	logger *slog.Logger,
@@ -91,7 +90,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 
 	// Update PO
 	po.SupplierId = req.SupplierId
-	po.TotalAmount = totalAmount
 
 	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
