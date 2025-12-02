@@ -18,6 +18,9 @@ import (
 //	@Produce		json
 //	@Param			request	body		command.CreateRequest	true	"Create Request"
 //	@Success		201		{object}	command.CreateResult
+//	@Failure		409		{object}	api.ErrorResponse	"Conflict: Product already exists"
+//	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input"
+//	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"
 //	@Router			/products [post]
 func Create(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {

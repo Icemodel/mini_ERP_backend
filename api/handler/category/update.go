@@ -20,10 +20,10 @@ import (
 //	@param			id		path		string					true	"Category ID"
 //	@Param			request	body		command.UpdateRequest	true	"Update Request"
 //	@Success		200		{object}	command.UpdateResult
-//	@Failure		409		{object}	map[string]string		"Conflict: Category already exists"
-//	@Failure		400		{object}	map[string]string		"Bad Request: Invalid input"
-//	@Failure		404		{object}	map[string]string		"Not Found: Category does not exist"
-//	@Failure		500		{object}	map[string]string		"Internal Server Error"
+//	@Failure		409		{object}	api.ErrorResponse		"Conflict: Category already exists"
+//	@Failure		400		{object}	api.ErrorResponse		"Bad Request: Invalid input"
+//	@Failure		404		{object}	api.ErrorResponse		"Not Found: Category does not exist"
+//	@Failure		500		{object}	api.ErrorResponse		"Internal Server Error"
 //	@Router			/categories/{id} [put]
 func Update(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
