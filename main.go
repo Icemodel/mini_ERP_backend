@@ -10,7 +10,6 @@ import (
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
 	"mini-erp-backend/middleware"
-	"mini-erp-backend/model"
 	"mini-erp-backend/repository"
 
 	"github.com/gofiber/fiber/v2"
@@ -33,15 +32,15 @@ func main() {
 	fmt.Println(db)
 
 	if err := db.AutoMigrate(
-		//&model.User{},
-		//&model.Category{},
-		//&model.Supplier{},
-		//&model.Product{},
-		//&model.PurchaseOrder{},
-		//&model.AuditLog{},
-		//&model.PurchaseOrderItem{},
-		//&model.StockTransaction{},
-		&model.UserSession{},
+	//&model.User{},
+	//&model.Category{},
+	//&model.Supplier{},
+	//&model.Product{},
+	//&model.PurchaseOrder{},
+	//&model.AuditLog{},
+	//&model.PurchaseOrderItem{},
+	//&model.StockTransaction{},
+	//&model.UserSession{},
 	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
