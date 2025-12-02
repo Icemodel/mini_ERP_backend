@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"mini-erp-backend/api"
-	"mini-erp-backend/api/repository"
 	"mini-erp-backend/api/service/auth"
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
@@ -17,9 +16,9 @@ import (
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
 
+	"mini-erp-backend/api/repository"
 	_ "mini-erp-backend/docs"
 	"mini-erp-backend/middleware"
-	"mini-erp-backend/model"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -64,8 +63,8 @@ func main() {
 	supplierRepo := repository.NewSupplier(log.Slogger)
 	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
 	reportRepo := repository.NewReport(log.Slogger)
-	userAuthen := repository.NewUserAuthen(log.Slogger)
-	userRegister := repository.NewUserRegister(log.Slogger)
+	userRepo := repository.NewUserAuthen(log.Slogger)
+	sessionRepo := repository.NewUserSession(log.Slogger)
 	// endregion
 
 	// region Service
@@ -75,29 +74,24 @@ func main() {
 	purchase_order.NewService(db, log.Slogger, purchase_orderRepo)
 	supplier.NewService(log.Slogger, db, supplierRepo)
 	report.NewService(log.Slogger, db, reportRepo)
-	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
+	auth.NewService(db, log.Slogger, jwtManager, userRepo)
+	register.NewService(db, log.Slogger, jwtManager, userRepo)
 
 	// endregion
 
 	if err := db.AutoMigrate(
-		//&model.User{},
-		//&model.Category{},
-		//&model.Supplier{},
-		//&model.Product{},
-		//&model.PurchaseOrder{},
-		//&model.AuditLog{},
-		//&model.PurchaseOrderItem{},
-		//&model.StockTransaction{},
-		&model.UserSession{},
+	//&model.User{},
+	//&model.Category{},
+	//&model.Supplier{},
+	//&model.Product{},
+	//&model.PurchaseOrder{},
+	//&model.AuditLog{},
+	//&model.PurchaseOrderItem{},
+	//&model.StockTransaction{},
+	//&model.UserSession{},
 	); err != nil {
 		log.Slogger.Error("Migration failed", "error", err)
 	}
-
-	//region repository
-	userRepo := repository.NewUser(log.Slogger)
-
-	// session repository (user sessions: access/refresh tokens)
-	sessionRepo := repository.NewUserSession(log.Slogger)
 
 	//region service
 	auth.NewService(db, log.Slogger, jwtManager, userRepo)
@@ -131,8 +125,6 @@ func main() {
 	//region repository
 
 	//region service
-	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
-	register.NewService(db, log.Slogger, jwtManager, userRegister)
 
 	app.Listen(":" + environment.GetString("PORT"))
 }
