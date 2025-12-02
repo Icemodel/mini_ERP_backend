@@ -8,15 +8,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetStockSummary struct {
+type StockSummary struct {
 	logger     *slog.Logger
 	db         *gorm.DB
 	reportRepo repository.Report
 }
 
-type GetStockSummaryRequest struct{}
+type StockSummaryRequest struct{}
 
-type GetStockSummaryResult struct {
+type StockSummaryResult struct {
 	Products          []repository.StockSummaryResult `json:"products"`
 	TotalStockOnHand  int64                           `json:"total_stock_on_hand"`
 	TotalCostValue    float64                         `json:"total_cost_value"`
@@ -25,19 +25,19 @@ type GetStockSummaryResult struct {
 	LowStockCount     int                             `json:"low_stock_count"`
 }
 
-func NewGetStockSummary(
+func NewStockSummary(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,
-) *GetStockSummary {
-	return &GetStockSummary{
+) *StockSummary {
+	return &StockSummary{
 		logger:     logger,
 		db:         db,
 		reportRepo: reportRepo,
 	}
 }
 
-func (h *GetStockSummary) Handle(ctx context.Context, req *GetStockSummaryRequest) (*GetStockSummaryResult, error) {
+func (h *StockSummary) Handle(ctx context.Context, req *StockSummaryRequest) (*StockSummaryResult, error) {
 	products, err := h.reportRepo.GetStockSummary(h.db)
 	if err != nil {
 		h.logger.Error("Failed to get stock summary", "error", err)
@@ -60,7 +60,7 @@ func (h *GetStockSummary) Handle(ctx context.Context, req *GetStockSummaryReques
 		}
 	}
 
-	return &GetStockSummaryResult{
+	return &StockSummaryResult{
 		Products:          products,
 		TotalStockOnHand:  totalStock,
 		TotalCostValue:    totalCost,

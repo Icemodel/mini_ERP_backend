@@ -9,7 +9,7 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetStockMovements
+// StockMovements
 //
 // 	@Summary		Get stock movements
 // 	@Description	Get stock movements within a date range
@@ -18,11 +18,11 @@ import (
 // 	@Produce		json
 // 	@Param			from	query	string	true	"From date (DD-MM-YYYY)"
 // 	@Param			to		query	string	true	"To date (DD-MM-YYYY)"
-// 	@Success		200	{object}	query.GetStockMovementsResult
+// 	@Success		200	{object}	query.StockMovementsResult
 // 	@Failure		400	{object}	fiber.Map
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/reports/stock-movements [get]
-func GetStockMovements(logger *slog.Logger) fiber.Handler {
+func StockMovements(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         fromStr := c.Query("from")
         toStr := c.Query("to")
@@ -50,12 +50,12 @@ func GetStockMovements(logger *slog.Logger) fiber.Handler {
         }
         toDate = toDate.Add(24*time.Hour - time.Second)
 
-        req := &query.GetStockMovementsRequest{
+        req := &query.StockMovementsRequest{
             FromDate: fromDate,
             ToDate:   toDate,
         }
 
-        result, err := mediatr.Send[*query.GetStockMovementsRequest, *query.GetStockMovementsResult](c.Context(), req)
+        result, err := mediatr.Send[*query.StockMovementsRequest, *query.StockMovementsResult](c.Context(), req)
         if err != nil {
             logger.Error("Failed to get stock movements", "error", err)
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

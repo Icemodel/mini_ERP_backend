@@ -9,7 +9,7 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetSupplier
+// Supplier
 //
 // 	@Summary		Get a supplier by ID
 // 	@Description	Get supplier details by supplier ID
@@ -22,7 +22,7 @@ import (
 // 	@Failure		404	{object}	fiber.Map
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/suppliers/{id} [get]
-func GetSupplier(logger *slog.Logger) fiber.Handler {
+func Supplier(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         idParam := c.Params("id")
         supplierId, err := uuid.Parse(idParam)
@@ -31,9 +31,9 @@ func GetSupplier(logger *slog.Logger) fiber.Handler {
             return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid supplier ID"})
         }
 
-        req := query.GetSupplierRequest{SupplierId: supplierId}
+        req := query.SupplierRequest{SupplierId: supplierId}
 
-        result, err := mediatr.Send[*query.GetSupplierRequest, *query.GetSupplierResult](c.Context(), &req)
+        result, err := mediatr.Send[*query.SupplierRequest, *query.SupplierResult](c.Context(), &req)
         if err != nil {
             logger.Error("Failed to get supplier", "error", err)
             return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Supplier not found"})

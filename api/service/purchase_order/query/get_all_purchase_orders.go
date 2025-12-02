@@ -9,34 +9,34 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetAllPurchaseOrders struct {
+type AllPurchaseOrders struct {
 	logger *slog.Logger
 	db     *gorm.DB
 	PORepo repository.PurchaseOrder
 }
 
-type GetAllPurchaseOrdersRequest struct {
+type AllPurchaseOrdersRequest struct {
 	Status  *model.PurchaseOrderStatus `json:"status"`
 	OrderBy string                      `json:"order_by"`
 }
 
-type GetAllPurchaseOrdersResult struct {
+type AllPurchaseOrdersResult struct {
 	PurchaseOrders []*model.PurchaseOrder `json:"purchase_orders"`
 }
 
-func NewGetAllPurchaseOrders(
+func NewAllPurchaseOrders(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,
-) *GetAllPurchaseOrders {
-	return &GetAllPurchaseOrders{
+) *AllPurchaseOrders {
+	return &AllPurchaseOrders{
 		logger: logger,
 		db:     db,
 		PORepo: poRepo,
 	}
 }
 
-func (h *GetAllPurchaseOrders) Handle(ctx context.Context, req *GetAllPurchaseOrdersRequest) (*GetAllPurchaseOrdersResult, error) {
+func (h *AllPurchaseOrders) Handle(ctx context.Context, req *AllPurchaseOrdersRequest) (*AllPurchaseOrdersResult, error) {
 	conditions := make(map[string]interface{})
 	
 	if req.Status != nil {
@@ -54,5 +54,5 @@ func (h *GetAllPurchaseOrders) Handle(ctx context.Context, req *GetAllPurchaseOr
 		return nil, err
 	}
 
-	return &GetAllPurchaseOrdersResult{PurchaseOrders: pos}, nil
+	return &AllPurchaseOrdersResult{PurchaseOrders: pos}, nil
 }

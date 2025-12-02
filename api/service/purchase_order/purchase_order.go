@@ -20,8 +20,8 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderRepo repository.P
 	createPurchaseOrderHandler := command.NewCreatePurchaseOrder(logger, db, poRepo, productRepo)
 	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrder(logger, db, poRepo, productRepo)
 	updatePOStatusHandler := command.NewUpdatePOStatus(logger, db, poRepo, stockRepo)
-	getPurchaseOrderHandler := query.NewGetPurchaseOrder(logger, db, poRepo)
-	getAllPurchaseOrdersHandler := query.NewGetAllPurchaseOrders(logger, db, poRepo)
+	getPurchaseOrderHandler := query.NewPurchaseOrder(logger, db, poRepo)
+	getAllPurchaseOrdersHandler := query.NewAllPurchaseOrders(logger, db, poRepo)
 
 	err := mediatr.RegisterRequestHandler(createPurchaseOrderHandler)
 	if err != nil {
@@ -39,12 +39,12 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderRepo repository.P
 	}
 
 	// Register query handlers
-	err = mediatr.RegisterRequestHandler[*query.GetPurchaseOrderRequest, *query.GetPurchaseOrderResult](getPurchaseOrderHandler)
+	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderRequest, *query.PurchaseOrderResult](getPurchaseOrderHandler)
 	if err != nil {
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler[*query.GetAllPurchaseOrdersRequest, *query.GetAllPurchaseOrdersResult](getAllPurchaseOrdersHandler)
+	err = mediatr.RegisterRequestHandler[*query.AllPurchaseOrdersRequest, *query.AllPurchaseOrdersResult](getAllPurchaseOrdersHandler)
 	if err != nil {
 		return err
 	}

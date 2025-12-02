@@ -8,7 +8,7 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetAllSuppliers
+// AllSuppliers
 //
 // 	@Summary		Get all suppliers
 // 	@Description	Retrieve a list of all suppliers
@@ -19,12 +19,12 @@ import (
 // 	@Success		200	{array}	model.Supplier
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/suppliers [get]
-func GetAllSuppliers(logger *slog.Logger) fiber.Handler {
+func AllSuppliers(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         orderBy := c.Query("order_by", "")
-        req := query.GetAllSuppliersRequest{OrderBy: orderBy}
+        req := query.AllSuppliersRequest{OrderBy: orderBy}
 
-        result, err := mediatr.Send[*query.GetAllSuppliersRequest, *query.GetAllSuppliersResult](c.Context(), &req)
+        result, err := mediatr.Send[*query.AllSuppliersRequest, *query.AllSuppliersResult](c.Context(), &req)
         if err != nil {
             logger.Error("Failed to get all suppliers", "error", err)
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
