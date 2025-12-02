@@ -26,7 +26,7 @@ type ExportPurchaseReportExcelResult struct {
 	Filename string
 }
 
-func NewExportPurchaseReportExcelHandler(
+func NewExportPurchaseReportExcel(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

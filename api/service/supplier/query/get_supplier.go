@@ -24,7 +24,7 @@ type GetSupplierResult struct {
 	Supplier *model.Supplier `json:"supplier"`
 }
 
-func NewGetSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetSupplier {
+func NewGetSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetSupplier {
 	return &GetSupplier{
 		logger:       logger,
 		db:           db,

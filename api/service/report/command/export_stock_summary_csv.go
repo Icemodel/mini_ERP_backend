@@ -25,7 +25,7 @@ type ExportStockSummaryCSVResult struct {
 	Filename string
 }
 
-func NewExportStockSummaryCSVHandler(
+func NewExportStockSummaryCSV(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

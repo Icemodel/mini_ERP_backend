@@ -24,7 +24,7 @@ type GetAllPurchaseOrdersResult struct {
 	PurchaseOrders []*model.PurchaseOrder `json:"purchase_orders"`
 }
 
-func NewGetAllPurchaseOrdersHandler(
+func NewGetAllPurchaseOrders(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,

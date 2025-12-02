@@ -30,7 +30,7 @@ type UpdatePurchaseOrderItem struct {
 }
 
 
-func NewUpdatePurchaseOrderHandler(
+func NewUpdatePurchaseOrder(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,

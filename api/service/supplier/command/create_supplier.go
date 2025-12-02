@@ -25,7 +25,7 @@ type CreateSupplierRequest struct {
 }
 
 
-func NewCreateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *CreateSupplier {
+func NewCreateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *CreateSupplier {
 	return &CreateSupplier{
 		logger:       logger,
 		db:           db,

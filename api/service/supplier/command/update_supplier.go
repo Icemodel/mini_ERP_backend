@@ -23,7 +23,7 @@ type UpdateSupplierRequest struct {
 	Address    string    `json:"address" validate:"required"`
 }
 
-func NewUpdateSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *UpdateSupplier {
+func NewUpdateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *UpdateSupplier {
 	return &UpdateSupplier{
 		logger:       logger,
 		db:           db,

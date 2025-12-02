@@ -27,7 +27,7 @@ type GetPurchaseSummaryResult struct {
 	ReceivedAmount uint64                             `json:"received_amount"`
 }
 
-func NewGetPurchaseSummaryHandler(
+func NewGetPurchaseSummary(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

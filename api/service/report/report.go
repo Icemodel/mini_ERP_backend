@@ -13,9 +13,9 @@ import (
 func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) error {
 
 	// Register query handlers
-	getStockSummaryHandler := query.NewGetStockSummaryHandler(logger, db, reportRepo)
-	getStockMovementsHandler := query.NewGetStockMovementsHandler(logger, db, reportRepo)
-	getPurchaseSummaryHandler := query.NewGetPurchaseSummaryHandler(logger, db, reportRepo)
+	getStockSummaryHandler := query.NewGetStockSummary(logger, db, reportRepo)
+	getStockMovementsHandler := query.NewGetStockMovements(logger, db, reportRepo)
+	getPurchaseSummaryHandler := query.NewGetPurchaseSummary(logger, db, reportRepo)
 
 	err := mediatr.RegisterRequestHandler(getStockSummaryHandler)
 	if err != nil {
@@ -33,9 +33,9 @@ func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) 
 	}
 
 	// Register export handlers
-	exportStockSummaryCSVHandler := command.NewExportStockSummaryCSVHandler(logger, db, reportRepo)
-	exportStockMovementExcelHandler := command.NewExportStockMovementExcelHandler(logger, db, reportRepo)
-	exportPurchaseReportExcelHandler := command.NewExportPurchaseReportExcelHandler(logger, db, reportRepo)
+	exportStockSummaryCSVHandler := command.NewExportStockSummaryCSV(logger, db, reportRepo)
+	exportStockMovementExcelHandler := command.NewExportStockMovementExcel(logger, db, reportRepo)
+	exportPurchaseReportExcelHandler := command.NewExportPurchaseReportExcel(logger, db, reportRepo)
 
 	err = mediatr.RegisterRequestHandler(exportStockSummaryCSVHandler)
 	if err != nil {

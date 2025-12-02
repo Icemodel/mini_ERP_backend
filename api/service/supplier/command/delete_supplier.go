@@ -19,7 +19,7 @@ type DeleteSupplierRequest struct {
 	SupplierId uuid.UUID `json:"supplier_id"`
 }
 
-func NewDeleteSupplierHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *DeleteSupplier {
+func NewDeleteSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *DeleteSupplier {
 	return &DeleteSupplier{
 		logger:       logger,
 		db:           db,

@@ -29,7 +29,7 @@ type CreatePurchaseOrderItem struct {
 	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
 }
 
-func NewCreatePurchaseOrderHandler(
+func NewCreatePurchaseOrder(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,

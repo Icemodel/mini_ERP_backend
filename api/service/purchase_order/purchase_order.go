@@ -17,11 +17,11 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderRepo repository.P
 	productRepo := repository.NewProduct(logger)
 
 	// Register command handlers
-	createPurchaseOrderHandler := command.NewCreatePurchaseOrderHandler(logger, db, poRepo, productRepo)
-	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrderHandler(logger, db, poRepo, productRepo)
-	updatePOStatusHandler := command.NewUpdatePOStatusHandler(logger, db, poRepo, stockRepo)
-	getPurchaseOrderHandler := query.NewGetPurchaseOrderHandler(logger, db, poRepo)
-	getAllPurchaseOrdersHandler := query.NewGetAllPurchaseOrdersHandler(logger, db, poRepo)
+	createPurchaseOrderHandler := command.NewCreatePurchaseOrder(logger, db, poRepo, productRepo)
+	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrder(logger, db, poRepo, productRepo)
+	updatePOStatusHandler := command.NewUpdatePOStatus(logger, db, poRepo, stockRepo)
+	getPurchaseOrderHandler := query.NewGetPurchaseOrder(logger, db, poRepo)
+	getAllPurchaseOrdersHandler := query.NewGetAllPurchaseOrders(logger, db, poRepo)
 
 	err := mediatr.RegisterRequestHandler(createPurchaseOrderHandler)
 	if err != nil {

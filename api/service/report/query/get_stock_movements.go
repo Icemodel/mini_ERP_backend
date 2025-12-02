@@ -24,7 +24,7 @@ type GetStockMovementsResult struct {
 	Movements []repository.StockMovementResult `json:"movements"`
 }
 
-func NewGetStockMovementsHandler(
+func NewGetStockMovements(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

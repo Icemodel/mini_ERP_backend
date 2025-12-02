@@ -25,7 +25,7 @@ type GetStockSummaryResult struct {
 	LowStockCount     int                             `json:"low_stock_count"`
 }
 
-func NewGetStockSummaryHandler(
+func NewGetStockSummary(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

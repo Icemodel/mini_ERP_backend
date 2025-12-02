@@ -27,7 +27,7 @@ type ExportStockMovementExcelResult struct {
 	Filename string
 }
 
-func NewExportStockMovementExcelHandler(
+func NewExportStockMovementExcel(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,

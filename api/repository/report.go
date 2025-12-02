@@ -65,20 +65,27 @@ type PurchaseSummaryResult struct {
 func (r *report) GetStockSummary(db *gorm.DB) ([]StockSummaryResult, error) {
 	var results []StockSummaryResult
 
-	err := db.Model(&model.Product{}).
+	err := db.Table("products").
 		Select(`
 			products.product_id,
 			products.product_code,
 			products.name,
-			products.unit as stock_on_hand,
+			COALESCE(latest_stock.quantity, 0) as stock_on_hand,
 			products.cost_price,
 			products.selling_price,
-			(products.unit * products.cost_price) as total_cost_value,
-			(products.unit * products.selling_price) as total_selling_value,
+			(COALESCE(latest_stock.quantity, 0) * products.cost_price) as total_cost_value,
+			(COALESCE(latest_stock.quantity, 0) * products.selling_price) as total_selling_value,
 			products.min_stock,
 			categories.name as category_name
 		`).
 		Joins("LEFT JOIN categories ON products.category_id = categories.category_id").
+		Joins(`LEFT JOIN LATERAL (
+			SELECT quantity 
+			FROM stock_transactions 
+			WHERE stock_transactions.product_id = products.product_id 
+			ORDER BY created_at DESC 
+			LIMIT 1
+		) latest_stock ON true`).
 		Order("products.name ASC").
 		Scan(&results).Error
 

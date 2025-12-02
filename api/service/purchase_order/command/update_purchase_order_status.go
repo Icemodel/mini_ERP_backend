@@ -25,7 +25,7 @@ type UpdatePOStatusRequest struct {
 	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
 
-func NewUpdatePOStatusHandler(
+func NewUpdatePOStatus(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,

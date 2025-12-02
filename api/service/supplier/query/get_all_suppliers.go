@@ -23,7 +23,7 @@ type GetAllSuppliersResult struct {
 	Suppliers []*model.Supplier `json:"suppliers"`
 }
 
-func NewGetAllSuppliersHandler(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetAllSuppliers {
+func NewGetAllSuppliers(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetAllSuppliers {
 	return &GetAllSuppliers{
 		logger:       logger,
 		db:           db,

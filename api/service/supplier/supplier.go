@@ -12,12 +12,12 @@ import (
 
 func NewService(logger *slog.Logger, db *gorm.DB, supplierRepo repository.Supplier) {
 	// Register command handlers
-	createSupplierHandler := command.NewCreateSupplierHandler(logger, db, supplierRepo)
-	updateSupplierHandler := command.NewUpdateSupplierHandler(logger, db, supplierRepo)
-	deleteSupplierHandler := command.NewDeleteSupplierHandler(logger, db, supplierRepo)
+	createSupplierHandler := command.NewCreateSupplier(logger, db, supplierRepo)
+	updateSupplierHandler := command.NewUpdateSupplier(logger, db, supplierRepo)
+	deleteSupplierHandler := command.NewDeleteSupplier(logger, db, supplierRepo)
 	
-	getSupplierHandler := query.NewGetSupplierHandler(logger, db, supplierRepo)
-	getAllSuppliersHandler := query.NewGetAllSuppliersHandler(logger, db, supplierRepo)
+	getSupplierHandler := query.NewGetSupplier(logger, db, supplierRepo)
+	getAllSuppliersHandler := query.NewGetAllSuppliers(logger, db, supplierRepo)
 	
 	err := mediatr.RegisterRequestHandler(createSupplierHandler)
 	if err != nil {
