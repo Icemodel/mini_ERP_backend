@@ -1,5 +1,94 @@
 basePath: /api/v1
 definitions:
+  api.ErrorResponse:
+    properties:
+      error:
+        example: error message
+        type: string
+    type: object
+  command.CreatePurchaseOrderItem:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  command.CreatePurchaseOrderRequest:
+    properties:
+      created_by:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/command.CreatePurchaseOrderItem'
+        minItems: 1
+        type: array
+      supplier_id:
+        type: string
+    required:
+    - created_by
+    - items
+    - supplier_id
+    type: object
+  command.CreateSupplierRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+    type: object
+  command.UpdatePurchaseOrderItem:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  command.UpdatePurchaseOrderRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/command.UpdatePurchaseOrderItem'
+        minItems: 1
+        type: array
+      purchaseOrderId:
+        type: string
+      supplier_id:
+        type: string
+    required:
+    - items
+    - supplier_id
+    type: object
+  command.UpdateSupplierRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      supplier_id:
+        type: string
+    required:
+    - address
+    - email
+    - name
+    - phone
+    - supplier_id
+    type: object
   mini-erp-backend_api_service_category_command.CreateResult:
     properties:
       category:
@@ -60,6 +149,54 @@ definitions:
       updated_at:
         type: string
     type: object
+  model.PurchaseOrder:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      purchase_order_id:
+        type: string
+      purchase_order_items:
+        items:
+          $ref: '#/definitions/model.PurchaseOrderItem'
+        type: array
+      status:
+        $ref: '#/definitions/model.PurchaseOrderStatus'
+      stock_transactions:
+        items:
+          $ref: '#/definitions/model.StockTransaction'
+        type: array
+      supplier_id:
+        type: string
+      total_amount:
+        type: integer
+    type: object
+  model.PurchaseOrderItem:
+    properties:
+      price:
+        type: number
+      product_id:
+        type: string
+      purchase_order_id:
+        type: string
+      purchase_order_item_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  model.PurchaseOrderStatus:
+    enum:
+    - DRAFT
+    - CONFIRMED
+    - RECEIVED
+    - CANCELLED
+    type: string
+    x-enum-varnames:
+    - Draft
+    - Confirmed
+    - Received
+    - Cancelled
   model.StockTransaction:
     properties:
       Product:
@@ -82,6 +219,25 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.TransactionType'
         description: e.g., "IN" or "OUT" or "ADJUST"
+    type: object
+  model.Supplier:
+    properties:
+      address:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      purchaseOrders:
+        items:
+          $ref: '#/definitions/model.PurchaseOrder'
+        type: array
+      supplier_id:
+        type: string
     type: object
   model.TransactionType:
     enum:
@@ -133,6 +289,47 @@ definitions:
       total_pages:
         type: integer
     type: object
+  query.PurchaseSummaryResult:
+    properties:
+      received_amount:
+        type: integer
+      received_orders:
+        type: integer
+      summary:
+        items:
+          $ref: '#/definitions/repository.PurchaseSummaryResult'
+        type: array
+      total_amount:
+        type: integer
+      total_orders:
+        type: integer
+    type: object
+  query.StockMovementsResult:
+    properties:
+      movements:
+        items:
+          $ref: '#/definitions/repository.StockMovementResult'
+        type: array
+    type: object
+  query.StockSummaryResult:
+    properties:
+      low_stock:
+        items:
+          $ref: '#/definitions/repository.StockSummaryResult'
+        type: array
+      low_stock_count:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/repository.StockSummaryResult'
+        type: array
+      total_cost_value:
+        type: number
+      total_selling_value:
+        type: number
+      total_stock_on_hand:
+        type: integer
+    type: object
   query.StocksResult:
     properties:
       page:
@@ -148,11 +345,72 @@ definitions:
       total_pages:
         type: integer
     type: object
+  repository.PurchaseSummaryResult:
+    properties:
+      average_amount:
+        type: number
+      status:
+        type: string
+      total_amount:
+        type: integer
+      total_orders:
+        type: integer
+    type: object
+  repository.StockMovementResult:
+    properties:
+      category_name:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      product_code:
+        type: string
+      product_id:
+        type: string
+      product_name:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      reference_id:
+        type: string
+      stock_transaction_id:
+        type: string
+      type:
+        type: string
+    type: object
+  repository.StockSummaryResult:
+    properties:
+      category_name:
+        type: string
+      cost_price:
+        type: number
+      is_low_stock:
+        type: boolean
+      min_stock:
+        type: integer
+      name:
+        type: string
+      product_code:
+        type: string
+      product_id:
+        type: string
+      selling_price:
+        type: number
+      stock_on_hand:
+        type: integer
+      total_cost_value:
+        type: number
+      total_selling_value:
+        type: number
+    type: object
 info:
   contact: {}
   description: This is Mini ERP Backend API doc
   termsOfService: http://swagger.io/terms/
-  title: Mini ERP Bakckend API
+  title: Mini ERP Backend API
   version: "1.0"
 paths:
   /categories:
@@ -407,6 +665,325 @@ paths:
       summary: Get Product by ID
       tags:
       - Product
+  /purchase-orders:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all purchase orders
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Order by field
+        in: query
+        name: order_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PurchaseOrder'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get all purchase orders
+      tags:
+      - PurchaseOrder
+    post:
+      consumes:
+      - application/json
+      description: Create a new purchase order with items
+      parameters:
+      - description: Purchase Order information
+        in: body
+        name: purchaseOrder
+        required: true
+        schema:
+          $ref: '#/definitions/command.CreatePurchaseOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.PurchaseOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Create a new purchase order
+      tags:
+      - PurchaseOrder
+  /purchase-orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get purchase order details by ID
+      parameters:
+      - description: Purchase Order ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PurchaseOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get a purchase order by ID
+      tags:
+      - PurchaseOrder
+    put:
+      consumes:
+      - application/json
+      description: Update purchase order information by ID
+      parameters:
+      - description: Purchase Order ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated purchase order information
+        in: body
+        name: purchaseOrder
+        required: true
+        schema:
+          $ref: '#/definitions/command.UpdatePurchaseOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PurchaseOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update a purchase order
+      tags:
+      - PurchaseOrder
+  /purchase-orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of a purchase order
+      parameters:
+      - description: Purchase Order ID (UUID)
+        in: path
+        name: status
+        required: true
+        type: string
+      - description: Status update
+        in: body
+        name: status
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PurchaseOrder'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update purchase order status
+      tags:
+      - PurchaseOrder
+  /reports/purchase-summary:
+    get:
+      consumes:
+      - application/json
+      description: Get purchase order summary by month including aggregate totals
+      parameters:
+      - description: Month (MM-YYYY)
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.PurchaseSummaryResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get purchase summary
+      tags:
+      - Report
+  /reports/purchase-summary/export:
+    get:
+      description: Export purchase order summary by month to Excel file
+      parameters:
+      - description: Month (MM-YYYY)
+        in: query
+        name: month
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Export purchase report to Excel
+      tags:
+      - Report
+  /reports/stock-movements:
+    get:
+      consumes:
+      - application/json
+      description: Get stock movements within a date range
+      parameters:
+      - description: From date (DD-MM-YYYY)
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: To date (DD-MM-YYYY)
+        in: query
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.StockMovementsResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get stock movements
+      tags:
+      - Report
+  /reports/stock-movements/export:
+    get:
+      description: Export stock movements within a date range to Excel file
+      parameters:
+      - description: From date (DD-MM-YYYY)
+        in: query
+        name: from
+        required: true
+        type: string
+      - description: To date (DD-MM-YYYY)
+        in: query
+        name: to
+        required: true
+        type: string
+      produces:
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Export stock movements to Excel
+      tags:
+      - Report
+  /reports/stock-summary:
+    get:
+      consumes:
+      - application/json
+      description: Get current stock summary including aggregates and low stock products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/query.StockSummaryResult'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get stock summary
+      tags:
+      - Report
+  /reports/stock-summary/export:
+    get:
+      description: Export current stock summary to CSV file
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Export stock summary to CSV
+      tags:
+      - Report
   /stocks:
     get:
       consumes:
@@ -447,6 +1024,160 @@ paths:
       summary: Get Stock Transactions list
       tags:
       - StockTransactions
+  /suppliers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all suppliers
+      parameters:
+      - description: Order by field
+        in: query
+        name: order_by
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Supplier'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get all suppliers
+      tags:
+      - Supplier
+    post:
+      consumes:
+      - application/json
+      description: Create a new supplier with the provided information
+      parameters:
+      - description: Supplier information
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/command.CreateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Supplier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Create a new supplier
+      tags:
+      - Supplier
+  /suppliers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a supplier by ID
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete a supplier
+      tags:
+      - Supplier
+    get:
+      consumes:
+      - application/json
+      description: Get supplier details by supplier ID
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Supplier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get a supplier by ID
+      tags:
+      - Supplier
+    put:
+      consumes:
+      - application/json
+      description: Update supplier information by ID
+      parameters:
+      - description: Supplier ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated supplier information
+        in: body
+        name: supplier
+        required: true
+        schema:
+          $ref: '#/definitions/command.UpdateSupplierRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update a supplier
+      tags:
+      - Supplier
 securityDefinitions:
   BasicAuth:
     type: basic

@@ -18,10 +18,10 @@ import (
 // 	@Produce		json
 // 	@Param			id	path	string	true	"Supplier ID (UUID)"
 // 	@Success		200	{object}	model.Supplier
-// 	@Failure		400	{object}	fiber.Map
-// 	@Failure		404	{object}	fiber.Map
-// 	@Failure		500	{object}	fiber.Map
-// 	@Router			/api/v1/suppliers/{id} [get]
+// 	@Failure		400	{object}	api.ErrorResponse
+// 	@Failure		404	{object}	api.ErrorResponse
+// 	@Failure		500	{object}	api.ErrorResponse
+// 	@Router			/suppliers/{id} [get]
 func Supplier(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         idParam := c.Params("id")
