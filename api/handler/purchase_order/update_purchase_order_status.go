@@ -16,11 +16,11 @@ import (
 //	@Tags			PurchaseOrder
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		path	string							true	"Purchase Order ID (UUID)"
-//	@Param			request	body	command.UpdatePOStatusRequest	true	"Status update request"
-//	@Success		200		{object}	map[string]interface{}
-//	@Failure		400		{object}	api.ErrorResponse
-//	@Failure		500		{object}	api.ErrorResponse
+//	@Param			id		status	path	string	true	"Purchase Order ID (UUID)"
+//	@Param			status	body	object	true	"Status update"
+//	@Success		200	{object}	model.PurchaseOrder
+//	@Failure		400	{object}	api.ErrorResponse
+//	@Failure		500	{object}	api.ErrorResponse
 //	@Router			/purchase-orders/{id}/status [put]
 func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
