@@ -19,7 +19,7 @@ import (
 // 	@Success		201	{object}	model.PurchaseOrder
 // 	@Failure		400	{object}	api.ErrorResponse
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/purchase-orders [post]
+// 	@Router			/purchase-orders [post]
 func CreatePurchaseOrder(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         var req command.CreatePurchaseOrderRequest

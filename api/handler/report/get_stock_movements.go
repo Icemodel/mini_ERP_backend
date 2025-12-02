@@ -21,7 +21,7 @@ import (
 // 	@Success		200	{object}	query.StockMovementsResult
 // 	@Failure		400	{object}	api.ErrorResponse
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/reports/stock-movements [get]
+// 	@Router			/reports/stock-movements [get]
 func StockMovements(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         fromStr := c.Query("from")

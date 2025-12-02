@@ -17,7 +17,7 @@ import (
 // 	@Produce		json
 // 	@Success		200	{object}	query.StockSummaryResult
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/reports/stock-summary [get]
+// 	@Router			/reports/stock-summary [get]
 func StockSummary(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         req := &query.StockSummaryRequest{}

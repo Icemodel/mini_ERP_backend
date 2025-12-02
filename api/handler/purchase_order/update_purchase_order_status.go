@@ -22,7 +22,7 @@ import (
 // 	@Success		200	{object}	model.PurchaseOrder
 // 	@Failure		400	{object}	api.ErrorResponse
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/purchase-orders/{id}/status [put]
+// 	@Router			/purchase-orders/{id}/status [put]
 func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         poIdStr := c.Params("id")

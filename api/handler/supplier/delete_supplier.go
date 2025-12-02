@@ -21,7 +21,7 @@ import (
 // 	@Failure		400	{object}	api.ErrorResponse
 // 	@Failure		404	{object}	api.ErrorResponse
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/suppliers/{id} [delete]
+// 	@Router			/suppliers/{id} [delete]
 func DeleteSupplier(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         idParam := c.Params("id")

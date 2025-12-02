@@ -23,7 +23,7 @@ import (
 
 // Main function
 //
-//	@title						Mini ERP Bakckend API
+//	@title						Mini ERP Backend API
 //	@version					1.0
 //	@description				This is Mini ERP Backend API doc
 //	@termsOfService				http://swagger.io/terms/

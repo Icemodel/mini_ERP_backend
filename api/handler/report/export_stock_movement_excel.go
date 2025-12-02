@@ -20,7 +20,7 @@ import (
 // 	@Success		200	{file}	file
 // 	@Failure		400	{object}	api.ErrorResponse
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/reports/stock-movements/export [get]
+// 	@Router			/reports/stock-movements/export [get]
 func ExportStockMovementExcel(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         fromStr := c.Query("from")

@@ -18,7 +18,7 @@ import (
 // 	@Param			order_by	query	string	false	"Order by field"
 // 	@Success		200	{array}	model.Supplier
 // 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/api/v1/suppliers [get]
+// 	@Router			/suppliers [get]
 func AllSuppliers(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         orderBy := c.Query("order_by", "")
