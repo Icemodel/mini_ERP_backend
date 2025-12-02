@@ -9,7 +9,7 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetPurchaseOrder
+// PurchaseOrder
 //
 // 	@Summary		Get a purchase order by ID
 // 	@Description	Get purchase order details by ID
@@ -22,7 +22,7 @@ import (
 // 	@Failure		404	{object}	fiber.Map
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/purchase-orders/{id} [get]
-func GetPurchaseOrder(logger *slog.Logger) fiber.Handler {
+func PurchaseOrder(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
         poIdStr := c.Params("id")
         poId, err := uuid.Parse(poIdStr)
@@ -33,11 +33,11 @@ func GetPurchaseOrder(logger *slog.Logger) fiber.Handler {
             })
         }
 
-        req := &query.GetPurchaseOrderRequest{
+        req := &query.PurchaseOrderRequest{
             PurchaseOrderId: poId,
         }
 
-        result, err := mediatr.Send[*query.GetPurchaseOrderRequest, *query.GetPurchaseOrderResult](c.Context(), req)
+        result, err := mediatr.Send[*query.PurchaseOrderRequest, *query.PurchaseOrderResult](c.Context(), req)
         if err != nil {
             logger.Error("Failed to get purchase order", "po_id", poId, "error", err)
             return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

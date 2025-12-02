@@ -10,29 +10,29 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetSupplier struct {
+type Supplier struct {
 	logger       *slog.Logger
 	db           *gorm.DB
 	SupplierRepo repository.Supplier
 }
 
-type GetSupplierRequest struct {
+type SupplierRequest struct {
 	SupplierId uuid.UUID `json:"supplier_id" validate:"required"`
 }
 
-type GetSupplierResult struct {
+type SupplierResult struct {
 	Supplier *model.Supplier `json:"supplier"`
 }
 
-func NewGetSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetSupplier {
-	return &GetSupplier{
+func NewSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *Supplier {
+	return &Supplier{
 		logger:       logger,
 		db:           db,
 		SupplierRepo: repo,
 	}
 }
 
-func (h *GetSupplier) Handle(ctx context.Context, req *GetSupplierRequest) (*GetSupplierResult, error) {
+func (h *Supplier) Handle(ctx context.Context, req *SupplierRequest) (*SupplierResult, error) {
 	// Find supplier by ID
 	supplier_id := map[string]interface{}{
 		"supplier_id": req.SupplierId,
@@ -44,5 +44,5 @@ func (h *GetSupplier) Handle(ctx context.Context, req *GetSupplierRequest) (*Get
 		return nil, err
 	}
 
-	return &GetSupplierResult{Supplier: supplier}, nil
+	return &SupplierResult{Supplier: supplier}, nil
 }

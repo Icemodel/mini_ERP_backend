@@ -9,7 +9,7 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetAllPurchaseOrders
+// AllPurchaseOrders
 //
 // 	@Summary		Get all purchase orders
 // 	@Description	Retrieve a list of all purchase orders
@@ -21,9 +21,9 @@ import (
 // 	@Success		200	{array}	model.PurchaseOrder
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/purchase-orders [get]
-func GetAllPurchaseOrders(logger *slog.Logger) fiber.Handler {
+func AllPurchaseOrders(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        var req query.GetAllPurchaseOrdersRequest
+        var req query.AllPurchaseOrdersRequest
 
         if statusStr := c.Query("status"); statusStr != "" {
             status := model.PurchaseOrderStatus(statusStr)
@@ -31,7 +31,7 @@ func GetAllPurchaseOrders(logger *slog.Logger) fiber.Handler {
         }
         req.OrderBy = c.Query("order_by")
 
-        result, err := mediatr.Send[*query.GetAllPurchaseOrdersRequest, *query.GetAllPurchaseOrdersResult](c.Context(), &req)
+        result, err := mediatr.Send[*query.AllPurchaseOrdersRequest, *query.AllPurchaseOrdersResult](c.Context(), &req)
         if err != nil {
             logger.Error("Failed to get all purchase orders", "error", err)
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

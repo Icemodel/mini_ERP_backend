@@ -10,33 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetPurchaseOrder struct {
+type PurchaseOrder struct {
 	logger *slog.Logger
 	db     *gorm.DB
 	PORepo repository.PurchaseOrder
 }
 
-type GetPurchaseOrderRequest struct {
+type PurchaseOrderRequest struct {
 	PurchaseOrderId uuid.UUID `json:"purchase_order_id" validate:"required"`
 }
 
-type GetPurchaseOrderResult struct {
+type PurchaseOrderResult struct {
 	PurchaseOrder *model.PurchaseOrder `json:"purchase_order"`
 }
 
-func NewGetPurchaseOrder(
+func NewPurchaseOrder(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,
-) *GetPurchaseOrder {
-	return &GetPurchaseOrder{
+) *PurchaseOrder {
+	return &PurchaseOrder{
 		logger: logger,
 		db:     db,
 		PORepo: poRepo,
 	}
 }
 
-func (h *GetPurchaseOrder) Handle(ctx context.Context, req *GetPurchaseOrderRequest) (*GetPurchaseOrderResult, error) {
+func (h *PurchaseOrder) Handle(ctx context.Context, req *PurchaseOrderRequest) (*PurchaseOrderResult, error) {
 	po, err := h.PORepo.Search(h.db, map[string]interface{}{
 		"purchase_order_id": req.PurchaseOrderId,
 	}, "")
@@ -45,5 +45,5 @@ func (h *GetPurchaseOrder) Handle(ctx context.Context, req *GetPurchaseOrderRequ
 		return nil, err
 	}
 
-	return &GetPurchaseOrderResult{PurchaseOrder: po}, nil
+	return &PurchaseOrderResult{PurchaseOrder: po}, nil
 }

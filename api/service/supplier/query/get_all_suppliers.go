@@ -9,29 +9,29 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetAllSuppliers struct {
+type AllSuppliers struct {
 	logger       *slog.Logger
 	db           *gorm.DB
 	SupplierRepo repository.Supplier
 }
 
-type GetAllSuppliersRequest struct {
+type AllSuppliersRequest struct {
 	OrderBy string `json:"order_by"`
 }
 
-type GetAllSuppliersResult struct {
+type AllSuppliersResult struct {
 	Suppliers []*model.Supplier `json:"suppliers"`
 }
 
-func NewGetAllSuppliers(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *GetAllSuppliers {
-	return &GetAllSuppliers{
+func NewAllSuppliers(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *AllSuppliers {
+	return &AllSuppliers{
 		logger:       logger,
 		db:           db,
 		SupplierRepo: repo,
 	}
 }
 
-func (h *GetAllSuppliers) Handle(ctx context.Context, req *GetAllSuppliersRequest) (*GetAllSuppliersResult, error) {
+func (h *AllSuppliers) Handle(ctx context.Context, req *AllSuppliersRequest) (*AllSuppliersResult, error) {
 	// Set default order by
 	orderBy := req.OrderBy
 	if orderBy == "" {
@@ -46,5 +46,5 @@ func (h *GetAllSuppliers) Handle(ctx context.Context, req *GetAllSuppliersReques
 		return nil, err
 	}
 
-	return &GetAllSuppliersResult{Suppliers: suppliers}, nil
+	return &AllSuppliersResult{Suppliers: suppliers}, nil
 }

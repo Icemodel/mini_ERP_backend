@@ -8,21 +8,21 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
-// GetStockSummary
+// StockSummary
 //
 // 	@Summary		Get stock summary
 // 	@Description	Get current stock summary including aggregates and low stock products
 // 	@Tags			Report
 // 	@Accept			json
 // 	@Produce		json
-// 	@Success		200	{object}	query.GetStockSummaryResult
+// 	@Success		200	{object}	query.StockSummaryResult
 // 	@Failure		500	{object}	fiber.Map
 // 	@Router			/api/v1/reports/stock-summary [get]
-func GetStockSummary(logger *slog.Logger) fiber.Handler {
+func StockSummary(logger *slog.Logger) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        req := &query.GetStockSummaryRequest{}
+        req := &query.StockSummaryRequest{}
 
-        result, err := mediatr.Send[*query.GetStockSummaryRequest, *query.GetStockSummaryResult](c.Context(), req)
+        result, err := mediatr.Send[*query.StockSummaryRequest, *query.StockSummaryResult](c.Context(), req)
         if err != nil {
             logger.Error("Failed to get stock summary", "error", err)
             return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

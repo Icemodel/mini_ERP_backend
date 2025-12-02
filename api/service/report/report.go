@@ -13,9 +13,9 @@ import (
 func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) error {
 
 	// Register query handlers
-	getStockSummaryHandler := query.NewGetStockSummary(logger, db, reportRepo)
-	getStockMovementsHandler := query.NewGetStockMovements(logger, db, reportRepo)
-	getPurchaseSummaryHandler := query.NewGetPurchaseSummary(logger, db, reportRepo)
+	getStockSummaryHandler := query.NewStockSummary(logger, db, reportRepo)
+	getStockMovementsHandler := query.NewStockMovements(logger, db, reportRepo)
+	getPurchaseSummaryHandler := query.NewPurchaseSummary(logger, db, reportRepo)
 
 	err := mediatr.RegisterRequestHandler(getStockSummaryHandler)
 	if err != nil {

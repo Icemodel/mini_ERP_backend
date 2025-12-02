@@ -9,39 +9,39 @@ import (
 	"gorm.io/gorm"
 )
 
-type GetStockMovements struct {
+type StockMovements struct {
 	logger     *slog.Logger
 	db         *gorm.DB
 	reportRepo repository.Report
 }
 
-type GetStockMovementsRequest struct {
+type StockMovementsRequest struct {
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
 }
 
-type GetStockMovementsResult struct {
+type StockMovementsResult struct {
 	Movements []repository.StockMovementResult `json:"movements"`
 }
 
-func NewGetStockMovements(
+func NewStockMovements(
 	logger *slog.Logger,
 	db *gorm.DB,
 	reportRepo repository.Report,
-) *GetStockMovements {
-	return &GetStockMovements{
+) *StockMovements {
+	return &StockMovements{
 		logger:     logger,
 		db:         db,
 		reportRepo: reportRepo,
 	}
 }
 
-func (h *GetStockMovements) Handle(ctx context.Context, req *GetStockMovementsRequest) (*GetStockMovementsResult, error) {
+func (h *StockMovements) Handle(ctx context.Context, req *StockMovementsRequest) (*StockMovementsResult, error) {
 	movements, err := h.reportRepo.GetStockMovements(h.db, req.FromDate, req.ToDate)
 	if err != nil {
 		h.logger.Error("Failed to get stock movements", "error", err)
 		return nil, err
 	}
 
-	return &GetStockMovementsResult{Movements: movements}, nil
+	return &StockMovementsResult{Movements: movements}, nil
 }
