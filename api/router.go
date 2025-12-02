@@ -51,7 +51,7 @@ func Register(app *fiber.App, logger *slog.Logger) {
 		categoryGroupApi.Get("/", category_handler.Categories(logger))
 		categoryGroupApi.Get("/:id", category_handler.CategoryById(logger))
 		categoryGroupApi.Post("/", category_handler.Create(logger))
-		categoryGroupApi.Patch("/:id", category_handler.Update(logger))
+		categoryGroupApi.Put("/:id", category_handler.Update(logger))
 		categoryGroupApi.Delete("/:id", category_handler.DeleteById(logger))
 	}
 
@@ -60,7 +60,7 @@ func Register(app *fiber.App, logger *slog.Logger) {
 		productGroupApi.Get("/", product_handler.Products(logger))
 		productGroupApi.Get("/:id", product_handler.ProductById(logger))
 		productGroupApi.Post("/", product_handler.Create(logger))
-		productGroupApi.Patch("/:id", product_handler.Update(logger))
+		productGroupApi.Put("/:id", product_handler.Update(logger))
 		productGroupApi.Delete("/:id", product_handler.DeleteById(logger))
 		productGroupApi.Get("/:id/stock-summary", product_handler.ProductStockSummary(logger))
 	}

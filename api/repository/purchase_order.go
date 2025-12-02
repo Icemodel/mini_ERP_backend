@@ -14,7 +14,7 @@ type PurchaseOrder interface {
 	UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.PurchaseOrderStatus) error
 	Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrder, error)
 	Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error)
-	
+
 	CreateItem(tx *gorm.DB, item *model.PurchaseOrderItem) error
 	DeleteItemsByPurchaseOrderId(tx *gorm.DB, poId uuid.UUID) error
 	SearchItemsByPurchaseOrderId(db *gorm.DB, poId uuid.UUID) ([]*model.PurchaseOrderItem, error)
@@ -62,27 +62,27 @@ func (r *purchaseOrder) UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.P
 }
 
 func (r *purchaseOrder) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrder, error) {
-    pos := []model.PurchaseOrder{}
+	pos := []model.PurchaseOrder{}
 
-    query := db.Preload("PurchaseOrderItem").
-        Preload("PurchaseOrderItem.Product").
-        Preload("Supplier").
-        Where(conditions)
+	query := db.Preload("PurchaseOrderItem").
+		Preload("PurchaseOrderItem.Product").
+		Preload("Supplier").
+		Where(conditions)
 
-    if orderBy != "" {
-        query = query.Order(orderBy)
-    }
+	if orderBy != "" {
+		query = query.Order(orderBy)
+	}
 
-    if err := query.Find(&pos).Error; err != nil {
-        r.logger.Error("Failed to search purchase order", "error", err)
-        return nil, err
-    }
+	if err := query.Find(&pos).Error; err != nil {
+		r.logger.Error("Failed to search purchase order", "error", err)
+		return nil, err
+	}
 
-    if len(pos) == 0 {
-        return nil, gorm.ErrRecordNotFound
-    }
+	if len(pos) == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
 
-    return &pos[0], nil
+	return &pos[0], nil
 }
 
 func (r *purchaseOrder) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error) {

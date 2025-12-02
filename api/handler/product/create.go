@@ -16,16 +16,12 @@ import (
 //	@Tags			Product
 //	@Accept			json
 //	@Produce		json
-//	@Success		201	{object}	command.CreateResult
+//	@Param			request	body		command.CreateRequest	true	"Create Request"
+//	@Success		201		{object}	command.CreateResult
+//	@Failure		409		{object}	api.ErrorResponse	"Conflict: Product already exists"
+//	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input"
+//	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"
 //	@Router			/products [post]
-//
-//	@param			ProductCode		body	string	true	"Product Code"
-//	@param			CategoryId		body	string	true	"Category ID"
-//	@param			Name			body	string	true	"Product Name"
-//	@param			CostPrice		body	number	true	"Product CostPrice"
-//	@param			SellingPrice	body	number	true	"SellingPrice Product"
-//	@param			Unit			body	string	true	"Product Unit"
-//	@param			MinStock		body	number	true	"MinStock Product"
 func Create(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.CreateRequest{}

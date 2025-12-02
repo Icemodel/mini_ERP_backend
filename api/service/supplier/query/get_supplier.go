@@ -38,7 +38,7 @@ func (h *Supplier) Handle(ctx context.Context, req *SupplierRequest) (*SupplierR
 		"supplier_id": req.SupplierId,
 	}
 	supplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
-	
+
 	if err != nil {
 		h.logger.Error("Failed to get supplier", "supplier_id", req.SupplierId, "error", err)
 		return nil, err
