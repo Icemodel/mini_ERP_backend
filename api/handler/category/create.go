@@ -9,6 +9,18 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// Create is a function to create a new category
+//
+//	@Summary		Create Category
+//	@Description	Create a new category
+//	@Tags			Category
+//	@Accept			json
+//	@Produce		json
+//	@Success		201	{object}	command.CreateResult
+//	@Router			/categories [post]
+//
+//	@param			name		body	string	true	"Category Name"
+//	@param			description	body	string	false	"Category Description"
 func Create(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.CreateRequest{}

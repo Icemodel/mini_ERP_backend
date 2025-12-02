@@ -86,7 +86,7 @@ func (p product) SearchWithFiltersAndPagination(db *gorm.DB, filters ProductSear
 	// ค้นหาจาก search (ค้นหาทั้งชื่อและ product_code)
 	if filters.Search != "" {
 		searchPattern := "%" + filters.Search + "%"
-		query = query.Where("name LIKE ? OR product_code LIKE ?", searchPattern, searchPattern)
+		query = query.Where("name ILIKE ? OR product_code ILIKE ?", searchPattern, searchPattern)
 	}
 
 	// กรองตาม category_id

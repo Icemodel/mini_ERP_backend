@@ -24,7 +24,7 @@ type StockTransaction struct {
 	CreatedAt          time.Time       `gorm:"not null" json:"created_at"`
 	CreatedBy          string          `gorm:"type:uuid;not null" json:"created_by"`
 
-	Product Product `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
+	Product Product `gorm:"constraint:OnDelete:CASCADE;" json:"Product"`
 
 	// PurchaseOrder *PurchaseOrder `gorm:"foreignKey:ReferenceId"`
 	// User User `gorm:"foreignKey:CreatedBy"`
