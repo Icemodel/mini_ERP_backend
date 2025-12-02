@@ -15,7 +15,7 @@ type Report interface {
 	GetPurchaseSummary(db *gorm.DB, year int, month int) ([]PurchaseSummaryResult, error)
 }
 
-type report struct{
+type report struct {
 	logger *slog.Logger
 }
 

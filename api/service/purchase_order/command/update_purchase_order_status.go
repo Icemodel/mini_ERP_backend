@@ -20,7 +20,7 @@ type UpdatePOStatus struct {
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID                 
+	PurchaseOrderId uuid.UUID
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
 	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
