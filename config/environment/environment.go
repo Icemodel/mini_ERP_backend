@@ -11,7 +11,7 @@ var (
 	RefreshTokenSecretKey  = "LOGIN_REFRESH_SECRET"
 	AccessTokenExpMinsKey  = "LOGIN_ACCESS_EXP_MINS"
 	RefreshTokenExpMinsKey = "LOGIN_REFRESH_EXP_MINS"
-	AllowOriginKey         = "ORIGIN_ALLOWED"
+	AllowOriginKey         = "ALLOW_ORIGINS"
 	AllowCredentialKey     = "ALLOW_CREDENTIALS"
 )
 

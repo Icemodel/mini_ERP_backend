@@ -10,11 +10,18 @@ import (
 	"mini-erp-backend/api/handler/report"
 	stocktransaction_handler "mini-erp-backend/api/handler/stock_transaction"
 	"mini-erp-backend/api/handler/supplier"
+	"mini-erp-backend/lib/jwt"
+	"mini-erp-backend/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func Register(app *fiber.App, logger *slog.Logger) {
+func Register(
+	app *fiber.App,
+	logger *slog.Logger,
+	jwt jwt.Manager,
+	mid *middleware.FiberMiddleware,
+) {
 	v1 := app.Group("/api/v1")
 
 	// Supplier routes
@@ -78,6 +85,12 @@ func Register(app *fiber.App, logger *slog.Logger) {
 	authGroupApi := v1.Group("/auth")
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
-		authGroupApi.Post("/register", register_handler.Register(logger))
+		authGroupApi.Post("/token/refresh", auth_handler.RefreshLoginToken(logger))
+	}
+	roleGroupApi := v1.Group("/role")
+	{
+		roleGroupApi.Use(mid.Authenticated())
+
+		roleGroupApi.Post("/register", mid.RequireMinRole("admin"), register_handler.Register(logger))
 	}
 }

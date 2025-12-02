@@ -212,24 +212,43 @@ func (m manager) ExtractAccessToken(tokenStr string) (*LoginAccessClaims, error)
 }
 
 func (m manager) GetAccessTokenFromContext(c *fiber.Ctx) (token string, err error) {
-	var tokenstr string
-	bearToken := c.Get("Authorization")
+	// Try to read Authorization header first
+	bearToken := strings.TrimSpace(c.Get("Authorization"))
 
+	// Fallback to cookie named `access_token` when header is absent
 	if bearToken == "" {
+		cookie := strings.TrimSpace(c.Cookies("access_token"))
+		if cookie != "" {
+			return strings.Trim(cookie, "\"'"), nil
+		}
+
 		errMsg := "token is empty"
-		m.logger.Error(errMsg)
+		if m.logger != nil {
+			m.logger.Debug(errMsg)
+		}
 		return "", errors.New(errMsg)
 	}
 
-	if len(bearToken) > 7 && strings.ToUpper(bearToken[0:6]) == "BEARER" {
-		tokenstr = bearToken[7:]
+	// Accept case-insensitive "bearer " prefix and tolerate extra whitespace or quoted token
+	lower := strings.ToLower(bearToken)
+	if strings.HasPrefix(lower, "bearer ") {
+		tokenstr := strings.TrimSpace(bearToken[len("bearer "):])
+		tokenstr = strings.Trim(tokenstr, "\"'")
 		return tokenstr, nil
-	} else {
-		errMsg := "invalid authorize token header"
-		m.logger.Error(errMsg)
-		return "", errors.New(errMsg)
 	}
 
+	errMsg := "invalid authorize token header"
+	if m.logger != nil {
+		m.logger.Debug(errMsg, "header", bearToken[:min(len(bearToken), 32)])
+	}
+	return "", errors.New(errMsg)
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func (m manager) ExtractRefreshToken(tokenStr string) (*LoginRefreshClaims, error) {

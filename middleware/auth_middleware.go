@@ -8,7 +8,11 @@ import (
 	"mini-erp-backend/utils"
 	"os"
 	"strconv"
+	"strings"
+
 	"sync"
+
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -39,7 +43,7 @@ func getFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userRepo repository.UserAuthen,
+	userAuthenRepo repository.UserAuthen,
 ) *FiberMiddleware {
 	if fiberMiddlewareInstance == nil {
 		fiberMiddlewareLock.Lock()
@@ -49,7 +53,7 @@ func getFiberMiddlewareInstance(
 				db,
 				logger,
 				jwtManager,
-				userRepo,
+				userAuthenRepo,
 			)
 		}
 	}
@@ -62,9 +66,9 @@ func NewFiberMiddleware(
 	db *gorm.DB,
 	logger *slog.Logger,
 	jwtManager jwt.Manager,
-	userRepo repository.UserAuthen,
+	userAuthenRepo repository.UserAuthen,
 ) *FiberMiddleware {
-	return getFiberMiddlewareInstance(db, logger, jwtManager, userRepo)
+	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo)
 }
 
 // create the fiberMiddlewareInstance and set up it
@@ -77,7 +81,7 @@ func createFiberMiddlewareInstance(
 	allowCredential, err := strconv.ParseBool(environment.GetString(environment.AllowCredentialKey))
 	if err != nil {
 		message := "Failed to set CORS config"
-		logger.Error(message, err.Error())
+		logger.Error(message, "error", err)
 		os.Exit(1)
 	}
 
@@ -142,10 +146,52 @@ func (f *FiberMiddleware) Authenticated() fiber.Handler {
 
 		userData := utils.UserDataCtx{
 			UserId: claims.UserId,
-			Role:   claims.Role,
+			Role:   strings.ToLower(claims.Role),
 		}
 		utils.SetUserDataLocal(c, userData)
 
 		return c.Next()
+	}
+}
+
+var roleLevel = map[string]int{
+	"viewer": 1,
+	"staff":  2,
+	"admin":  3,
+}
+
+func (f *FiberMiddleware) RequireMinRole(minRole string) fiber.Handler {
+	min := 999
+	if lvl, ok := roleLevel[strings.ToLower(minRole)]; ok {
+		min = lvl
+	}
+
+	return func(c *fiber.Ctx) error {
+		// read local safely to avoid panics if not set
+		v := c.Locals(utils.CONTEXT_USER_DATA_KEY)
+		if v == nil {
+			f.logger.Error("authorization: user data missing in context")
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		}
+
+		ud, ok := v.(utils.UserDataCtx)
+		if !ok {
+			f.logger.Error("authorization: invalid user data type in context")
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+		}
+
+		// ensure role present
+		role := strings.ToLower(strings.TrimSpace(ud.Role))
+		if role == "" || ud.UserId == uuid.Nil {
+			f.logger.Error("authorization: role or user id missing in user data")
+			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "role missing or invalid"})
+		}
+
+		if lvl, ok := roleLevel[role]; ok && lvl >= min {
+			return c.Next()
+		}
+
+		f.logger.Error("authorization: forbidden", "required_min_role", minRole, "user_role", role)
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "forbidden role for this action"})
 	}
 }
