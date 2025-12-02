@@ -18,6 +18,9 @@ import (
 //	@Produce		json
 //	@Param			request	body		command.StockInRequest	true	"Stock In Request"
 //	@Success		201		{object}	command.StockInResult
+//	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input or insufficient stock"
+//	@Failure		404		{object}	api.ErrorResponse	"Not Found: Product does not exist"
+//	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"s
 //	@Router			/stock/in [post]
 func StockIn(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
