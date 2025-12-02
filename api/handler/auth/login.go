@@ -45,7 +45,7 @@ func Login(logger *slog.Logger) fiber.Handler {
 				Name:     "refresh_token",
 				Value:    response.RefreshToken,
 				HTTPOnly: true,
-				Secure:   true,
+				Secure:   false,
 				SameSite: "Lax",
 				Path:     "/",
 				Expires:  time.Unix(response.RefreshTokenExp, 0),

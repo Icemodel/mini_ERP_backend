@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"errors"
 	"log/slog"
 	"mini-erp-backend/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+var ErrSessionRevoked = errors.New("session revoked")
 
 type UserSession interface {
 	Create(db *gorm.DB, session *model.UserSession) error
@@ -46,9 +49,10 @@ func (r *userSession) Create(db *gorm.DB, session *model.UserSession) error {
 
 func (r *userSession) GetSessionByRefreshToken(db *gorm.DB, refreshToken string) (*model.UserSession, error) {
 	var session model.UserSession
+	// First try to find any session with this refresh token (include revoked flag)
 	err := db.Model(&model.UserSession{}).
 		Select("refresh_token", "revoked", "user_id", "session_id").
-		Where("refresh_token = ? AND revoked = ?", refreshToken, false).
+		Where("refresh_token = ?", refreshToken).
 		First(&session).Error
 
 	if err != nil {
@@ -56,6 +60,14 @@ func (r *userSession) GetSessionByRefreshToken(db *gorm.DB, refreshToken string)
 			r.logger.Error("failed to find user session by refresh token", "error", err)
 		}
 		return nil, err
+	}
+
+	// If the session exists but is revoked, return a specific error
+	if session.Revoked {
+		if r.logger != nil {
+			r.logger.Warn("refresh token found but revoked", "session_id", session.SessionId)
+		}
+		return nil, ErrSessionRevoked
 	}
 
 	return &session, nil
