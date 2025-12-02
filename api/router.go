@@ -2,6 +2,7 @@ package api
 
 import (
 	"log/slog"
+	auth_handler "mini-erp-backend/api/handler/auth"
 	category_handler "mini-erp-backend/api/handler/category"
 	product_handler "mini-erp-backend/api/handler/product"
 	"mini-erp-backend/api/handler/purchase_order"
@@ -71,5 +72,11 @@ func Register(app *fiber.App, logger *slog.Logger) {
 		stockGroupApi.Post("/in", stocktransaction_handler.StockIn(logger))
 		stockGroupApi.Post("/out", stocktransaction_handler.StockOut(logger))
 		stockGroupApi.Post("/adjust", stocktransaction_handler.StockAdjust(logger))
+	}
+
+	authGroupApi := v1.Group("/auth")
+	{
+		authGroupApi.Post("/login", auth_handler.Login(logger))
+		authGroupApi.Post("/register", auth_handler.Register(logger)) // ใช้ Test เพิ่ม User
 	}
 }

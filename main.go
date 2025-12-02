@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mini-erp-backend/api"
 	"mini-erp-backend/api/repository"
+	"mini-erp-backend/api/service/auth"
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/api/service/purchase_order"
@@ -16,6 +17,7 @@ import (
 	"mini-erp-backend/lib/logging"
 
 	_ "mini-erp-backend/docs"
+	"mini-erp-backend/model"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -55,6 +57,7 @@ func main() {
 	supplierRepo := repository.NewSupplier(log.Slogger)
 	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
 	reportRepo := repository.NewReport(log.Slogger)
+	userAuthen := repository.NewUserAuthen(log.Slogger)
 	// endregion
 
 	// region Service
@@ -64,21 +67,22 @@ func main() {
 	purchase_order.NewService(db, log.Slogger, purchase_orderRepo)
 	supplier.NewService(log.Slogger, db, supplierRepo)
 	report.NewService(log.Slogger, db, reportRepo)
+	auth.NewService(db, log.Slogger, jwtManager, userAuthen)
 	// endregion
 
-	// region Migrations
-	// if err := db.AutoMigrate(
-	// 	&model.User{},
-	// 	&model.Category{},
-	// 	&model.Supplier{},
-	// 	&model.Product{},
-	// 	&model.PurchaseOrder{},
-	// 	&model.AuditLog{},
-	// 	&model.PurchaseOrderItem{},
-	// 	&model.StockTransaction{},
-	// ); err != nil {
-	// 	log.Slogger.Error("Migration failed", "error", err)
-	// }
+	if err := db.AutoMigrate(
+		&model.User{},
+		&model.Category{},
+		&model.Supplier{},
+		&model.Product{},
+		&model.PurchaseOrder{},
+		&model.AuditLog{},
+		&model.PurchaseOrderItem{},
+		&model.StockTransaction{},
+	); err != nil {
+		log.Slogger.Error("Migration failed", "error", err)
+	}
+
 	// endregion
 
 	// region Routes
@@ -92,7 +96,7 @@ func main() {
 
 	if environment.GetString("ENV") == "development" {
 		app.Get("/swagger/*", swagger.HandlerDefault)
-	}
 
-	app.Listen(":" + environment.GetString("PORT"))
+		app.Listen(":" + environment.GetString("PORT"))
+	}
 }
