@@ -9,6 +9,19 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// StockOut is a function to handle stock out transactions
+//
+//	@Summary		Stock Out
+//	@Description	Handle stock out for a product
+//	@Tags			StockTransaction
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		command.StockOutRequest	true	"Stock Out Request"
+//	@Success		201		{object}	command.StockOutResult
+//	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input or insufficient stock"
+//	@Failure		404		{object}	api.ErrorResponse	"Not Found: Product does not exist"
+//	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"
+//	@Router			/stock/out [post]
 func StockOut(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.StockOutRequest{}

@@ -17,7 +17,7 @@ type AllPurchaseOrders struct {
 
 type AllPurchaseOrdersRequest struct {
 	Status  *model.PurchaseOrderStatus `json:"status"`
-	OrderBy string                      `json:"order_by"`
+	OrderBy string                     `json:"order_by"`
 }
 
 type AllPurchaseOrdersResult struct {
@@ -38,7 +38,7 @@ func NewAllPurchaseOrders(
 
 func (h *AllPurchaseOrders) Handle(ctx context.Context, req *AllPurchaseOrdersRequest) (*AllPurchaseOrdersResult, error) {
 	conditions := make(map[string]interface{})
-	
+
 	if req.Status != nil {
 		conditions["status"] = *req.Status
 	}

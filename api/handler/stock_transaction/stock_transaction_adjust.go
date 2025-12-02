@@ -9,6 +9,19 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// StockAdjust is a function to handle stock adjustment transactions
+//
+//	@Summary		Adjust Stock
+//	@Description	Adjust stock for a product
+//	@Tags			StockTransaction
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		command.StockAdjustRequest	true	"Stock Adjust Request"
+//	@Success		201		{object}	command.StockAdjustResult
+//	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input, reason required, or quantity cannot be zero"
+//	@Failure		404		{object}	api.ErrorResponse	"Not Found: Product does not exist"
+//	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"
+//	@Router			/stock/adjust [post]
 func StockAdjust(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.StockAdjustRequest{}

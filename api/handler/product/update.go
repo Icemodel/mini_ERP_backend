@@ -10,6 +10,21 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// Update is a function to update a product by its ID
+//
+//	@Summary		Update Product
+//	@Description	Update a product by its ID
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		string					true	"Product ID"
+//	@Param			request	body		command.UpdateRequest	true	"Update Request"
+//	@Success		200		{object}	command.UpdateResult
+//	@Failure		409		{object}	api.ErrorResponse		"Conflict: Product already exists"
+//	@Failure		400		{object}	api.ErrorResponse		"Bad Request: Invalid input"
+//	@Failure		404		{object}	api.ErrorResponse		"Not Found: Product does not exist"
+//	@Failure		500		{object}	api.ErrorResponse		"Internal Server Error"
+//	@Router			/products/{id} [put]
 func Update(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		productIdParam := c.Params("id")

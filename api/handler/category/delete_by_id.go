@@ -17,6 +17,8 @@ import (
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	command.DeleteByIdResult
+//	@Failure		404	{object}	map[string]string	"Not Found: Category does not exist"
+//	@Failure		500	{object}	map[string]string	"Internal Server Error"
 //	@Router			/categories/{id} [delete]
 //
 //	@param			id	path	string	true	"Category ID"

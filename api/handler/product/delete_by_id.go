@@ -9,6 +9,16 @@ import (
 	"github.com/mehdihadeli/go-mediatr"
 )
 
+// DeleteById is a function to delete a product by its ID
+//
+//	@Summary		Delete Product
+//	@Description	Delete a product by its ID
+//	@Tags			Product
+//	@Accept			json
+//	@Produce		json
+//	@Param			id	path		string	true	"Product ID"
+//	@Success		200	{object}	command.DeleteByIdResult
+//	@Router			/products/{id} [delete]
 func DeleteById(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		productIdParam := c.Params("id")

@@ -22,7 +22,7 @@ type StockTransactionQuery struct {
 //
 //	@Summary		Get Stock Transactions list
 //	@Description	Get stock transactions list
-//	@Tags			StockTransactions
+//	@Tags				StockTransaction
 //	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	query.StocksResult

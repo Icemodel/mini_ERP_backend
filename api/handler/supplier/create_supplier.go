@@ -10,32 +10,32 @@ import (
 
 // CreateSupplier
 //
-// 	@Summary		Create a new supplier
-// 	@Description	Create a new supplier with the provided information
-// 	@Tags			Supplier
-// 	@Accept			json
-// 	@Produce		json
-// 	@Param			supplier	body	command.CreateSupplierRequest	true	"Supplier information"
-// 	@Success		201	{object}	model.Supplier
-// 	@Failure		400	{object}	api.ErrorResponse
-// 	@Failure		500	{object}	api.ErrorResponse
-// 	@Router			/suppliers [post]
+//	@Summary		Create a new supplier
+//	@Description	Create a new supplier with the provided information
+//	@Tags			Supplier
+//	@Accept			json
+//	@Produce		json
+//	@Param			supplier	body	command.CreateSupplierRequest	true	"Supplier information"
+//	@Success		201	{object}	model.Supplier
+//	@Failure		400	{object}	api.ErrorResponse
+//	@Failure		500	{object}	api.ErrorResponse
+//	@Router			/suppliers [post]
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
-    return func(c *fiber.Ctx) error {
-        var req command.CreateSupplierRequest
+	return func(c *fiber.Ctx) error {
+		var req command.CreateSupplierRequest
 
-        err := c.BodyParser(&req)
-        if err != nil {
-            logger.Error("Failed to parse request body", "error", err)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
-        }
+		err := c.BodyParser(&req)
+		if err != nil {
+			logger.Error("Failed to parse request body", "error", err)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+		}
 
-        result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
-        if err != nil {
-            logger.Error("Failed to create supplier", "error", err)
-            return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
-        }
+		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
+		if err != nil {
+			logger.Error("Failed to create supplier", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
 
-        return c.Status(fiber.StatusCreated).JSON(result)
-    }
+		return c.Status(fiber.StatusCreated).JSON(result)
+	}
 }
