@@ -45,20 +45,6 @@ func NewUpdatePurchaseOrderHandler(
 }
 
 func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrderRequest) (interface{}, error) {
-	// Find PO
-	po, err := h.PORepo.Search(h.db, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		return nil, err
-	}
-
-	// Only DRAFT can be updated
-	if po.Status != model.Draft {
-		h.logger.Error("Cannot update purchase order - invalid status", "status", po.Status)
-		return nil, errors.New("can only update draft purchase orders")
-	}
-
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -67,13 +53,29 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		}
 	}()
 
+	// Find PO
+	po, err := h.PORepo.Search(tx, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	// Only DRAFT can be updated
+	if po.Status != model.Draft {
+		tx.Rollback()
+		h.logger.Error("Cannot update purchase order - invalid status", "status", po.Status)
+		return nil, errors.New("can only update draft purchase orders")
+	}
+
 	// Fetch product prices and calculate total amount
 	var totalAmount uint64
 	itemPrices := make(map[uuid.UUID]float64)
 
 	for _, it := range req.Items {
 		// Fetch product to get cost price
-		product, err := h.ProductRepo.Search(h.db, map[string]interface{}{
+		product, err := h.ProductRepo.Search(tx, map[string]interface{}{
 			"product_id": it.ProductId,
 		}, "")
 		if err != nil {
@@ -122,14 +124,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		return nil, err
 	}
 
-	// Fetch updated PO
-	updatedPO, err := h.PORepo.Search(h.db, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		return nil, err
-	}
-
 	h.logger.Info("Purchase order updated successfully", "po_id", req.PurchaseOrderId)
-	return updatedPO, nil
+	return po, nil
 }

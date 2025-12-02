@@ -108,14 +108,6 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 		return nil, err
 	}
 
-	// Fetch complete PO with relations
-	completePO, err := h.PORepo.Search(h.db, map[string]interface{}{
-		"purchase_order_id": po.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		return nil, err
-	}
-
 	h.logger.Info("Purchase order created successfully", "po_id", po.PurchaseOrderId)
-	return completePO, nil
+	return po, nil
 }

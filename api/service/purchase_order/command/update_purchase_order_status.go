@@ -20,8 +20,9 @@ type UpdatePOStatus struct {
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID               
+	PurchaseOrderId uuid.UUID                 
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
+	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
 
 func NewUpdatePOStatusHandler(
@@ -39,26 +40,6 @@ func NewUpdatePOStatusHandler(
 }
 
 func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest) (interface{}, error) {
-	// Find PO
-	po, err := h.PORepo.Search(h.db, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		return nil, err
-	}
-
-	// If changing to RECEIVED, validate that items exist
-	if req.Status == model.Received {
-		items, err := h.PORepo.SearchItemsByPurchaseOrderId(h.db, req.PurchaseOrderId)
-		if err != nil {
-			return nil, err
-		}
-		if len(items) == 0 {
-			h.logger.Error("Cannot receive purchase order without items", "po_id", req.PurchaseOrderId)
-			return nil, errors.New("cannot receive purchase order without items")
-		}
-	}
-
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -66,6 +47,22 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 			tx.Rollback()
 		}
 	}()
+
+	// If changing to RECEIVED, validate that items exist
+	var items []*model.PurchaseOrderItem
+	var err error
+	if req.Status == model.Received {
+		items, err = h.PORepo.SearchItemsByPurchaseOrderId(tx, req.PurchaseOrderId)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		if len(items) == 0 {
+			tx.Rollback()
+			h.logger.Error("Cannot receive purchase order without items", "po_id", req.PurchaseOrderId)
+			return nil, errors.New("cannot receive purchase order without items")
+		}
+	}
 
 	// Update status
 	if err := h.PORepo.UpdateStatus(tx, req.PurchaseOrderId, req.Status); err != nil {
@@ -75,17 +72,10 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 
 	// If status is RECEIVED, create Stock IN transactions
 	if req.Status == model.Received {
-		// Get PO items
-		items, err := h.PORepo.SearchItemsByPurchaseOrderId(h.db, req.PurchaseOrderId)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-
 		// Create Stock IN transactions for each item
 		for _, item := range items {
-			// หา transaction ล่าสุด สำหรับ product_id และ reference_id นี้
-			latestStockTx, err := h.StockRepo.GetLatestByProductAndReference(tx, item.ProductId, req.PurchaseOrderId)
+			// หา transaction ล่าสุด สำหรับ product_id
+			latestStockTx, err := h.StockRepo.GetLatestByProduct(tx, item.ProductId)
 			if err != nil {
 				tx.Rollback()
 				return nil, err
@@ -106,7 +96,7 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				Reason:             stringPtr("Purchase Order Received"),
 				ReferenceId:        &req.PurchaseOrderId,
 				CreatedAt:          time.Now(),
-				CreatedBy:          po.CreatedBy.String(),
+				CreatedBy:          req.CreatedBy.String(),
 			}
 
 			if err := h.StockRepo.Create(tx, stockTx); err != nil {
@@ -136,16 +126,11 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 		return nil, err
 	}
 
-	// Fetch updated PO
-	updatedPO, err := h.PORepo.Search(h.db, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		return nil, err
-	}
-
 	h.logger.Info("Purchase order status updated", "po_id", req.PurchaseOrderId, "status", req.Status)
-	return updatedPO, nil
+	return map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+		"status":            req.Status,
+	}, nil
 }
 
 func stringPtr(s string) *string {
