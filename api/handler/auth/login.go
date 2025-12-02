@@ -30,6 +30,7 @@ func Login(logger *slog.Logger) fiber.Handler {
 		request := query.LoginRequest{
 			Username: req.Username,
 			Password: req.Password,
+
 		}
 
 		response, err := mediatr.Send[*query.LoginRequest, *query.LoginResult](c.Context(), &request)
