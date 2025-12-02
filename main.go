@@ -12,6 +12,7 @@ import (
 	"mini-erp-backend/api/service/supplier"
 	"mini-erp-backend/config/database"
 	"mini-erp-backend/config/environment"
+	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
 
 	_ "mini-erp-backend/docs"
@@ -39,6 +40,7 @@ func main() {
 	log := logging.New()
 
 	app.Use(cors.New())
+	jwtManager := jwt.New(log.Slogger)
 
 	environment.LoadEnvironment()
 
@@ -80,7 +82,12 @@ func main() {
 	// endregion
 
 	// region Routes
-	api.Register(app, log.Slogger)
+	api.Register(
+		app,
+		log.Slogger,
+		jwtManager,
+	)
+
 	// endregion
 
 	if environment.GetString("ENV") == "development" {
