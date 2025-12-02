@@ -7,7 +7,6 @@ import (
 	product_handler "mini-erp-backend/api/handler/product"
 	"mini-erp-backend/api/handler/purchase_order"
 	"mini-erp-backend/api/handler/purchase_order_item"
-	"mini-erp-backend/api/handler/purchase_order_item"
 	register_handler "mini-erp-backend/api/handler/register"
 	"mini-erp-backend/api/handler/report"
 	stocktransaction_handler "mini-erp-backend/api/handler/stock_transaction"
@@ -79,13 +78,11 @@ func Register(
 	// Purchase Order Item routes
 	purchaseOrderItemGroup := v1.Group("/purchase-order-items")
 	{
-		purchaseOrderItemGroup.Get("/", purchase_order_item.AllPurchaseOrderItems(logger))
-		purchaseOrderItemGroup.Get("/", purchase_order_item.AllPurchaseOrderItems(logger))
 		purchaseOrderItemGroup.Get("/:po_id", purchase_order_item.PurchaseOrderItems(logger))
-		purchaseOrderItemGroup.Get("/item/:item_id", purchase_order_item.PurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Post("/", purchase_order_item.CreatePurchaseOrderItem(logger))
-		purchaseOrderItemGroup.Put("/:item_id", purchase_order_item.UpdatePurchaseOrderItem(logger))
-		purchaseOrderItemGroup.Delete("/:item_id", purchase_order_item.DeletePurchaseOrderItem(logger))
+		purchaseOrderItemGroup.Get("/:item_id", purchase_order_item.PurchaseOrderItem(logger))
+		purchaseOrderItemGroup.Put("/:po_id/items/:item_id", purchase_order_item.UpdatePurchaseOrderItem(logger))
+		purchaseOrderItemGroup.Delete("/:po_id/items/:item_id", purchase_order_item.DeletePurchaseOrderItem(logger))
 	}
 
 	// Report routes

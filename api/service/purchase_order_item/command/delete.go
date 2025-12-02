@@ -19,6 +19,7 @@ type DeletePurchaseOrderItem struct {
 
 type DeletePurchaseOrderItemRequest struct {
 	PurchaseOrderItemId uuid.UUID
+	PurchaseOrderId     uuid.UUID
 }
 
 func NewDeletePurchaseOrderItem(
@@ -43,21 +44,10 @@ func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchas
 		}
 	}()
 
-	// Get existing item first to get purchase_order_id
-	item_id := map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}
-	item, err := h.POItemRepo.Search(tx, item_id, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
 	// Verify PO is DRAFT
-	po_id := map[string]interface{}{
-		"purchase_order_id": item.PurchaseOrderId,
-	}
-	po, err := h.PORepo.Search(tx, po_id, "")
+	po, err := h.PORepo.Search(tx, map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}, "")
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -71,6 +61,11 @@ func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchas
 
 	// Delete item
 	if err := h.POItemRepo.Delete(tx, req.PurchaseOrderItemId); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
 		return nil, err
 	}

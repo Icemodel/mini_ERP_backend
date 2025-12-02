@@ -13,15 +13,15 @@ import (
 )
 
 type UpdatePOStatus struct {
-	logger    *slog.Logger
-	db        *gorm.DB
-	PORepo    repository.PurchaseOrder
+	logger     *slog.Logger
+	db         *gorm.DB
+	PORepo     repository.PurchaseOrder
 	POItemRepo repository.PurchaseOrderItem
-	StockRepo repository.StockTransaction
+	StockRepo  repository.StockTransaction
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID                 `json:"-" swaggerignore:"true"`
+	PurchaseOrderId uuid.UUID
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
 }
 
@@ -33,11 +33,11 @@ func NewUpdatePOStatus(
 	stockRepo repository.StockTransaction,
 ) *UpdatePOStatus {
 	return &UpdatePOStatus{
-		logger:    logger,
-		db:        db,
-		PORepo:    poRepo,
+		logger:     logger,
+		db:         db,
+		PORepo:     poRepo,
 		POItemRepo: poItemRepo,
-		StockRepo: stockRepo,
+		StockRepo:  stockRepo,
 	}
 }
 
@@ -90,7 +90,7 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				return nil, err
 			}
 
-			// Calculate new quantity 
+			// Calculate new quantity
 			newQuantity := int64(item.Quantity)
 			if latestStockTx != nil {
 				newQuantity = latestStockTx.Quantity + int64(item.Quantity)
