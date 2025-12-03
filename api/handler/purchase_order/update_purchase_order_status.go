@@ -3,7 +3,6 @@ package purchase_order
 import (
 	"log/slog"
 	"mini-erp-backend/api/service/purchase_order/command"
-	"mini-erp-backend/model"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -17,16 +16,17 @@ import (
 //	@Tags			PurchaseOrder
 //	@Accept			json
 //	@Produce		json
-//	@Param			id		status		path	string	true	"Purchase Order ID (UUID)"
-//	@Param			status	body		object	true	"Status update"
-//	@Success		200		{object}	model.PurchaseOrder
-//	@Failure		400		{object}	fiber.Map
-//	@Failure		500		{object}	fiber.Map
-//	@Router			/api/v1/purchase-orders/{id}/status [put]
+//	@Param			id		path	string							true	"Purchase Order ID (UUID)"
+//	@Param			request	body	command.UpdatePOStatusRequest	true	"Status update request"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		400		{object}	api.ErrorResponse
+//	@Failure		500		{object}	api.ErrorResponse
+//	@Router			/purchase-orders/{id}/status [put]
 func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		poIdStr := c.Params("id")
 		poId, err := uuid.Parse(poIdStr)
+
 		if err != nil {
 			logger.Error("Invalid purchase order ID", "id", poIdStr, "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -34,10 +34,8 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 			})
 		}
 
-		var body struct {
-			Status model.PurchaseOrderStatus `json:"status"`
-		}
-		err = c.BodyParser(&body)
+		var req command.UpdatePOStatusRequest
+		err = c.BodyParser(&req)
 		if err != nil {
 			logger.Error("Failed to parse request body", "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -45,12 +43,9 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 			})
 		}
 
-		req := &command.UpdatePOStatusRequest{
-			PurchaseOrderId: poId,
-			Status:          body.Status,
-		}
+		req.PurchaseOrderId = poId
 
-		result, err := mediatr.Send[*command.UpdatePOStatusRequest, interface{}](c.Context(), req)
+		result, err := mediatr.Send[*command.UpdatePOStatusRequest, interface{}](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to update purchase order status", "po_id", poId, "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

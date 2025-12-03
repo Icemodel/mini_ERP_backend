@@ -16,7 +16,7 @@ type UpdateSupplier struct {
 }
 
 type UpdateSupplierRequest struct {
-	SupplierId uuid.UUID `json:"supplier_id" validate:"required"`
+	SupplierId uuid.UUID `json:"-"`
 	Name       string    `json:"name" validate:"required"`
 	Phone      string    `json:"phone" validate:"required"`
 	Email      string    `json:"email" validate:"required,email"`

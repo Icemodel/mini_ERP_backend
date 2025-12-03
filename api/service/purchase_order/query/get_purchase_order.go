@@ -37,9 +37,10 @@ func NewPurchaseOrder(
 }
 
 func (h *PurchaseOrder) Handle(ctx context.Context, req *PurchaseOrderRequest) (*PurchaseOrderResult, error) {
-	po, err := h.PORepo.Search(h.db, map[string]interface{}{
+	condition := map[string]interface{}{
 		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
+	}
+	po, err := h.PORepo.Search(h.db, condition, "")
 	if err != nil {
 		h.logger.Error("Failed to get purchase order", "po_id", req.PurchaseOrderId, "error", err)
 		return nil, err

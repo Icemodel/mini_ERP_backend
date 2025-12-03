@@ -3,6 +3,7 @@ package supplier
 import (
 	"log/slog"
 	"mini-erp-backend/api/service/supplier/command"
+	"regexp"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mehdihadeli/go-mediatr"
@@ -15,11 +16,13 @@ import (
 //	@Tags			Supplier
 //	@Accept			json
 //	@Produce		json
-//	@Param			supplier	body		command.CreateSupplierRequest	true	"Supplier information"
-//	@Success		201			{object}	model.Supplier
-//	@Failure		400			{object}	fiber.Map
-//	@Failure		500			{object}	fiber.Map
-//	@Router			/api/v1/suppliers [post]
+//	@Param			supplier	body	command.CreateSupplierRequest	true	"Supplier information"
+//	@Success		201	{object}	model.Supplier
+//	@Failure		400	{object}	api.ErrorResponse
+//	@Failure		500	{object}	api.ErrorResponse
+//	@Router			/suppliers [post]
+var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
+
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req command.CreateSupplierRequest
@@ -28,6 +31,11 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		if err != nil {
 			logger.Error("Failed to parse request body", "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+		}
+
+		if !phoneRegex.MatchString(req.Phone) {
+			logger.Error("Invalid phone number format", "phone", req.Phone)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
 		}
 
 		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
