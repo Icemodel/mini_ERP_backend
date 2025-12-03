@@ -622,6 +622,287 @@ const docTemplate = `{
                 }
             }
         },
+        "/purchase-order-items": {
+            "get": {
+                "description": "Get all purchase order items across all purchase orders",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "List all purchase order items",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PurchaseOrderItem"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new item to a draft purchase order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "Add item to purchase order",
+                "parameters": [
+                    {
+                        "description": "Item information",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.CreatePurchaseOrderItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.PurchaseOrderItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchase-order-items/item/{item_id}": {
+            "get": {
+                "description": "Get details of a specific purchase order item",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "Get purchase order item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Purchase Order Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PurchaseOrderItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchase-order-items/{item_id}": {
+            "put": {
+                "description": "Update quantity of a purchase order item (draft only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "Update purchase order item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Purchase Order Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated item information",
+                        "name": "item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.UpdatePurchaseOrderItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.PurchaseOrderItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove an item from a draft purchase order",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "Delete purchase order item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Purchase Order Item ID",
+                        "name": "item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchase-order-items/{po_id}": {
+            "get": {
+                "description": "Get all items for a specific purchase order",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PurchaseOrderItem"
+                ],
+                "summary": "List purchase order items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Purchase Order ID",
+                        "name": "po_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.PurchaseOrderItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/purchase-orders": {
             "get": {
                 "description": "Retrieve a list of all purchase orders",
@@ -1725,14 +2006,19 @@ const docTemplate = `{
             }
         },
         "command.CreatePurchaseOrderItemRequest": {
+        "command.CreatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
                 "product_id",
+                "purchase_order_id",
                 "purchase_order_id",
                 "quantity"
             ],
             "properties": {
                 "product_id": {
+                    "type": "string"
+                },
+                "purchase_order_id": {
                     "type": "string"
                 },
                 "purchase_order_id": {
@@ -1877,14 +2163,13 @@ const docTemplate = `{
                 }
             }
         },
-        "command.UpdatePurchaseOrderItem": {
+        "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
+            "required": [
+                "quantity"
+            ],
             "properties": {
-                "created_by": {
-                    "description": "ผู้ทำรายการ",
-                    "type": "string"
-                },
-                "product_id": {
+                "purchaseOrderItemId": {
                     "type": "string"
                 },
                 "quantity": {
@@ -2004,9 +2289,16 @@ const docTemplate = `{
         "command.UpdatePurchaseOrderRequest": {
             "type": "object",
             "required": [
+                "created_by",
                 "supplier_id"
             ],
             "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "purchaseOrderId": {
+                    "type": "string"
+                },
                 "supplier_id": {
                     "type": "string"
                 }
@@ -2351,6 +2643,7 @@ const docTemplate = `{
             "properties": {
                 "created_at": {
                     "description": "TotalAmount     uint64              ` + "`" + `gorm:\"not null\" json:\"total_amount\"` + "`" + `",
+                    "description": "TotalAmount     uint64              ` + "`" + `gorm:\"not null\" json:\"total_amount\"` + "`" + `",
                     "type": "string"
                 },
                 "created_by": {
@@ -2425,6 +2718,9 @@ const docTemplate = `{
                 },
                 "created_by": {
                     "type": "string"
+                },
+                "product": {
+                    "$ref": "#/definitions/model.Product"
                 },
                 "product": {
                     "$ref": "#/definitions/model.Product"
