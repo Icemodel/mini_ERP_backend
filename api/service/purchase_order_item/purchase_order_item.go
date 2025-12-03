@@ -38,7 +38,7 @@ func NewService(db *gorm.DB, logger *slog.Logger,purchaseOrderItemRepo repositor
 
 	// Register query handlers
 	itemHandler := query.NewPurchaseOrderItem(logger, db, poItemRepo)
-	itemsHandler := query.NewPurchaseOrderItems(logger, db, poRepo)
+	itemsHandler := query.NewPurchaseOrderItems(logger, db, poItemRepo)
 	allItemsHandler := query.NewAllPurchaseOrderItems(logger, db, poItemRepo)
 
 	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderItemRequest, interface{}](itemHandler)

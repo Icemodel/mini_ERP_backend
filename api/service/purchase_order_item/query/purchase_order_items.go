@@ -12,7 +12,7 @@ import (
 type PurchaseOrderItems struct {
 	logger *slog.Logger
 	db     *gorm.DB
-	PORepo repository.PurchaseOrder
+	POItemRepo repository.PurchaseOrderItem
 }
 
 type PurchaseOrderItemsRequest struct {
@@ -22,17 +22,20 @@ type PurchaseOrderItemsRequest struct {
 func NewPurchaseOrderItems(
 	logger *slog.Logger,
 	db *gorm.DB,
-	poRepo repository.PurchaseOrder,
+	POItemRepo repository.PurchaseOrderItem,
 ) *PurchaseOrderItems {
 	return &PurchaseOrderItems{
 		logger: logger,
 		db:     db,
-		PORepo: poRepo,
+		POItemRepo: POItemRepo,
 	}
 }
 
 func (h *PurchaseOrderItems) Handle(ctx context.Context, req *PurchaseOrderItemsRequest) (interface{}, error) {
-	items, err := h.PORepo.SearchItemsByPurchaseOrderId(h.db, req.PurchaseOrderId)
+	PO_id := map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}
+	items, err := h.POItemRepo.Searches(h.db, PO_id, "")
 	if err != nil {
 		return nil, err
 	}

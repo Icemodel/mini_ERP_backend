@@ -17,6 +17,9 @@ type AllSuppliers struct {
 
 type AllSuppliersRequest struct {
 	OrderBy string `json:"order_by"`
+	Email   string `json:"email"`
+	Name	string `json:"name"`
+	Phone  string `json:"phone"`
 }
 
 type AllSuppliersResult struct {

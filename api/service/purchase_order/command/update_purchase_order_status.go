@@ -16,11 +16,12 @@ type UpdatePOStatus struct {
 	logger    *slog.Logger
 	db        *gorm.DB
 	PORepo    repository.PurchaseOrder
+	POItemRepo repository.PurchaseOrderItem
 	StockRepo repository.StockTransaction
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID
+	PurchaseOrderId uuid.UUID                 `json:"-" swaggerignore:"true"`
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
 	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
@@ -29,12 +30,14 @@ func NewUpdatePOStatus(
 	logger *slog.Logger,
 	db *gorm.DB,
 	poRepo repository.PurchaseOrder,
+	poItemRepo repository.PurchaseOrderItem,
 	stockRepo repository.StockTransaction,
 ) *UpdatePOStatus {
 	return &UpdatePOStatus{
 		logger:    logger,
 		db:        db,
 		PORepo:    poRepo,
+		POItemRepo: poItemRepo,
 		StockRepo: stockRepo,
 	}
 }
@@ -50,9 +53,9 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 
 	// If changing to RECEIVED, validate that items exist
 	var items []*model.PurchaseOrderItem
-	var err error
 	if req.Status == model.Received {
-		items, err = h.PORepo.SearchItemsByPurchaseOrderId(tx, req.PurchaseOrderId)
+		var err error
+		items, err = h.POItemRepo.Searches(tx, map[string]interface{}{"purchase_order_id": req.PurchaseOrderId}, "")
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -74,26 +77,28 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 	if req.Status == model.Received {
 		// Create Stock IN transactions for each item
 		for _, item := range items {
-			// หา transaction ล่าสุด สำหรับ product_id
+			// Fetch latest stock transaction for the product
 			latestStockTx, err := h.StockRepo.GetLatestByProduct(tx, item.ProductId)
 			if err != nil {
 				tx.Rollback()
 				return nil, err
 			}
 
-			// คำนวณ quantity ใหม่: PO item quantity + quantity ของ transaction ล่าสุด
+			// Calculate new quantity 
 			newQuantity := int64(item.Quantity)
 			if latestStockTx != nil {
 				newQuantity = latestStockTx.Quantity + int64(item.Quantity)
 			}
 
-			// สร้าง transaction ใหม่
+			received := "Purchase Order Received"
+
+			// Create stock transaction
 			stockTx := &model.StockTransaction{
 				StockTransactionId: uuid.New(),
 				ProductId:          item.ProductId,
 				Quantity:           newQuantity,
 				Type:               "IN",
-				Reason:             stringPtr("Purchase Order Received"),
+				Reason:             &received,
 				ReferenceId:        &req.PurchaseOrderId,
 				CreatedAt:          time.Now(),
 				CreatedBy:          req.CreatedBy.String(),
@@ -131,8 +136,4 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 		"purchase_order_id": req.PurchaseOrderId,
 		"status":            req.Status,
 	}, nil
-}
-
-func stringPtr(s string) *string {
-	return &s
 }
