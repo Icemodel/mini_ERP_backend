@@ -65,9 +65,10 @@ func (h *CreatePurchaseOrderItem) Handle(ctx context.Context, req *CreatePurchas
 	}
 
 	// Get product price
-	product, err := h.ProductRepo.Search(tx, map[string]interface{}{
+	condition := map[string]interface{}{
 		"product_id": req.ProductId,
-	}, "")
+	}
+	product, err := h.ProductRepo.Search(tx, condition, "")
 	if err != nil {
 		tx.Rollback()
 		h.logger.Error("Product not found", "product_id", req.ProductId, "error", err)
@@ -84,11 +85,6 @@ func (h *CreatePurchaseOrderItem) Handle(ctx context.Context, req *CreatePurchas
 	}
 
 	if err := h.POItemRepo.Create(tx, item); err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
 		return nil, err
 	}

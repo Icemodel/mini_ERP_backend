@@ -7,6 +7,7 @@ import (
 	"mini-erp-backend/api/service/category"
 	"mini-erp-backend/api/service/product"
 	"mini-erp-backend/api/service/purchase_order"
+	"mini-erp-backend/api/service/purchase_order_item"
 	"mini-erp-backend/api/service/register"
 	"mini-erp-backend/api/service/report"
 	"mini-erp-backend/api/service/stock_transaction"
@@ -59,7 +60,7 @@ func main() {
 	stockTransactionRepo := repository.NewStockTransaction(log.Slogger)
 	supplierRepo := repository.NewSupplier(log.Slogger)
 	purchase_orderRepo := repository.NewPurchaseOrder(log.Slogger)
-	purchase_order_item := repository.NewPurchaseOrderItem(log.Slogger)
+	purchase_order_itemRepo := repository.NewPurchaseOrderItem(log.Slogger)
 	reportRepo := repository.NewReport(log.Slogger)
 	userRepo := repository.NewUser(log.Slogger)
 	sessionRepo := repository.NewUserSession(log.Slogger)
@@ -70,7 +71,7 @@ func main() {
 	product.NewService(log.Slogger, db, productRepo, stockTransactionRepo)
 	stock_transaction.NewService(log.Slogger, db, stockTransactionRepo, productRepo)
 	purchase_order.NewService(db, log.Slogger, purchase_orderRepo)
-	purchase_order_item.NewService(log.Slogger, db, purchase_order_item, productRepo, purchase_orderRepo)
+	purchase_order_item.NewService(db, log.Slogger, purchase_order_itemRepo)
 	supplier.NewService(log.Slogger, db, supplierRepo)
 	report.NewService(log.Slogger, db, reportRepo)
 	auth.NewService(db, log.Slogger, jwtManager, userRepo)
