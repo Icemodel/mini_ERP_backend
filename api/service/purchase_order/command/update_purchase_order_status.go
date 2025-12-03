@@ -21,7 +21,7 @@ type UpdatePOStatus struct {
 }
 
 type UpdatePOStatusRequest struct {
-	PurchaseOrderId uuid.UUID
+	PurchaseOrderId uuid.UUID                 `json:"-" swaggerignore:"true"`
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
 }
 

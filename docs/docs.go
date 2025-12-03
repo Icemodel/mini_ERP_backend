@@ -1946,15 +1946,27 @@ const docTemplate = `{
                 }
             }
         },
+        "command.UpdatePOStatusRequest": {
+            "type": "object",
+            "required": [
+                "created_by",
+                "status"
+            ],
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.PurchaseOrderStatus"
+                }
+            }
+        },
         "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
                 "quantity"
             ],
             "properties": {
-                "purchaseOrderItemId": {
-                    "type": "string"
-                },
                 "quantity": {
                     "description": "+ เพิ่ม, - ลด",
                     "type": "integer"
@@ -2077,9 +2089,6 @@ const docTemplate = `{
             ],
             "properties": {
                 "created_by": {
-                    "type": "string"
-                },
-                "purchaseOrderId": {
                     "type": "string"
                 },
                 "supplier_id": {

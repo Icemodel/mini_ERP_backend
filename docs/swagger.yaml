@@ -101,9 +101,9 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
-  command.UpdatePurchaseOrderItemRequest:
+  command.UpdatePOStatusRequest:
     properties:
-      purchaseOrderItemId:
+      created_by:
         type: string
       status:
         $ref: '#/definitions/model.PurchaseOrderStatus'
@@ -191,8 +191,6 @@ definitions:
   command.UpdatePurchaseOrderRequest:
     properties:
       created_by:
-        type: string
-      purchaseOrderId:
         type: string
       supplier_id:
         type: string
