@@ -9,6 +9,7 @@ import (
 	"mini-erp-backend/api/handler/purchase_order_item"
 	register_handler "mini-erp-backend/api/handler/register"
 	"mini-erp-backend/api/handler/purchase_order_item"
+	register_handler "mini-erp-backend/api/handler/register"
 	"mini-erp-backend/api/handler/report"
 	stocktransaction_handler "mini-erp-backend/api/handler/stock_transaction"
 	"mini-erp-backend/api/handler/supplier"
@@ -44,6 +45,17 @@ func Register(
 		supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
 		supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
 		supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
+		// supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
+		// supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
+		// supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
+		// supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
+		// supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
+
+		supplierGroup.Get("/", supplier.AllSuppliers(logger))
+		supplierGroup.Get("/:id", supplier.Supplier(logger))
+		supplierGroup.Post("/", supplier.CreateSupplier(logger))
+		supplierGroup.Put("/:id", supplier.UpdateSupplier(logger))
+		supplierGroup.Delete("/:id", supplier.DeleteSupplier(logger))
 	}
 
 	// Purchase Order routes
@@ -51,11 +63,17 @@ func Register(
 	{
 		// purchaseOrderGroup.Use(mid.Authenticated())
 
-		purchaseOrderGroup.Get("/", mid.RequireMinRole("viewer"), purchase_order.AllPurchaseOrders(logger))
-		purchaseOrderGroup.Post("/", mid.RequireMinRole("staff"), purchase_order.CreatePurchaseOrder(logger))
-		purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
+		// purchaseOrderGroup.Get("/", mid.RequireMinRole("viewer"), purchase_order.AllPurchaseOrders(logger))
+		// purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
+		// purchaseOrderGroup.Post("/", mid.RequireMinRole("staff"), purchase_order.CreatePurchaseOrder(logger))
+		// purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
+		// purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
+
+		purchaseOrderGroup.Get("/", purchase_order.AllPurchaseOrders(logger))
+		purchaseOrderGroup.Get("/:id", purchase_order.PurchaseOrder(logger))
+		purchaseOrderGroup.Post("/", purchase_order.CreatePurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id", purchase_order.UpdatePurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id/status", purchase_order.UpdatePurchaseOrderStatus(logger))
 
 	}
 
@@ -64,8 +82,8 @@ func Register(
 	{
 		purchaseOrderItemGroup.Get("/", purchase_order_item.AllPurchaseOrderItems(logger))
 		purchaseOrderItemGroup.Get("/:po_id", purchase_order_item.PurchaseOrderItems(logger))
-		purchaseOrderItemGroup.Post("/", purchase_order_item.CreatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Get("/item/:item_id", purchase_order_item.PurchaseOrderItem(logger))
+		purchaseOrderItemGroup.Post("/", purchase_order_item.CreatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Put("/:item_id", purchase_order_item.UpdatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Delete("/:item_id", purchase_order_item.DeletePurchaseOrderItem(logger))
 	}

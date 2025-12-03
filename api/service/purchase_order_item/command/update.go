@@ -77,9 +77,10 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 	}()
 
 	// Get existing item first to get purchase_order_id
-	item, err := h.POItemRepo.Search(tx, map[string]interface{}{
+	item_id := map[string]interface{}{
 		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}, "")
+	}
+	item, err := h.POItemRepo.Search(tx, item_id, "")
 	if err != nil {
 		tx.Rollback()
 		return nil, err
