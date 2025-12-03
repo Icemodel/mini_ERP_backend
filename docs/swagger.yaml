@@ -100,7 +100,7 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
-  command.UpdatePurchaseOrderItem:
+  command.UpdatePurchaseOrderItemRequest:
     properties:
       created_by:
         description: ผู้ทำรายการ

@@ -2050,7 +2050,7 @@
                 }
             }
         },
-        "command.UpdatePurchaseOrderItem": {
+        "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
                 "price",
