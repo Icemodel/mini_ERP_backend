@@ -21,12 +21,7 @@ type UpdatePurchaseOrder struct {
 type UpdatePurchaseOrderRequest struct {
 	PurchaseOrderId uuid.UUID
 	SupplierId      uuid.UUID                 `json:"supplier_id" validate:"required"`
-	Items           []UpdatePurchaseOrderItem `json:"items" validate:"required,min=1,dive"`
-}
-
-type UpdatePurchaseOrderItem struct {
-	ProductId uuid.UUID `json:"product_id" validate:"required"`
-	Quantity  uint64    `json:"quantity" validate:"required,min=1"`
+	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
 
 func NewUpdatePurchaseOrder(
@@ -68,52 +63,13 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		return nil, errors.New("can only update draft purchase orders")
 	}
 
-	// Fetch product prices and calculate total amount
-	var totalAmount uint64
-	itemPrices := make(map[uuid.UUID]float64)
-
-	for _, it := range req.Items {
-		// Fetch product to get cost price
-		product, err := h.ProductRepo.Search(tx, map[string]interface{}{
-			"product_id": it.ProductId,
-		}, "")
-		if err != nil {
-			tx.Rollback()
-			h.logger.Error("Product not found", "product_id", it.ProductId, "error", err)
-			return nil, err
-		}
-
-		// Store price snapshot
-		itemPrices[it.ProductId] = product.CostPrice
-		totalAmount += uint64(product.CostPrice * float64(it.Quantity))
-	}
-
 	// Update PO
 	po.SupplierId = req.SupplierId
-
+	po.CreatedBy = req.CreatedBy
+	
 	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
 		return nil, err
-	}
-
-	// Delete existing items and replace with new items
-	if err := h.PORepo.DeleteItemsByPurchaseOrderId(tx, po.PurchaseOrderId); err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	for _, it := range req.Items {
-		item := &model.PurchaseOrderItem{
-			PurchaseOrderItemId: uuid.New(),
-			PurchaseOrderId:     po.PurchaseOrderId,
-			ProductId:           it.ProductId,
-			Quantity:            it.Quantity,
-			Price:               itemPrices[it.ProductId],
-		}
-		if err := h.PORepo.CreateItem(tx, item); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
 	}
 
 	// Commit transaction
