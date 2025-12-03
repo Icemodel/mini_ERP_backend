@@ -50,13 +50,19 @@ func Register(
 	// Purchase Order routes
 	purchaseOrderGroup := v1.Group("/purchase-orders")
 	{
-		purchaseOrderGroup.Use(mid.Authenticated())
+		// purchaseOrderGroup.Use(mid.Authenticated())
 
-		purchaseOrderGroup.Get("/", mid.RequireMinRole("viewer"), purchase_order.AllPurchaseOrders(logger))
-		purchaseOrderGroup.Post("/", mid.RequireMinRole("staff"), purchase_order.CreatePurchaseOrder(logger))
-		purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
+		// purchaseOrderGroup.Get("/", mid.RequireMinRole("viewer"), purchase_order.AllPurchaseOrders(logger))
+		// purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
+		// purchaseOrderGroup.Post("/", mid.RequireMinRole("staff"), purchase_order.CreatePurchaseOrder(logger))
+		// purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
+		// purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
+
+		purchaseOrderGroup.Get("/", purchase_order.AllPurchaseOrders(logger))
+		purchaseOrderGroup.Get("/:id", purchase_order.PurchaseOrder(logger))
+		purchaseOrderGroup.Post("/", purchase_order.CreatePurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id", purchase_order.UpdatePurchaseOrder(logger))
+		purchaseOrderGroup.Put("/:id/status", purchase_order.UpdatePurchaseOrderStatus(logger))
 
 	}
 
@@ -65,8 +71,8 @@ func Register(
 	{
 		purchaseOrderItemGroup.Get("/", purchase_order_item.AllPurchaseOrderItems(logger))
 		purchaseOrderItemGroup.Get("/:po_id", purchase_order_item.PurchaseOrderItems(logger))
-		purchaseOrderItemGroup.Post("/", purchase_order_item.CreatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Get("/item/:item_id", purchase_order_item.PurchaseOrderItem(logger))
+		purchaseOrderItemGroup.Post("/", purchase_order_item.CreatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Put("/:item_id", purchase_order_item.UpdatePurchaseOrderItem(logger))
 		purchaseOrderItemGroup.Delete("/:item_id", purchase_order_item.DeletePurchaseOrderItem(logger))
 	}
@@ -74,7 +80,7 @@ func Register(
 	// Report routes
 	reportGroup := v1.Group("/reports")
 	{
-		reportGroup.Use(mid.Authenticated())
+		// reportGroup.Use(mid.Authenticated())
 
 		// reportGroup.Get("/stock-summary", mid.RequireMinRole("admin"), report.StockSummary(logger))
 		// reportGroup.Get("/stock-summary/export", mid.RequireMinRole("admin"), report.ExportStockSummaryCSV(logger))
@@ -89,7 +95,6 @@ func Register(
 		reportGroup.Get("/stock-movements/export", report.ExportStockMovementExcel(logger))
 		reportGroup.Get("/purchase-summary", report.PurchaseSummary(logger))
 		reportGroup.Get("/purchase-summary/export", report.ExportPurchaseReportExcel(logger))
-
 	}
 
 	categoryGroupApi := v1.Group("/categories")

@@ -1840,6 +1840,21 @@ const docTemplate = `{
                 }
             }
         },
+        "command.UpdatePOStatusRequest": {
+            "type": "object",
+            "required": [
+                "created_by",
+                "status"
+            ],
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.PurchaseOrderStatus"
+                }
+            }
+        },
         "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
