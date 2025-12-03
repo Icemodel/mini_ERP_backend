@@ -25,7 +25,6 @@ type User struct {
 	Role      Role      `gorm:"column:role; not null;" json:"role"`
 	CreatedAt time.Time `gorm:"column:created_at;not null;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;not null;autoUpdateTime" json:"updated_at"`
-	Token     *string   `gorm:"column:token;" json:"-"`
 
 	AuditLogs []AuditLog `gorm:"foreignKey:UserId;references:UserId" json:"-"`
 }
