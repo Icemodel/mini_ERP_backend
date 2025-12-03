@@ -52,11 +52,6 @@ func Register(
 		purchaseOrderGroup.Get("/:id", mid.RequireMinRole("staff"), purchase_order.PurchaseOrder(logger))
 		purchaseOrderGroup.Put("/:id", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrder(logger))
 		purchaseOrderGroup.Put("/:id/status", mid.RequireMinRole("staff"), purchase_order.UpdatePurchaseOrderStatus(logger))
-		purchaseOrderGroup.Get("/", purchase_order.AllPurchaseOrders(logger))
-		purchaseOrderGroup.Post("/", purchase_order.CreatePurchaseOrder(logger))
-		purchaseOrderGroup.Get("/:id", purchase_order.PurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id", purchase_order.UpdatePurchaseOrder(logger))
-		purchaseOrderGroup.Put("/:id/status", purchase_order.UpdatePurchaseOrderStatus(logger))
 
 	}
 
