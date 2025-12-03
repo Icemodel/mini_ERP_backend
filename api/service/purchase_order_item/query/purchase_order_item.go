@@ -32,9 +32,10 @@ func NewPurchaseOrderItem(
 }
 
 func (h *PurchaseOrderItem) Handle(ctx context.Context, req *PurchaseOrderItemRequest) (interface{}, error) {
-	item, err := h.POItemRepo.Search(h.db, map[string]interface{}{
+	item_id := map[string]interface{}{
 		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}, "")
+	}
+	item, err := h.POItemRepo.Search(h.db, item_id, "")
 	if err != nil {
 		return nil, err
 	}

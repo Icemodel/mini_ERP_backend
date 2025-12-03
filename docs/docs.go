@@ -1799,50 +1799,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Create a new supplier with the provided information",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Supplier"
-                ],
-                "summary": "Create a new supplier",
-                "parameters": [
-                    {
-                        "description": "Supplier information",
-                        "name": "supplier",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/command.CreateSupplierRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.Supplier"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
             }
         },
         "/suppliers/{id}": {
@@ -2045,23 +2001,6 @@ const docTemplate = `{
                 }
             }
         },
-        "command.CreateSupplierRequest": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                }
-            }
-        },
         "command.StockAdjustRequest": {
             "type": "object",
             "properties": {
@@ -2163,15 +2102,27 @@ const docTemplate = `{
                 }
             }
         },
+        "command.UpdatePOStatusRequest": {
+            "type": "object",
+            "required": [
+                "created_by",
+                "status"
+            ],
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.PurchaseOrderStatus"
+                }
+            }
+        },
         "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
                 "quantity"
             ],
             "properties": {
-                "purchaseOrderItemId": {
-                    "type": "string"
-                },
                 "quantity": {
                     "description": "+ เพิ่ม, - ลด",
                     "type": "integer"
@@ -2296,9 +2247,6 @@ const docTemplate = `{
                 "created_by": {
                     "type": "string"
                 },
-                "purchaseOrderId": {
-                    "type": "string"
-                },
                 "supplier_id": {
                     "type": "string"
                 }
@@ -2323,9 +2271,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
-                    "type": "string"
-                },
-                "supplier_id": {
                     "type": "string"
                 }
             }

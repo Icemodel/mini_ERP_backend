@@ -34,17 +34,6 @@ definitions:
     - created_by
     - supplier_id
     type: object
-  command.CreateSupplierRequest:
-    properties:
-      address:
-        type: string
-      email:
-        type: string
-      name:
-        type: string
-      phone:
-        type: string
-    type: object
   command.StockAdjustRequest:
     properties:
       created_by:
@@ -112,10 +101,18 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
+  command.UpdatePOStatusRequest:
+    properties:
+      created_by:
+        type: string
+      status:
+        $ref: '#/definitions/model.PurchaseOrderStatus'
+    required:
+    - created_by
+    - status
+    type: object
   command.UpdatePurchaseOrderItemRequest:
     properties:
-      purchaseOrderItemId:
-        type: string
       quantity:
         description: + เพิ่ม, - ลด
         type: integer
@@ -195,8 +192,6 @@ definitions:
     properties:
       created_by:
         type: string
-      purchaseOrderId:
-        type: string
       supplier_id:
         type: string
     required:
@@ -218,7 +213,6 @@ definitions:
     - email
     - name
     - phone
-    - supplier_id
     type: object
   mini-erp-backend_api_service_category_command.CreateRequest:
     properties:
@@ -1780,35 +1774,6 @@ paths:
           schema:
             $ref: '#/definitions/api.ErrorResponse'
       summary: Get all suppliers
-      tags:
-      - Supplier
-    post:
-      consumes:
-      - application/json
-      description: Create a new supplier with the provided information
-      parameters:
-      - description: Supplier information
-        in: body
-        name: supplier
-        required: true
-        schema:
-          $ref: '#/definitions/command.CreateSupplierRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.Supplier'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Create a new supplier
       tags:
       - Supplier
   /suppliers/{id}:
