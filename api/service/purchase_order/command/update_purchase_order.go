@@ -19,7 +19,7 @@ type UpdatePurchaseOrder struct {
 }
 
 type UpdatePurchaseOrderRequest struct {
-	PurchaseOrderId uuid.UUID
+	PurchaseOrderId uuid.UUID 					`json:"-" `
 	SupplierId      uuid.UUID                 `json:"supplier_id" validate:"required"`
 	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }

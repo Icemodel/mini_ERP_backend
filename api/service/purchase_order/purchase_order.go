@@ -15,11 +15,12 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderRepo repository.P
 	poRepo := repository.NewPurchaseOrder(logger)
 	stockRepo := repository.NewStockTransaction(logger)
 	productRepo := repository.NewProduct(logger)
+	poItemRepo := repository.NewPurchaseOrderItem(logger)
 
 	// Register command handlers
 	createPurchaseOrderHandler := command.NewCreatePurchaseOrder(logger, db, poRepo, productRepo)
 	updatePurchaseOrderHandler := command.NewUpdatePurchaseOrder(logger, db, poRepo, productRepo)
-	updatePOStatusHandler := command.NewUpdatePOStatus(logger, db, poRepo, stockRepo)
+	updatePOStatusHandler := command.NewUpdatePOStatus(logger, db, poRepo, poItemRepo, stockRepo)
 	getPurchaseOrderHandler := query.NewPurchaseOrder(logger, db, poRepo)
 	getAllPurchaseOrdersHandler := query.NewAllPurchaseOrders(logger, db, poRepo)
 
