@@ -6,31 +6,28 @@ definitions:
         example: error message
         type: string
     type: object
-  command.CreatePurchaseOrderItem:
+  command.CreatePurchaseOrderItemRequest:
     properties:
       product_id:
+        type: string
+      purchase_order_id:
         type: string
       quantity:
         minimum: 1
         type: integer
     required:
     - product_id
+    - purchase_order_id
     - quantity
     type: object
   command.CreatePurchaseOrderRequest:
     properties:
       created_by:
         type: string
-      items:
-        items:
-          $ref: '#/definitions/command.CreatePurchaseOrderItem'
-        minItems: 1
-        type: array
       supplier_id:
         type: string
     required:
     - created_by
-    - items
     - supplier_id
     type: object
   command.CreateSupplierRequest:
@@ -111,30 +108,26 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
-  command.UpdatePurchaseOrderItem:
+  command.UpdatePurchaseOrderItemRequest:
     properties:
-      product_id:
+      purchaseOrderItemId:
         type: string
       quantity:
         minimum: 1
         type: integer
     required:
-    - product_id
     - quantity
     type: object
   command.UpdatePurchaseOrderRequest:
     properties:
-      items:
-        items:
-          $ref: '#/definitions/command.UpdatePurchaseOrderItem'
-        minItems: 1
-        type: array
+      created_by:
+        type: string
       purchaseOrderId:
         type: string
       supplier_id:
         type: string
     required:
-    - items
+    - created_by
     - supplier_id
     type: object
   command.UpdateSupplierRequest:
@@ -292,6 +285,7 @@ definitions:
   model.PurchaseOrder:
     properties:
       created_at:
+        description: TotalAmount     uint64              `gorm:"not null" json:"total_amount"`
         type: string
       created_by:
         type: string
@@ -309,8 +303,6 @@ definitions:
         type: array
       supplier_id:
         type: string
-      total_amount:
-        type: integer
     type: object
   model.PurchaseOrderItem:
     properties:
@@ -339,12 +331,12 @@ definitions:
     - Cancelled
   model.StockTransaction:
     properties:
-      Product:
-        $ref: '#/definitions/model.Product'
       created_at:
         type: string
       created_by:
         type: string
+      product:
+        $ref: '#/definitions/model.Product'
       product_id:
         type: string
       quantity:
@@ -905,6 +897,192 @@ paths:
       summary: Get Product Stock Summary
       tags:
       - Product
+  /purchase-order-items:
+    get:
+      description: Get all purchase order items across all purchase orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PurchaseOrderItem'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List all purchase order items
+      tags:
+      - PurchaseOrderItem
+    post:
+      consumes:
+      - application/json
+      description: Add a new item to a draft purchase order
+      parameters:
+      - description: Item information
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/command.CreatePurchaseOrderItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.PurchaseOrderItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Add item to purchase order
+      tags:
+      - PurchaseOrderItem
+  /purchase-order-items/{item_id}:
+    delete:
+      description: Remove an item from a draft purchase order
+      parameters:
+      - description: Purchase Order Item ID
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete purchase order item
+      tags:
+      - PurchaseOrderItem
+    put:
+      consumes:
+      - application/json
+      description: Update quantity of a purchase order item (draft only)
+      parameters:
+      - description: Purchase Order Item ID
+        in: path
+        name: item_id
+        required: true
+        type: string
+      - description: Updated item information
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/command.UpdatePurchaseOrderItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PurchaseOrderItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update purchase order item
+      tags:
+      - PurchaseOrderItem
+  /purchase-order-items/{po_id}:
+    get:
+      description: Get all items for a specific purchase order
+      parameters:
+      - description: Purchase Order ID
+        in: path
+        name: po_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.PurchaseOrderItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: List purchase order items
+      tags:
+      - PurchaseOrderItem
+  /purchase-order-items/item/{item_id}:
+    get:
+      description: Get details of a specific purchase order item
+      parameters:
+      - description: Purchase Order Item ID
+        in: path
+        name: item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.PurchaseOrderItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get purchase order item
+      tags:
+      - PurchaseOrderItem
   /purchase-orders:
     get:
       consumes:

@@ -19,7 +19,6 @@ type UpdatePurchaseOrderItem struct {
 
 type UpdatePurchaseOrderItemRequest struct {
 	PurchaseOrderItemId uuid.UUID
-	PurchaseOrderId     uuid.UUID
 	Quantity            uint64 `json:"quantity" validate:"required,min=1"`
 }
 
@@ -45,9 +44,18 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		}
 	}()
 
+	// Get existing item first to get purchase_order_id
+	item, err := h.POItemRepo.Search(tx, map[string]interface{}{
+		"purchase_order_item_id": req.PurchaseOrderItemId,
+	}, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	// Verify PO is DRAFT
 	po, err := h.PORepo.Search(tx, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
+		"purchase_order_id": item.PurchaseOrderId,
 	}, "")
 	if err != nil {
 		tx.Rollback()
@@ -58,16 +66,6 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		tx.Rollback()
 		h.logger.Error("Cannot update items in non-draft purchase order", "status", po.Status)
 		return nil, gorm.ErrInvalidData
-	}
-
-	// Get existing item
-	item, err := h.POItemRepo.Search(tx, map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-		"purchase_order_id":      req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
 	}
 
 	// Update quantity
