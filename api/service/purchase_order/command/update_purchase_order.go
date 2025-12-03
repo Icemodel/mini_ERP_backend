@@ -90,7 +90,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 
 	// Update PO
 	po.SupplierId = req.SupplierId
-	po.TotalAmount = totalAmount
 
 	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
