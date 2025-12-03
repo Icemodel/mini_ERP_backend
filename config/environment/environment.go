@@ -6,6 +6,15 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	AccessTokenSecretKey   = "LOGIN_ACCESS_SECRET"
+	RefreshTokenSecretKey  = "LOGIN_REFRESH_SECRET"
+	AccessTokenExpMinsKey  = "LOGIN_ACCESS_EXP_MINS"
+	RefreshTokenExpMinsKey = "LOGIN_REFRESH_EXP_MINS"
+	AllowOriginKey         = "ALLOW_ORIGINS"
+	AllowCredentialKey     = "ALLOW_CREDENTIALS"
+)
+
 func LoadEnvironment() {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
