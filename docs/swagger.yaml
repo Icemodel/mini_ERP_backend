@@ -1395,109 +1395,6 @@ paths:
       summary: Export stock summary to CSV
       tags:
       - Report
-  /stock/adjust:
-    post:
-      consumes:
-      - application/json
-      description: Adjust stock for a product
-      parameters:
-      - description: Stock Adjust Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockAdjustRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockAdjustResult'
-        "400":
-          description: 'Bad Request: Invalid input, reason required, or quantity cannot
-            be zero'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Adjust Stock
-      tags:
-      - StockTransaction
-  /stock/in:
-    post:
-      consumes:
-      - application/json
-      description: Handle stock in for a product
-      parameters:
-      - description: Stock In Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockInRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockInResult'
-        "400":
-          description: 'Bad Request: Invalid input or insufficient stock'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error"s
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Stock In
-      tags:
-      - StockTransaction
-  /stock/out:
-    post:
-      consumes:
-      - application/json
-      description: Handle stock out for a product
-      parameters:
-      - description: Stock Out Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockOutRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockOutResult'
-        "400":
-          description: 'Bad Request: Invalid input or insufficient stock'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Stock Out
-      tags:
-      - StockTransaction
   /stocks:
     get:
       consumes:
@@ -1536,6 +1433,109 @@ paths:
           schema:
             $ref: '#/definitions/query.StocksResult'
       summary: Get Stock Transactions list
+      tags:
+      - StockTransaction
+  /stocks/adjust:
+    post:
+      consumes:
+      - application/json
+      description: Adjust stock for a product
+      parameters:
+      - description: Stock Adjust Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockAdjustRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockAdjustResult'
+        "400":
+          description: 'Bad Request: Invalid input, reason required, or quantity cannot
+            be zero'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Adjust Stock
+      tags:
+      - StockTransaction
+  /stocks/in:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock in for a product
+      parameters:
+      - description: Stock In Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockInRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockInResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error"s
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock In
+      tags:
+      - StockTransaction
+  /stocks/out:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock out for a product
+      parameters:
+      - description: Stock Out Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockOutRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockOutResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock Out
       tags:
       - StockTransaction
   /suppliers:
