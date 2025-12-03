@@ -38,8 +38,7 @@ func NewService(db *gorm.DB, logger *slog.Logger,purchaseOrderItemRepo repositor
 
 	// Register query handlers
 	itemHandler := query.NewPurchaseOrderItem(logger, db, poItemRepo)
-	itemsHandler := query.NewPurchaseOrderItems(logger, db, poItemRepo)
-	allItemsHandler := query.NewAllPurchaseOrderItems(logger, db, poItemRepo)
+	itemsHandler := query.NewPurchaseOrderItems(logger, db, poRepo)
 
 	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderItemRequest, interface{}](itemHandler)
 	if err != nil {
@@ -47,11 +46,6 @@ func NewService(db *gorm.DB, logger *slog.Logger,purchaseOrderItemRepo repositor
 	}
 
 	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderItemsRequest, interface{}](itemsHandler)
-	if err != nil {
-		return err
-	}
-
-	err = mediatr.RegisterRequestHandler[*query.AllPurchaseOrderItemsRequest, interface{}](allItemsHandler)
 	if err != nil {
 		return err
 	}

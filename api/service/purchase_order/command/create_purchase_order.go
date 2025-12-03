@@ -19,8 +19,8 @@ type CreatePurchaseOrder struct {
 }
 
 type CreatePurchaseOrderRequest struct {
-	SupplierId uuid.UUID `json:"supplier_id" validate:"required"`
-	CreatedBy  string    `json:"created_by" validate:"required"`
+	SupplierId uuid.UUID                 `json:"supplier_id" validate:"required"`
+	CreatedBy  uuid.UUID                 `json:"created_by" validate:"required"`
 }
 
 func NewCreatePurchaseOrder(

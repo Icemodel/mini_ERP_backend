@@ -45,7 +45,7 @@ func (r *purchaseOrderItem) Delete(tx *gorm.DB, itemId uuid.UUID) error {
 
 func (r *purchaseOrderItem) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrderItem, error) {
 	items := []model.PurchaseOrderItem{}
-	if err := db.Preload("Product").Where(conditions).Order(orderBy).Limit(1).Find(&items).Error; err != nil {
+	if err := db.Where(conditions).Order(orderBy).Limit(1).Find(&items).Error; err != nil {
 		r.logger.Error("Failed to get purchase order item", "error", err)
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (r *purchaseOrderItem) Search(db *gorm.DB, conditions map[string]interface{
 
 func (r *purchaseOrderItem) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrderItem, error) {
 	items := []*model.PurchaseOrderItem{}
-	if err := db.Preload("Product").Where(conditions).Order(orderBy).Find(&items).Error; err != nil {
+	if err := db.Where(conditions).Order(orderBy).Find(&items).Error; err != nil {
 		r.logger.Error("Failed to get purchase order items", "error", err)
 		return nil, err
 	}
