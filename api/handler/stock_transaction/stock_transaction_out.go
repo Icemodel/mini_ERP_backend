@@ -21,7 +21,7 @@ import (
 //	@Failure		400		{object}	api.ErrorResponse	"Bad Request: Invalid input or insufficient stock"
 //	@Failure		404		{object}	api.ErrorResponse	"Not Found: Product does not exist"
 //	@Failure		500		{object}	api.ErrorResponse	"Internal Server Error"
-//	@Router			/stock/out [post]
+//	@Router			/stocks/out [post]
 func StockOut(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		request := command.StockOutRequest{}
