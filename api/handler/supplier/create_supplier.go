@@ -37,8 +37,8 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		phoneRegex := regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
 		if !phoneRegex.MatchString(req.Phone) {
 			logger.Error("Invalid phone number format", "phone", req.Phone)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
-        }
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
+		}
 
 		// Validate email format
 		emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)

@@ -15,11 +15,11 @@ import (
 //	@Tags			PurchaseOrder
 //	@Accept			json
 //	@Produce		json
-//	@Param			purchaseOrder	body	command.CreatePurchaseOrderRequest	true	"Purchase Order information"
-//	@Success		201	{object}	model.PurchaseOrder
-//	@Failure		400	{object}	api.ErrorResponse
-//	@Failure		500	{object}	api.ErrorResponse
-//	@Router			/purchase-orders [post]
+//	@Param			purchaseOrder	body		command.CreatePurchaseOrderRequest	true	"Purchase Order information"
+//	@Success		201				{object}	model.PurchaseOrder
+//	@Failure		400				{object}	fiber.Map
+//	@Failure		500				{object}	fiber.Map
+//	@Router			/api/v1/purchase-orders [post]
 func CreatePurchaseOrder(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req command.CreatePurchaseOrderRequest

@@ -79,6 +79,7 @@ func createFiberMiddlewareInstance(
 	userRepo repository.User,
 	sessionRepo repository.UserSession,
 ) *FiberMiddleware {
+
 	allowCredential, err := strconv.ParseBool(environment.GetString(environment.AllowCredentialKey))
 	if err != nil {
 		message := "Failed to set CORS config"

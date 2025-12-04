@@ -26,7 +26,7 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		poIdStr := c.Params("id")
 		poId, err := uuid.Parse(poIdStr)
-		
+
 		if err != nil {
 			logger.Error("Invalid purchase order ID", "id", poIdStr, "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
