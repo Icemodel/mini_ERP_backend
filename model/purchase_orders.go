@@ -12,7 +12,7 @@ type PurchaseOrder struct {
 	Status          PurchaseOrderStatus `gorm:"not null" json:"status"`
 	// TotalAmount     uint64              `gorm:"not null" json:"total_amount"`
 	CreatedAt       time.Time           `gorm:"not null" json:"created_at"`
-	CreatedBy       uuid.UUID           `gorm:"type:uuid;not null" json:"created_by"`
+	CreatedBy       string          `gorm:"not null" json:"created_by"`
 
 	PurchaseOrderItem []PurchaseOrderItem `gorm:"foreignKey:PurchaseOrderId" json:"purchase_order_items"`
 	StockTransaction  []StockTransaction  `gorm:"foreignKey:ReferenceId;constraint:OnDelete:SET NULL;" json:"stock_transactions"`

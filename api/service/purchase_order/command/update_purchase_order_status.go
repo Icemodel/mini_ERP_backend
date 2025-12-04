@@ -23,7 +23,6 @@ type UpdatePOStatus struct {
 type UpdatePOStatusRequest struct {
 	PurchaseOrderId uuid.UUID                 `json:"-" swaggerignore:"true"`
 	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
-	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
 }
 
 func NewUpdatePOStatus(
@@ -67,6 +66,13 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 		}
 	}
 
+	// Get PurchaseOrder to access CreatedBy
+	po, err := h.PORepo.Search(tx, map[string]interface{}{"purchase_order_id": req.PurchaseOrderId}, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	// Update status
 	if err := h.PORepo.UpdateStatus(tx, req.PurchaseOrderId, req.Status); err != nil {
 		tx.Rollback()
@@ -101,7 +107,7 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				Reason:             &received,
 				ReferenceId:        &req.PurchaseOrderId,
 				CreatedAt:          time.Now(),
-				CreatedBy:          req.CreatedBy.String(),
+				CreatedBy:          po.CreatedBy,
 			}
 
 			if err := h.StockRepo.Create(tx, stockTx); err != nil {

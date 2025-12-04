@@ -21,28 +21,28 @@ import (
 //	@Failure		400	{object}	api.ErrorResponse
 //	@Failure		500	{object}	api.ErrorResponse
 //	@Router			/suppliers [post]
-var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req command.CreateSupplierRequest
-
+		
 		err := c.BodyParser(&req)
 		if err != nil {
 			logger.Error("Failed to parse request body", "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 		}
-
+		
 		if !phoneRegex.MatchString(req.Phone) {
-            logger.Error("Invalid phone number format", "phone", req.Phone)
+			logger.Error("Invalid phone number format", "phone", req.Phone)
             return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
         }
-
+		
 		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to create supplier", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
-
+		
 		return c.Status(fiber.StatusCreated).JSON(result)
 	}
 }
+var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)

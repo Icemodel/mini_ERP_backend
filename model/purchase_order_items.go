@@ -11,6 +11,6 @@ type PurchaseOrderItem struct {
 	Quantity            uint64    `gorm:"not null;" json:"quantity"`
 	Price               float64   `gorm:"not null;" json:"price"`
 
-	PurchaseOrder PurchaseOrder `gorm:"foconstraint:OnDelete:CASCADE;" json:"-"`
-	Product       Product       `gorm:"constraint:OnDelete:SET NULL;" json:"-"`
+	PurchaseOrder PurchaseOrder `gorm:"constraint:OnDelete:CASCADE;" json:"-"`
+	Product       Product       `gorm:"constraint:OnDelete:SET NULL;" json:"product"`
 }
