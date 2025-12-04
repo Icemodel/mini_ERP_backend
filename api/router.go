@@ -8,7 +8,6 @@ import (
 	"mini-erp-backend/api/handler/purchase_order"
 	"mini-erp-backend/api/handler/purchase_order_item"
 	register_handler "mini-erp-backend/api/handler/register"
-	"mini-erp-backend/api/handler/purchase_order_item"
 	"mini-erp-backend/api/handler/report"
 	stocktransaction_handler "mini-erp-backend/api/handler/stock_transaction"
 	"mini-erp-backend/api/handler/supplier"
@@ -44,7 +43,7 @@ func Register(
 		supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
 		supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
 		supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
-		
+
 	}
 
 	// Purchase Order routes
