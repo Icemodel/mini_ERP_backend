@@ -83,6 +83,7 @@ func createFiberMiddlewareInstance(
 	userRepo repository.User,
 	sessionRepo repository.UserSession,
 ) *FiberMiddleware {
+
 	allowCredential, err := strconv.ParseBool(environment.GetString(environment.AllowCredentialKey))
 	if err != nil {
 		message := "Failed to set CORS config"
@@ -90,9 +91,16 @@ func createFiberMiddlewareInstance(
 		os.Exit(1)
 	}
 
+	allowOrigins := environment.GetString(environment.AllowOriginKey)
+
+	if allowCredential && strings.TrimSpace(allowOrigins) == "http://localhost:5173" {
+		logger.Warn("CORS config insecure: ALLOW_CREDENTIALS=true and ALLOW_ORIGINS='*'. Disabling credentials to avoid insecure setup.")
+		allowCredential = false
+	}
+
 	return &FiberMiddleware{
 		corsSetUp: corsSetUp{
-			AllowOrigins:     environment.GetString(environment.AllowOriginKey),
+			AllowOrigins:     allowOrigins,
 			AllowCredentials: allowCredential,
 		},
 		db:          db,

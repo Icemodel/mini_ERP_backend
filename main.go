@@ -21,7 +21,6 @@ import (
 	"mini-erp-backend/middleware"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 )
 
@@ -43,7 +42,6 @@ func main() {
 	log := logging.New()
 	environment.LoadEnvironment()
 
-	app.Use(cors.New())
 	jwtManager := jwt.New(log.Slogger)
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))

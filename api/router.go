@@ -35,6 +35,8 @@ func Register(
 	// Supplier routes
 	supplierGroup := v1.Group("/suppliers")
 	{
+		supplierGroup.Use(mid.Authenticated())
+
 		supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
 		supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
 		supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
