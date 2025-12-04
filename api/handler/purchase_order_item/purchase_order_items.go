@@ -12,7 +12,7 @@ import (
 // PurchaseOrderItems
 //
 //	@Summary		List purchase order items
-//	@Description	Get all items for a specific purchase order
+//	@Description	Get all items for a purchase order
 //	@Tags			PurchaseOrderItem
 //	@Produce		json
 //	@Param			po_id	path	string	true	"Purchase Order ID"
@@ -20,7 +20,7 @@ import (
 //	@Failure		400	{object}	api.ErrorResponse
 //	@Failure		404	{object}	api.ErrorResponse
 //	@Failure		500	{object}	api.ErrorResponse
-//	@Router			/purchase-order-items/{po_id} [get]
+//	@Router			/purchase-orders/{po_id}/items [get]
 func PurchaseOrderItems(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		poIdStr := c.Params("po_id")
