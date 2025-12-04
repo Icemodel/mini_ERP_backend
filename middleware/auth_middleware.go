@@ -95,7 +95,6 @@ func createFiberMiddlewareInstance(
 
 	if allowCredential && strings.TrimSpace(allowOrigins) == "http://localhost:5173" {
 		logger.Warn("CORS config insecure: ALLOW_CREDENTIALS=true and ALLOW_ORIGINS='*'. Disabling credentials to avoid insecure setup.")
-		allowCredential = false
 	}
 
 	return &FiberMiddleware{
@@ -111,7 +110,6 @@ func createFiberMiddlewareInstance(
 	}
 }
 
-// allows servers to specify who can access its resources and what resources can access
 func (f *FiberMiddleware) CORS() fiber.Handler {
 	return cors.New(cors.Config{
 		AllowOrigins:     f.corsSetUp.AllowOrigins,
