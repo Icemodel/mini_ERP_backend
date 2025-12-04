@@ -30,6 +30,7 @@ func Register(
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
 		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
+		authGroupApi.Post("/logout", auth_handler.Logout(logger))
 	}
 
 	// Supplier routes
