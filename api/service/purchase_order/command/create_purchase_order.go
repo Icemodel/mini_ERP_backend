@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"mini-erp-backend/api/repository"
 	"mini-erp-backend/model"
@@ -19,8 +20,12 @@ type CreatePurchaseOrder struct {
 }
 
 type CreatePurchaseOrderRequest struct {
-	SupplierId uuid.UUID                 `json:"supplier_id" validate:"required"`
-	CreatedBy  uuid.UUID                 `json:"created_by" validate:"required"`
+	SupplierId uuid.UUID `json:"supplier_id"`
+	CreatedBy  string    `json:"created_by"`
+}
+
+type CreatePurchaseOrderResult struct {
+	PurchaseOrder model.PurchaseOrder `json:"purchase_order"`
 }
 
 func NewCreatePurchaseOrder(
@@ -37,7 +42,16 @@ func NewCreatePurchaseOrder(
 	}
 }
 
-func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrderRequest) (interface{}, error) {
+func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrderRequest) (*CreatePurchaseOrderResult, error) {
+
+	if req.SupplierId == uuid.Nil {
+		return nil, errors.New("supplier_id is required")
+	}
+
+	if req.CreatedBy == "" {
+		return nil, errors.New("created_by is required")
+	}
+
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -45,6 +59,7 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 			tx.Rollback()
 		}
 	}()
+
 
 	// Create Purchase Order
 	po := &model.PurchaseOrder{
@@ -66,6 +81,7 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 		return nil, err
 	}
 
-	h.logger.Info("Purchase order created successfully", "po_id", po.PurchaseOrderId)
-	return po, nil
+	return &CreatePurchaseOrderResult{
+		PurchaseOrder: *po,
+	}, nil
 }

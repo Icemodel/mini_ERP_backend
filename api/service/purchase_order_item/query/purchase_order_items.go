@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"mini-erp-backend/api/repository"
+	"mini-erp-backend/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -19,6 +20,10 @@ type PurchaseOrderItemsRequest struct {
 	PurchaseOrderId uuid.UUID
 }
 
+type PurchaseOrderItemsResult struct {
+	PurchaseOrderItems []*model.PurchaseOrderItem `json:"purchase_order_items"`
+}
+
 func NewPurchaseOrderItems(
 	logger *slog.Logger,
 	db *gorm.DB,
@@ -31,7 +36,7 @@ func NewPurchaseOrderItems(
 	}
 }
 
-func (h *PurchaseOrderItems) Handle(ctx context.Context, req *PurchaseOrderItemsRequest) (interface{}, error) {
+func (h *PurchaseOrderItems) Handle(ctx context.Context, req *PurchaseOrderItemsRequest) (*PurchaseOrderItemsResult, error) {
 	PO_id := map[string]interface{}{
 		"purchase_order_id": req.PurchaseOrderId,
 	}
@@ -40,5 +45,5 @@ func (h *PurchaseOrderItems) Handle(ctx context.Context, req *PurchaseOrderItems
 		return nil, err
 	}
 
-	return items, nil
+	return &PurchaseOrderItemsResult{PurchaseOrderItems: items}, nil
 }

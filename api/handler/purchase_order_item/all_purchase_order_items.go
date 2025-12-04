@@ -21,7 +21,7 @@ func AllPurchaseOrderItems(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		req := &query.AllPurchaseOrderItemsRequest{}
 
-		result, err := mediatr.Send[*query.AllPurchaseOrderItemsRequest, interface{}](c.Context(), req)
+		result, err := mediatr.Send[*query.AllPurchaseOrderItemsRequest, *query.AllPurchaseOrderItemsResult](c.Context(), req)
 		if err != nil {
 			logger.Error("Failed to get all purchase order items", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

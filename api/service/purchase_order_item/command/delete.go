@@ -21,6 +21,11 @@ type DeletePurchaseOrderItemRequest struct {
 	PurchaseOrderItemId uuid.UUID
 }
 
+type DeletePurchaseOrderItemResult struct {
+	Deleted             bool      `json:"deleted"`
+	PurchaseOrderItemId uuid.UUID `json:"purchase_order_item_id"`
+}
+
 func NewDeletePurchaseOrderItem(
 	logger *slog.Logger,
 	db *gorm.DB,
@@ -35,7 +40,19 @@ func NewDeletePurchaseOrderItem(
 	}
 }
 
-func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchaseOrderItemRequest) (interface{}, error) {
+func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchaseOrderItemRequest) (*DeletePurchaseOrderItemResult, error) {
+	// Get existing item first to get purchase_order_id
+	item_id := map[string]interface{}{
+		"purchase_order_item_id": req.PurchaseOrderItemId,
+	}
+
+	item, err := h.POItemRepo.Search(h.db, item_id, "")
+	if err != nil {
+		h.logger.Error("Failed to find purchase order item", "error", err)
+		return nil, err
+	}
+
+	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -43,15 +60,6 @@ func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchas
 		}
 	}()
 
-	// Get existing item first to get purchase_order_id
-	item_id := map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}
-	item, err := h.POItemRepo.Search(tx, item_id, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
 
 	// Verify PO is DRAFT
 	po_id := map[string]interface{}{
@@ -81,8 +89,8 @@ func (h *DeletePurchaseOrderItem) Handle(ctx context.Context, req *DeletePurchas
 	}
 
 	h.logger.Info("Purchase order item deleted", "item_id", req.PurchaseOrderItemId)
-	return map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-		"deleted":                true,
+	return &DeletePurchaseOrderItemResult{
+		Deleted:             true,
+		PurchaseOrderItemId: req.PurchaseOrderItemId,
 	}, nil
 }

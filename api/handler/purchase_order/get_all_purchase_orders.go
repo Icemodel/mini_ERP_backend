@@ -29,7 +29,7 @@ func AllPurchaseOrders(logger *slog.Logger) fiber.Handler {
 			status := model.PurchaseOrderStatus(statusStr)
 			req.Status = &status
 		}
-		req.OrderBy = c.Query("order_by")
+		req.SortOrder = c.Query("sort_order")
 
 		result, err := mediatr.Send[*query.AllPurchaseOrdersRequest, *query.AllPurchaseOrdersResult](c.Context(), &req)
 		if err != nil {

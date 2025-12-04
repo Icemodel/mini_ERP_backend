@@ -17,7 +17,7 @@ type AllPurchaseOrders struct {
 
 type AllPurchaseOrdersRequest struct {
 	Status  *model.PurchaseOrderStatus `json:"status"`
-	OrderBy string                     `json:"order_by"`
+	SortOrder string `json:"sort_order"`
 }
 
 type AllPurchaseOrdersResult struct {
@@ -43,9 +43,10 @@ func (h *AllPurchaseOrders) Handle(ctx context.Context, req *AllPurchaseOrdersRe
 		conditions["status"] = *req.Status
 	}
 
-	orderBy := req.OrderBy
-	if orderBy == "" {
-		orderBy = "created_at DESC"
+	orderBy := req.SortOrder
+	orderBy = "created_at DESC" // default
+	if orderBy == "asc" || orderBy == "ASC" {
+		orderBy = "created_at ASC"
 	}
 
 	pos, err := h.PORepo.Searches(h.db, conditions, orderBy)

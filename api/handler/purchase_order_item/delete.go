@@ -36,7 +36,7 @@ func DeletePurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 			PurchaseOrderItemId: itemId,
 		}
 
-		result, err := mediatr.Send[*command.DeletePurchaseOrderItemRequest, interface{}](c.Context(), req)
+		result, err := mediatr.Send[*command.DeletePurchaseOrderItemRequest, *command.DeletePurchaseOrderItemResult](c.Context(), req)
 		if err != nil {
 			logger.Error("Failed to delete purchase order item", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

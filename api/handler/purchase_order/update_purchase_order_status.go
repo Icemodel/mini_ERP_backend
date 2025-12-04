@@ -45,7 +45,7 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 
 		req.PurchaseOrderId = poId
 
-		result, err := mediatr.Send[*command.UpdatePOStatusRequest, interface{}](c.Context(), &req)
+		result, err := mediatr.Send[*command.UpdatePOStatusRequest, *command.UpdatePOStatusResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to update purchase order status", "po_id", poId, "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

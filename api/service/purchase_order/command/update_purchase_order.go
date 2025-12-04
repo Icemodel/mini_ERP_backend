@@ -19,9 +19,12 @@ type UpdatePurchaseOrder struct {
 }
 
 type UpdatePurchaseOrderRequest struct {
-	PurchaseOrderId uuid.UUID 					`json:"-" `
-	SupplierId      uuid.UUID                 `json:"supplier_id" validate:"required"`
-	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
+	PurchaseOrderId uuid.UUID `json:"-" `
+	SupplierId      uuid.UUID `json:"supplier_id"`
+}
+
+type UpdatePurchaseOrderResult struct {
+	PurchaseOrder model.PurchaseOrder `json:"purchase_order"`
 }
 
 func NewUpdatePurchaseOrder(
@@ -38,7 +41,18 @@ func NewUpdatePurchaseOrder(
 	}
 }
 
-func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrderRequest) (interface{}, error) {
+func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrderRequest) (*UpdatePurchaseOrderResult, error) {
+
+	// Find PO
+	purchase_order_id := map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}
+	po, err := h.PORepo.Search(h.db, purchase_order_id, "")
+	if err != nil {
+		h.logger.Error("Failed to find purchase order", "error", err)
+		return nil, err
+	}
+
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -47,14 +61,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		}
 	}()
 
-	// Find PO
-	po, err := h.PORepo.Search(tx, map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-	}, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
 
 	// Only DRAFT can be updated
 	if po.Status != model.Draft {
@@ -65,7 +71,6 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 
 	// Update PO
 	po.SupplierId = req.SupplierId
-	po.CreatedBy = req.CreatedBy
 	
 	if err := h.PORepo.Update(tx, po); err != nil {
 		tx.Rollback()
@@ -78,6 +83,7 @@ func (h *UpdatePurchaseOrder) Handle(ctx context.Context, req *UpdatePurchaseOrd
 		return nil, err
 	}
 
-	h.logger.Info("Purchase order updated successfully", "po_id", req.PurchaseOrderId)
-	return po, nil
+	return &UpdatePurchaseOrderResult{
+		PurchaseOrder: *po,
+	}, nil
 }

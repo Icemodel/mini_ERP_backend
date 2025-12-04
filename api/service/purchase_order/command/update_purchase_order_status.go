@@ -22,8 +22,12 @@ type UpdatePOStatus struct {
 
 type UpdatePOStatusRequest struct {
 	PurchaseOrderId uuid.UUID                 `json:"-" swaggerignore:"true"`
-	Status          model.PurchaseOrderStatus `json:"status" validate:"required"`
-	CreatedBy       uuid.UUID                 `json:"created_by" validate:"required"`
+	Status          model.PurchaseOrderStatus `json:"status"`
+}
+
+type UpdatePOStatusResult struct {
+	PurchaseOrderId uuid.UUID                 `json:"purchase_order_id"`
+	Status          model.PurchaseOrderStatus `json:"status"`
 }
 
 func NewUpdatePOStatus(
@@ -42,7 +46,16 @@ func NewUpdatePOStatus(
 	}
 }
 
-func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest) (interface{}, error) {
+func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest) (*UpdatePOStatusResult, error) {
+
+	if req.PurchaseOrderId == uuid.Nil {
+		return nil, errors.New("purchase_order_id is required")
+	}
+
+	if req.Status != model.Confirmed && req.Status != model.Received && req.Status != model.Cancelled {
+		return nil, errors.New("invalid status")
+	}
+
 	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
@@ -52,10 +65,11 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 	}()
 
 	// If changing to RECEIVED, validate that items exist
-	var items []*model.PurchaseOrderItem
+	purchase_order_id := map[string]interface{}{
+		"purchase_order_id": req.PurchaseOrderId,
+	}
+	items, err := h.POItemRepo.Searches(tx, purchase_order_id, "")
 	if req.Status == model.Received {
-		var err error
-		items, err = h.POItemRepo.Searches(tx, map[string]interface{}{"purchase_order_id": req.PurchaseOrderId}, "")
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -65,6 +79,13 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 			h.logger.Error("Cannot receive purchase order without items", "po_id", req.PurchaseOrderId)
 			return nil, errors.New("cannot receive purchase order without items")
 		}
+	}
+
+	// Get PurchaseOrder to access CreatedBy
+	po, err := h.PORepo.Search(tx, purchase_order_id, "")
+	if err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	// Update status
@@ -84,10 +105,17 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				return nil, err
 			}
 
-			// Calculate new quantity
-			newQuantity := int64(item.Quantity)
+			// Calculate new quantity 
+			// newQuantity := int64(item.Quantity)
+			// if latestStockTx != nil {
+			// 	newQuantity = latestStockTx.Quantity + int64(item.Quantity)
+			// }
+
+			var newQuantity int64
 			if latestStockTx != nil {
 				newQuantity = latestStockTx.Quantity + int64(item.Quantity)
+			} else {
+				newQuantity = int64(item.Quantity)
 			}
 
 			received := "Purchase Order Received"
@@ -101,26 +129,12 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 				Reason:             &received,
 				ReferenceId:        &req.PurchaseOrderId,
 				CreatedAt:          time.Now(),
-				CreatedBy:          req.CreatedBy.String(),
+				CreatedBy:          po.CreatedBy,
 			}
 
 			if err := h.StockRepo.Create(tx, stockTx); err != nil {
 				tx.Rollback()
 				return nil, err
-			}
-
-			if latestStockTx != nil {
-				h.logger.Info("Stock transaction created with cumulative quantity",
-					"product_id", item.ProductId,
-					"po_item_quantity", item.Quantity,
-					"previous_quantity", latestStockTx.Quantity,
-					"new_quantity", newQuantity,
-					"po_id", req.PurchaseOrderId)
-			} else {
-				h.logger.Info("Stock transaction created (first)",
-					"product_id", item.ProductId,
-					"quantity", newQuantity,
-					"po_id", req.PurchaseOrderId)
 			}
 		}
 	}
@@ -131,9 +145,8 @@ func (h *UpdatePOStatus) Handle(ctx context.Context, req *UpdatePOStatusRequest)
 		return nil, err
 	}
 
-	h.logger.Info("Purchase order status updated", "po_id", req.PurchaseOrderId, "status", req.Status)
-	return map[string]interface{}{
-		"purchase_order_id": req.PurchaseOrderId,
-		"status":            req.Status,
+	return &UpdatePOStatusResult{
+		PurchaseOrderId: req.PurchaseOrderId,
+		Status:          req.Status,
 	}, nil
 }

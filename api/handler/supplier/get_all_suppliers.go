@@ -15,14 +15,16 @@ import (
 //	@Tags			Supplier
 //	@Accept			json
 //	@Produce		json
-//	@Param			order_by	query		string	false	"Order by field"
-//	@Success		200			{array}		model.Supplier
-//	@Failure		500			{object}	fiber.Map
-//	@Router			/api/v1/suppliers [get]
+//	@Param			sortOrder	query	string	false	"Sort order (asc or desc)"
+//	@Success		200	{array}	model.Supplier
+//	@Failure		500	{object}	api.ErrorResponse
+//	@Router			/suppliers [get]
 func AllSuppliers(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		orderBy := c.Query("order_by", "")
-		req := query.AllSuppliersRequest{OrderBy: orderBy}
+		sortOrder := c.Query("sort_order", "")
+		req := query.AllSuppliersRequest{
+			SortOrder: sortOrder,
+		}
 
 		result, err := mediatr.Send[*query.AllSuppliersRequest, *query.AllSuppliersResult](c.Context(), &req)
 		if err != nil {

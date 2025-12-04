@@ -21,6 +21,11 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderItemRepo reposito
 	updateHandler := command.NewUpdatePurchaseOrderItem(logger, db, poItemRepo, poRepo)
 	deleteHandler := command.NewDeletePurchaseOrderItem(logger, db, poItemRepo, poRepo)
 
+	// Register query handlers
+	itemHandler := query.NewPurchaseOrderItem(logger, db, poItemRepo)
+	itemsHandler := query.NewPurchaseOrderItems(logger, db, poItemRepo)
+	allItemsHandler := query.NewAllPurchaseOrderItems(logger, db, poItemRepo)
+
 	err := mediatr.RegisterRequestHandler(createHandler)
 	if err != nil {
 		return err
@@ -36,26 +41,21 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderItemRepo reposito
 		return err
 	}
 
-	// Register query handlers
-	itemHandler := query.NewPurchaseOrderItem(logger, db, poItemRepo)
-	itemsHandler := query.NewPurchaseOrderItems(logger, db, poItemRepo)
-	allItemsHandler := query.NewAllPurchaseOrderItems(logger, db, poItemRepo)
 
-	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderItemRequest, interface{}](itemHandler)
+	err = mediatr.RegisterRequestHandler(itemHandler)
 	if err != nil {
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderItemsRequest, interface{}](itemsHandler)
+	err = mediatr.RegisterRequestHandler(itemsHandler)
 	if err != nil {
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler[*query.AllPurchaseOrderItemsRequest, interface{}](allItemsHandler)
+	err = mediatr.RegisterRequestHandler(allItemsHandler)
 	if err != nil {
 		return err
 	}
 
-	logger.Info("Purchase Order Item handlers registered successfully")
 	return nil
 }
