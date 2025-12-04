@@ -33,13 +33,10 @@ type corsSetUp struct {
 	AllowCredentials bool
 }
 
-// a mutex for synchronizing access to the fiberMiddlewareInstance variable
 var fiberMiddlewareLock = &sync.Mutex{}
 
-// a singleton instance of the FiberMiddleware struct
 var fiberMiddlewareInstance *FiberMiddleware
 
-// return the singleton instance of the FiberMiddleware
 func getFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
@@ -75,7 +72,6 @@ func NewFiberMiddleware(
 	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo, sessionRepo)
 }
 
-// create the fiberMiddlewareInstance and set up it
 func createFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
