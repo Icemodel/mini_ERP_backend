@@ -47,7 +47,7 @@ func main() {
 
 	jwtManager := jwt.New(log.Slogger)
 
-	db := database.Connect(environment.GetString("DSN_DATABASE"))
+	db := database.Connect(environment.GetString(environment.DsnDatabase))
 
 	defer func() {
 		sqlDB, _ := db.DB()
@@ -115,13 +115,13 @@ func main() {
 
 	// endregion
 
-	if environment.GetString("ENV") == "development" {
+	if environment.GetString(environment.ENV) == "development" {
 		app.Get("/swagger/*", swagger.HandlerDefault)
 
-		app.Listen(":" + environment.GetString("PORT"))
+		app.Listen(":" + environment.GetString(environment.Port))
 	}
 
 	//region service
 
-	app.Listen(":" + environment.GetString("PORT"))
+	app.Listen(":" + environment.GetString(environment.Port))
 }
