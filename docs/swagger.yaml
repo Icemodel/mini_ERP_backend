@@ -160,8 +160,6 @@ definitions:
     properties:
       status:
         $ref: '#/definitions/model.PurchaseOrderStatus'
-    required:
-    - status
     type: object
   command.UpdatePurchaseOrderItemRequest:
     properties:
@@ -265,11 +263,6 @@ definitions:
         type: string
       phone:
         type: string
-    required:
-    - address
-    - email
-    - name
-    - phone
     type: object
   mini-erp-backend_api_service_category_command.CreateRequest:
     properties:

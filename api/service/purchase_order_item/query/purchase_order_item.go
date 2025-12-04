@@ -25,6 +25,10 @@ type PurchaseOrderItemResult struct {
 	PurchaseOrderItem model.PurchaseOrderItem `json:"purchase_order_item"`
 }
 
+type PurchaseOrderItemResult struct {
+	PurchaseOrderItem model.PurchaseOrderItem `json:"purchase_order_item"`
+}
+
 func NewPurchaseOrderItem(
 	logger *slog.Logger,
 	db *gorm.DB,

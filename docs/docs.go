@@ -1818,9 +1818,6 @@ const docTemplate = `{
         },
         "command.UpdatePOStatusRequest": {
             "type": "object",
-            "required": [
-                "status"
-            ],
             "properties": {
                 "status": {
                     "$ref": "#/definitions/model.PurchaseOrderStatus"

@@ -60,6 +60,7 @@ func (h *CreatePurchaseOrder) Handle(ctx context.Context, req *CreatePurchaseOrd
 		}
 	}()
 
+
 	// Create Purchase Order
 	po := &model.PurchaseOrder{
 		PurchaseOrderId: uuid.New(),
