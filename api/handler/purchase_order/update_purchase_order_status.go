@@ -22,6 +22,12 @@ import (
 //	@Failure		400		{object}	api.ErrorResponse
 //	@Failure		500		{object}	api.ErrorResponse
 //	@Router			/purchase-orders/{id}/status [put]
+//	@Param			id		path	string							true	"Purchase Order ID (UUID)"
+//	@Param			request	body	command.UpdatePOStatusRequest	true	"Status update request"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		400		{object}	api.ErrorResponse
+//	@Failure		500		{object}	api.ErrorResponse
+//	@Router			/purchase-orders/{id}/status [put]
 func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		poIdStr := c.Params("id")
@@ -36,6 +42,8 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 
 		var req command.UpdatePOStatusRequest
 		err = c.BodyParser(&req)
+		var req command.UpdatePOStatusRequest
+		err = c.BodyParser(&req)
 		if err != nil {
 			logger.Error("Failed to parse request body", "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -43,6 +51,7 @@ func UpdatePurchaseOrderStatus(logger *slog.Logger) fiber.Handler {
 			})
 		}
 
+		req.PurchaseOrderId = poId
 		req.PurchaseOrderId = poId
 
 		result, err := mediatr.Send[*command.UpdatePOStatusRequest, *command.UpdatePOStatusResult](c.Context(), &req)

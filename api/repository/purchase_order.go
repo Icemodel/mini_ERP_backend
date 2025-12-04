@@ -40,6 +40,7 @@ func (r *purchaseOrder) Update(tx *gorm.DB, po *model.PurchaseOrder) error {
 		Where("purchase_order_id = ?", po.PurchaseOrderId).
 		Select("*").
 		Omit("created_at", "purchase_order_id").
+		Omit("created_at", "purchase_order_id").
 		Updates(po).Error; err != nil {
 		r.logger.Error("Failed to update purchase order", "error", err)
 		return err
@@ -60,8 +61,15 @@ func (r *purchaseOrder) UpdateStatus(tx *gorm.DB, poId uuid.UUID, status model.P
 func (r *purchaseOrder) Search(db *gorm.DB, conditions map[string]interface{}, orderBy string) (*model.PurchaseOrder, error) {
 	pos := []model.PurchaseOrder{}
 
-	if err := db.Preload("Supplier").Preload("PurchaseOrderItem.Product").Where(conditions).Order(orderBy).Limit(1).Find(&pos).Error; err != nil {
+	if err := db.Preload("Supplier").Preload("PurchaseOrderItem").Where(conditions).Order(orderBy).Limit(1).Find(&pos).Error; err != nil {
 		r.logger.Error("Failed to search purchase order", "error", err)
+		return nil, err
+	} else {
+		if len(pos) == 0 {
+			err := gorm.ErrRecordNotFound
+			r.logger.Error("Purchase order not found", "error", err)
+			return nil, err
+		}
 		return nil, err
 	} else {
 		if len(pos) == 0 {
@@ -77,9 +85,17 @@ func (r *purchaseOrder) Search(db *gorm.DB, conditions map[string]interface{}, o
 func (r *purchaseOrder) Searches(db *gorm.DB, conditions map[string]interface{}, orderBy string) ([]*model.PurchaseOrder, error) {
 	pos := []*model.PurchaseOrder{}
 
-	if err := db.Preload("Supplier").Preload("PurchaseOrderItem.Product").Where(conditions).Order(orderBy).Find(&pos).Error; err != nil {
+	if err := db.Preload("Supplier").Preload("PurchaseOrderItem").Where(conditions).Order(orderBy).Find(&pos).Error; err != nil {
 		r.logger.Error("Failed to search purchase orders", "error", err)
 		return nil, err
+	} else {
+		if len(pos) == 0 {
+			err := gorm.ErrRecordNotFound
+			r.logger.Error("No purchase orders found", "error", err)
+			return nil, err
+		}
+	}
+
 	} else {
 		if len(pos) == 0 {
 			err := gorm.ErrRecordNotFound

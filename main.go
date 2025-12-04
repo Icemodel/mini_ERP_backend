@@ -9,8 +9,6 @@ import (
 	"mini-erp-backend/api/service/purchase_order"
 	"mini-erp-backend/api/service/purchase_order_item"
 	"mini-erp-backend/api/service/register"
-	"mini-erp-backend/api/service/purchase_order_item"
-	"mini-erp-backend/api/service/register"
 	"mini-erp-backend/api/service/report"
 	"mini-erp-backend/api/service/stock_transaction"
 	"mini-erp-backend/api/service/supplier"
