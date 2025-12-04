@@ -15,6 +15,7 @@ type UserSession interface {
 	Create(db *gorm.DB, session *model.UserSession) error
 	GetSessionByRefreshToken(db *gorm.DB, refreshToken string) (*model.UserSession, error)
 	UpdateAccessToken(db *gorm.DB, sessionId uuid.UUID, accessToken string) error
+	RevokeAllByUserID(db *gorm.DB, userId uuid.UUID) (int64, error)
 }
 
 type userSession struct {
@@ -49,7 +50,6 @@ func (r *userSession) Create(db *gorm.DB, session *model.UserSession) error {
 
 func (r *userSession) GetSessionByRefreshToken(db *gorm.DB, refreshToken string) (*model.UserSession, error) {
 	var session model.UserSession
-	// First try to find any session with this refresh token (include revoked flag)
 	err := db.Model(&model.UserSession{}).
 		Select("refresh_token", "revoked", "user_id", "session_id").
 		Where("refresh_token = ?", refreshToken).
@@ -62,7 +62,6 @@ func (r *userSession) GetSessionByRefreshToken(db *gorm.DB, refreshToken string)
 		return nil, err
 	}
 
-	// If the session exists but is revoked, return a specific error
 	if session.Revoked {
 		if r.logger != nil {
 			r.logger.Warn("refresh token found but revoked", "session_id", session.SessionId)
@@ -74,7 +73,6 @@ func (r *userSession) GetSessionByRefreshToken(db *gorm.DB, refreshToken string)
 }
 
 func (r *userSession) UpdateAccessToken(db *gorm.DB, sessionId uuid.UUID, accessToken string) error {
-	// Only update the access_token. Refresh token rotation is handled explicitly elsewhere.
 	if err := db.Model(&model.UserSession{}).
 		Where("session_id = ?", sessionId).
 		Update("access_token", accessToken).Error; err != nil {
@@ -85,4 +83,20 @@ func (r *userSession) UpdateAccessToken(db *gorm.DB, sessionId uuid.UUID, access
 	}
 
 	return nil
+}
+
+func (r *userSession) RevokeAllByUserID(db *gorm.DB, userId uuid.UUID) (int64, error) {
+	res := db.Model(&model.UserSession{}).
+		Where("user_id = ? AND revoked = ?", userId, false).
+		Update("revoked", true)
+	if res.Error != nil {
+		if r.logger != nil {
+			r.logger.Error("failed to revoke all sessions for user", "user_id", userId, "error", res.Error)
+		}
+		return 0, res.Error
+	}
+	if r.logger != nil {
+		r.logger.Info("revoked sessions for user", "user_id", userId, "rows_affected", res.RowsAffected)
+	}
+	return res.RowsAffected, nil
 }
