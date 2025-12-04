@@ -1530,8 +1530,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Order by field",
-                        "name": "order_by",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sortOrder",
                         "in": "query"
                     }
                 ],
@@ -1760,11 +1760,6 @@ const docTemplate = `{
         },
         "command.CreatePurchaseOrderItemRequest": {
             "type": "object",
-            "required": [
-                "product_id",
-                "purchase_order_id",
-                "quantity"
-            ],
             "properties": {
                 "product_id": {
                     "type": "string"
@@ -1773,17 +1768,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quantity": {
-                    "type": "integer",
-                    "minimum": 1
+                    "type": "integer"
                 }
             }
         },
         "command.CreatePurchaseOrderRequest": {
             "type": "object",
-            "required": [
-                "created_by",
-                "supplier_id"
-            ],
             "properties": {
                 "created_by": {
                     "type": "string"
@@ -1913,9 +1903,6 @@ const docTemplate = `{
         },
         "command.UpdatePOStatusRequest": {
             "type": "object",
-            "required": [
-                "status"
-            ],
             "properties": {
                 "status": {
                     "$ref": "#/definitions/model.PurchaseOrderStatus"
@@ -1925,9 +1912,18 @@ const docTemplate = `{
         "command.UpdatePurchaseOrderItemRequest": {
             "type": "object",
             "required": [
+                "price",
+                "product_id",
                 "quantity"
             ],
             "properties": {
+                "price": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "product_id": {
+                    "type": "string"
+                },
                 "quantity": {
                     "type": "integer",
                     "minimum": 1
@@ -1936,9 +1932,6 @@ const docTemplate = `{
         },
         "command.UpdatePurchaseOrderRequest": {
             "type": "object",
-            "required": [
-                "supplier_id"
-            ],
             "properties": {
                 "supplier_id": {
                     "type": "string"
@@ -1947,12 +1940,6 @@ const docTemplate = `{
         },
         "command.UpdateSupplierRequest": {
             "type": "object",
-            "required": [
-                "address",
-                "email",
-                "name",
-                "phone"
-            ],
             "properties": {
                 "address": {
                     "type": "string"
@@ -2201,6 +2188,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.StockTransaction"
                     }
+                },
+                "supplier": {
+                    "$ref": "#/definitions/model.Supplier"
                 },
                 "supplier_id": {
                     "type": "string"

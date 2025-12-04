@@ -17,6 +17,11 @@ func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) 
 	getStockMovementsHandler := query.NewStockMovements(logger, db, reportRepo)
 	getPurchaseSummaryHandler := query.NewPurchaseSummary(logger, db, reportRepo)
 
+	// Register export handlers
+	exportStockSummaryCSVHandler := command.NewExportStockSummaryCSV(logger, db, reportRepo)
+	exportStockMovementExcelHandler := command.NewExportStockMovementExcel(logger, db, reportRepo)
+	exportPurchaseReportExcelHandler := command.NewExportPurchaseReportExcel(logger, db, reportRepo)
+
 	err := mediatr.RegisterRequestHandler(getStockSummaryHandler)
 	if err != nil {
 		return err
@@ -32,10 +37,6 @@ func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) 
 		return err
 	}
 
-	// Register export handlers
-	exportStockSummaryCSVHandler := command.NewExportStockSummaryCSV(logger, db, reportRepo)
-	exportStockMovementExcelHandler := command.NewExportStockMovementExcel(logger, db, reportRepo)
-	exportPurchaseReportExcelHandler := command.NewExportPurchaseReportExcel(logger, db, reportRepo)
 
 	err = mediatr.RegisterRequestHandler(exportStockSummaryCSVHandler)
 	if err != nil {
@@ -52,6 +53,5 @@ func NewService(logger *slog.Logger, db *gorm.DB, reportRepo repository.Report) 
 		return err
 	}
 
-	logger.Info("Report handlers registered successfully")
 	return nil
 }

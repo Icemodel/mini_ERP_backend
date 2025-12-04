@@ -19,7 +19,13 @@ type UpdatePurchaseOrderItem struct {
 
 type UpdatePurchaseOrderItemRequest struct {
 	PurchaseOrderItemId uuid.UUID `json:"-" swaggerignore:"true"`
-	Quantity            uint64 `json:"quantity" validate:"required,min=1"`
+	ProductId           uuid.UUID `json:"product_id" validate:"required"`
+	Quantity            uint64    `json:"quantity" validate:"required,min=1"`
+	Price               float64   `json:"price" validate:"required,min=0"`
+}
+
+type UpdatePurchaseOrderItemResult struct {
+	PurchaseOrderItem model.PurchaseOrderItem `json:"purchase_order_item"`
 }
 
 func NewUpdatePurchaseOrderItem(
@@ -36,23 +42,39 @@ func NewUpdatePurchaseOrderItem(
 	}
 }
 
-func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchaseOrderItemRequest) (interface{}, error) {
+func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchaseOrderItemRequest) (*UpdatePurchaseOrderItemResult, error) {
+	// Get existing item first to get purchase_order_id
+	item_id := map[string]interface{}{
+		"purchase_order_item_id": req.PurchaseOrderItemId,
+	}
+	item, err := h.POItemRepo.Search(h.db, item_id, "")
+	if err != nil {
+		h.logger.Error("Failed to find purchase order item", "error", err)
+		return nil, err
+	}
+
+	if req.ProductId == uuid.Nil {
+		h.logger.Error("Product ID is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	if req.Quantity <= 0 {
+		h.logger.Error("Quantity must be greater than zero")
+		return nil, gorm.ErrInvalidData
+	}
+
+	if req.Price < 0 {
+		h.logger.Error("Price cannot be negative")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Begin transaction
 	tx := h.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
-
-	// Get existing item first to get purchase_order_id
-	item_id := map[string]interface{}{
-		"purchase_order_item_id": req.PurchaseOrderItemId,
-	}
-	item, err := h.POItemRepo.Search(tx, item_id, "")
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
 
 	// Verify PO is DRAFT
 	po_id := map[string]interface{}{
@@ -70,8 +92,10 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		return nil, gorm.ErrInvalidData
 	}
 
-	// Update quantity
+	// Update fields
+	item.ProductId = req.ProductId
 	item.Quantity = req.Quantity
+	item.Price = req.Price
 
 	if err := h.POItemRepo.Update(tx, req.PurchaseOrderItemId, item); err != nil {
 		tx.Rollback()
@@ -82,7 +106,8 @@ func (h *UpdatePurchaseOrderItem) Handle(ctx context.Context, req *UpdatePurchas
 		h.logger.Error("Failed to commit transaction", "error", err)
 		return nil, err
 	}
-
-	h.logger.Info("Purchase order item updated", "item_id", req.PurchaseOrderItemId)
-	return item, nil
+	
+	return &UpdatePurchaseOrderItemResult{
+		PurchaseOrderItem: *item,
+	}, nil
 }

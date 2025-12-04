@@ -40,16 +40,15 @@ func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderRepo repository.P
 	}
 
 	// Register query handlers
-	err = mediatr.RegisterRequestHandler[*query.PurchaseOrderRequest, *query.PurchaseOrderResult](getPurchaseOrderHandler)
+	err = mediatr.RegisterRequestHandler(getPurchaseOrderHandler)
 	if err != nil {
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler[*query.AllPurchaseOrdersRequest, *query.AllPurchaseOrdersResult](getAllPurchaseOrdersHandler)
+	err = mediatr.RegisterRequestHandler(getAllPurchaseOrdersHandler)
 	if err != nil {
 		return err
 	}
 
-	logger.Info("Purchase Order handlers registered successfully")
 	return nil
 }

@@ -16,10 +16,7 @@ type AllSuppliers struct {
 }
 
 type AllSuppliersRequest struct {
-	OrderBy string `json:"order_by"`
-	Email   string `json:"email"`
-	Name	string `json:"name"`
-	Phone  string `json:"phone"`
+	SortOrder string `json:"sort_order"`
 }
 
 type AllSuppliersResult struct {
@@ -35,10 +32,10 @@ func NewAllSuppliers(logger *slog.Logger, db *gorm.DB, repo repository.Supplier)
 }
 
 func (h *AllSuppliers) Handle(ctx context.Context, req *AllSuppliersRequest) (*AllSuppliersResult, error) {
-	// Set default order by
-	orderBy := req.OrderBy
-	if orderBy == "" {
-		orderBy = "created_at DESC"
+	// Build orderBy string
+	orderBy := "created_at DESC" // default
+	if req.SortOrder == "asc" || req.SortOrder == "ASC" {
+		orderBy = "created_at ASC"
 	}
 
 	// Get all suppliers from database

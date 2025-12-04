@@ -30,13 +30,22 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 			logger.Error("Failed to parse request body", "error", err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 		}
-		
+
+		// Validate phone number format
+		phoneRegex := regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
 		if !phoneRegex.MatchString(req.Phone) {
 			logger.Error("Invalid phone number format", "phone", req.Phone)
             return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
         }
+
+		// Validate email format
+		emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+		if !emailRegex.MatchString(req.Email) {
+			logger.Error("Invalid email format", "email", req.Email)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid email format"})
+		}
 		
-		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
+		result, err := mediatr.Send[*command.CreateSupplierRequest, *command.CreateSupplierResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to create supplier", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
@@ -45,4 +54,4 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		return c.Status(fiber.StatusCreated).JSON(result)
 	}
 }
-var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
+

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"mini-erp-backend/api/repository"
+	"mini-erp-backend/model"
 
 	"gorm.io/gorm"
 )
@@ -15,6 +16,10 @@ type AllPurchaseOrderItems struct {
 }
 
 type AllPurchaseOrderItemsRequest struct{}
+
+type AllPurchaseOrderItemsResult struct {
+	PurchaseOrderItems []*model.PurchaseOrderItem `json:"purchase_order_items"`
+}
 
 func NewAllPurchaseOrderItems(
 	logger *slog.Logger,
@@ -28,11 +33,11 @@ func NewAllPurchaseOrderItems(
 	}
 }
 
-func (h *AllPurchaseOrderItems) Handle(ctx context.Context, req *AllPurchaseOrderItemsRequest) (interface{}, error) {
+func (h *AllPurchaseOrderItems) Handle(ctx context.Context, req *AllPurchaseOrderItemsRequest) (*AllPurchaseOrderItemsResult, error) {
 	items, err := h.ItemRepo.Searches(h.db, map[string]interface{}{}, "")
 	if err != nil {
 		return nil, err
 	}
 
-	return items, nil
+	return &AllPurchaseOrderItemsResult{PurchaseOrderItems: items}, nil
 }

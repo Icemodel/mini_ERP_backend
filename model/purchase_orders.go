@@ -16,7 +16,7 @@ type PurchaseOrder struct {
 
 	PurchaseOrderItem []PurchaseOrderItem `gorm:"foreignKey:PurchaseOrderId" json:"purchase_order_items"`
 	StockTransaction  []StockTransaction  `gorm:"foreignKey:ReferenceId;constraint:OnDelete:SET NULL;" json:"stock_transactions"`
-	Supplier          Supplier            `gorm:"constraint:OnDelete:SET NULL;" json:"-"`
+	Supplier          Supplier            `gorm:"constraint:OnDelete:SET NULL;" json:"supplier"`
 }
 
 type PurchaseOrderStatus string

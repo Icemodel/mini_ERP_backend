@@ -41,7 +41,7 @@ func UpdateSupplier(logger *slog.Logger) fiber.Handler {
 
 		req.SupplierId = supplierId
 
-		_, err = mediatr.Send[*command.UpdateSupplierRequest, interface{}](c.Context(), &req)
+		_, err = mediatr.Send[*command.UpdateSupplierRequest, *command.UpdateSupplierResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to update supplier", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})

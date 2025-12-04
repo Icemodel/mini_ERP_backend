@@ -44,7 +44,7 @@ func UpdatePurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 
 		req.PurchaseOrderItemId = itemId
 
-		result, err := mediatr.Send[*command.UpdatePurchaseOrderItemRequest, interface{}](c.Context(), &req)
+		result, err := mediatr.Send[*command.UpdatePurchaseOrderItemRequest, *command.UpdatePurchaseOrderItemResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to update purchase order item", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

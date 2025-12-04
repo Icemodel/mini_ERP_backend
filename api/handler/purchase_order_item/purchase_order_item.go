@@ -36,7 +36,7 @@ func PurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 			PurchaseOrderItemId: itemId,
 		}
 
-		result, err := mediatr.Send[*query.PurchaseOrderItemRequest, interface{}](c.Context(), req)
+		result, err := mediatr.Send[*query.PurchaseOrderItemRequest, *query.PurchaseOrderItemResult](c.Context(), req)
 		if err != nil {
 			logger.Error("Failed to get purchase order item", "error", err)
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{

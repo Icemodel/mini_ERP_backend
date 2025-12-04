@@ -19,6 +19,11 @@ type DeleteSupplierRequest struct {
 	SupplierId uuid.UUID `json:"supplier_id"`
 }
 
+type DeleteSupplierResult struct {
+	Deleted bool `json:"deleted"`
+	Message string `json:"message,omitempty"`
+}
+
 func NewDeleteSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *DeleteSupplier {
 	return &DeleteSupplier{
 		logger:       logger,
@@ -27,7 +32,7 @@ func NewDeleteSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplie
 	}
 }
 
-func (h *DeleteSupplier) Handle(ctx context.Context, cmd *DeleteSupplierRequest) (interface{}, error) {
+func (h *DeleteSupplier) Handle(ctx context.Context, cmd *DeleteSupplierRequest) (*DeleteSupplierResult, error) {
 	// Check if supplier exists
 	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
@@ -38,26 +43,14 @@ func (h *DeleteSupplier) Handle(ctx context.Context, cmd *DeleteSupplierRequest)
 		return nil, err
 	}
 
-	// Begin transaction
-	tx := h.db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
 	// Delete from database
-	if err := h.SupplierRepo.Delete(tx, supplier); err != nil {
-		tx.Rollback()
+	if err := h.SupplierRepo.Delete(h.db, supplier); err != nil {
+		h.db.Rollback()
 		return nil, err
 	}
 
-	// Commit transaction
-	if err := tx.Commit().Error; err != nil {
-		h.logger.Error("Failed to commit transaction", "error", err)
-		return nil, err
-	}
-
-	h.logger.Info("Supplier deleted successfully", "supplier_id", cmd.SupplierId)
-	return nil, nil
+	return &DeleteSupplierResult{
+		Deleted: true,
+		Message: "Supplier deleted successfully",
+	}, nil
 }

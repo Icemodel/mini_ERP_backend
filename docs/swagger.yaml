@@ -13,12 +13,7 @@ definitions:
       purchase_order_id:
         type: string
       quantity:
-        minimum: 1
         type: integer
-    required:
-    - product_id
-    - purchase_order_id
-    - quantity
     type: object
   command.CreatePurchaseOrderRequest:
     properties:
@@ -26,9 +21,6 @@ definitions:
         type: string
       supplier_id:
         type: string
-    required:
-    - created_by
-    - supplier_id
     type: object
   command.CreateSupplierRequest:
     properties:
@@ -112,23 +104,26 @@ definitions:
     properties:
       status:
         $ref: '#/definitions/model.PurchaseOrderStatus'
-    required:
-    - status
     type: object
   command.UpdatePurchaseOrderItemRequest:
     properties:
+      price:
+        minimum: 0
+        type: number
+      product_id:
+        type: string
       quantity:
         minimum: 1
         type: integer
     required:
+    - price
+    - product_id
     - quantity
     type: object
   command.UpdatePurchaseOrderRequest:
     properties:
       supplier_id:
         type: string
-    required:
-    - supplier_id
     type: object
   command.UpdateSupplierRequest:
     properties:
@@ -140,11 +135,6 @@ definitions:
         type: string
       phone:
         type: string
-    required:
-    - address
-    - email
-    - name
-    - phone
     type: object
   mini-erp-backend_api_service_category_command.CreateRequest:
     properties:
@@ -298,6 +288,8 @@ definitions:
         items:
           $ref: '#/definitions/model.StockTransaction'
         type: array
+      supplier:
+        $ref: '#/definitions/model.Supplier'
       supplier_id:
         type: string
     type: object
@@ -1551,9 +1543,9 @@ paths:
       - application/json
       description: Retrieve a list of all suppliers
       parameters:
-      - description: Order by field
+      - description: Sort order (asc or desc)
         in: query
-        name: order_by
+        name: sortOrder
         type: string
       produces:
       - application/json

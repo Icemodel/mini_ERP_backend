@@ -32,7 +32,7 @@ func CreatePurchaseOrderItem(logger *slog.Logger) fiber.Handler {
 			})
 		}
 
-		result, err := mediatr.Send[*command.CreatePurchaseOrderItemRequest, interface{}](c.Context(), &req)
+		result, err := mediatr.Send[*command.CreatePurchaseOrderItemRequest, *command.CreatePurchaseOrderItemResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to create purchase order item", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

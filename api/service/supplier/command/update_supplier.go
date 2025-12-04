@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"mini-erp-backend/api/repository"
+	"mini-erp-backend/model"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -17,10 +18,14 @@ type UpdateSupplier struct {
 
 type UpdateSupplierRequest struct {
 	SupplierId uuid.UUID `json:"-"`
-	Name       string    `json:"name" validate:"required"`
-	Phone      string    `json:"phone" validate:"required"`
-	Email      string    `json:"email" validate:"required,email"`
-	Address    string    `json:"address" validate:"required"`
+	Name       string    `json:"name"`
+	Phone      string    `json:"phone"`
+	Email      string    `json:"email"`
+	Address    string    `json:"address"`
+}
+
+type UpdateSupplierResult struct {
+	Supplier model.Supplier `json:"supplier"`
 }
 
 func NewUpdateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *UpdateSupplier {
@@ -31,7 +36,7 @@ func NewUpdateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplie
 	}
 }
 
-func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest) (interface{}, error) {
+func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest) (*UpdateSupplierResult, error) {
 	// Check if supplier exists
 	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
@@ -50,11 +55,21 @@ func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest)
 		}
 	}()
 
-	// Update supplier fields
-	existingSupplier.Name = cmd.Name
-	existingSupplier.Phone = cmd.Phone
-	existingSupplier.Email = cmd.Email
-	existingSupplier.Address = cmd.Address
+	if cmd.Name != "" {
+		existingSupplier.Name = cmd.Name
+	}
+
+	if cmd.Phone != "" {
+		existingSupplier.Phone = cmd.Phone
+	}
+
+	if cmd.Email != "" {
+		existingSupplier.Email = cmd.Email
+	}
+
+	if cmd.Address != "" {
+		existingSupplier.Address = cmd.Address
+	}
 
 	// Save to database
 	if err := h.SupplierRepo.UpdateBySupplierId(tx, cmd.SupplierId, existingSupplier); err != nil {
@@ -68,6 +83,7 @@ func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest)
 		return nil, err
 	}
 
-	h.logger.Info("Supplier updated successfully", "supplier_id", cmd.SupplierId)
-	return nil, nil
+	return &UpdateSupplierResult{
+		Supplier: *existingSupplier,
+	}, nil
 }

@@ -33,7 +33,7 @@ func DeleteSupplier(logger *slog.Logger) fiber.Handler {
 
 		req := command.DeleteSupplierRequest{SupplierId: supplierId}
 
-		_, err = mediatr.Send[*command.DeleteSupplierRequest, interface{}](c.Context(), &req)
+		_, err = mediatr.Send[*command.DeleteSupplierRequest, *command.DeleteSupplierResult](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to delete supplier", "error", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
