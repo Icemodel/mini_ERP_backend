@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewService(db *gorm.DB, logger *slog.Logger,purchaseOrderItemRepo repository.PurchaseOrderItem ) error {
+func NewService(db *gorm.DB, logger *slog.Logger, purchaseOrderItemRepo repository.PurchaseOrderItem) error {
 	// Initialize repositories
 	poItemRepo := repository.NewPurchaseOrderItem(logger)
 	poRepo := repository.NewPurchaseOrder(logger)

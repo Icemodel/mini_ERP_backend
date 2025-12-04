@@ -28,6 +28,11 @@ func NewService(
 		jwtManager,
 		userRepo,
 	)
+	LogoutService := command.NewLogout(
+		domainDb,
+		logger,
+		jwtManager,
+	)
 
 	err := mediatr.RegisterRequestHandler(LoginService)
 	if err != nil {
@@ -35,6 +40,11 @@ func NewService(
 	}
 
 	err = mediatr.RegisterRequestHandler(RefreshLoginTokenService)
+	if err != nil {
+		panic(err)
+	}
+
+	err = mediatr.RegisterRequestHandler(LogoutService)
 	if err != nil {
 		panic(err)
 	}

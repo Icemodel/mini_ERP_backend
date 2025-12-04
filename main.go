@@ -22,7 +22,6 @@ import (
 	"mini-erp-backend/middleware"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 )
 
@@ -44,7 +43,6 @@ func main() {
 	log := logging.New()
 	environment.LoadEnvironment()
 
-	app.Use(cors.New())
 	jwtManager := jwt.New(log.Slogger)
 
 	db := database.Connect(environment.GetString("DSN_DATABASE"))
@@ -82,17 +80,17 @@ func main() {
 	// endregion
 
 	// if err := db.AutoMigrate(
-		//&model.User{},
-		//&model.Category{},
-		//&model.Supplier{},
-		//&model.Product{},
-		//&model.PurchaseOrder{},
-		//&model.AuditLog{},
-		//&model.PurchaseOrderItem{},
-		// &model.StockTransaction{},
+	//&model.User{},
+	//&model.Category{},
+	//&model.Supplier{},
+	//&model.Product{},
+	//&model.PurchaseOrder{},
+	//&model.AuditLog{},
+	//&model.PurchaseOrderItem{},
+	// &model.StockTransaction{},
 	//&model.UserSession{},
 	// ); err != nil {
-		// log.Slogger.Error("Migration failed", "error", err)
+	// log.Slogger.Error("Migration failed", "error", err)
 	// }
 
 	//middleware

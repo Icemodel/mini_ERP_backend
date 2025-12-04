@@ -6,6 +6,7 @@ import (
 	category_handler "mini-erp-backend/api/handler/category"
 	product_handler "mini-erp-backend/api/handler/product"
 	"mini-erp-backend/api/handler/purchase_order"
+	"mini-erp-backend/api/handler/purchase_order_item"
 	register_handler "mini-erp-backend/api/handler/register"
 	"mini-erp-backend/api/handler/purchase_order_item"
 	"mini-erp-backend/api/handler/report"
@@ -30,11 +31,14 @@ func Register(
 	{
 		authGroupApi.Post("/login", auth_handler.Login(logger))
 		authGroupApi.Post("/token/refresh", auth_handler.RefreshAccessToken(logger))
+		authGroupApi.Post("/logout", auth_handler.Logout(logger))
 	}
 
 	// Supplier routes
 	supplierGroup := v1.Group("/suppliers")
 	{
+		supplierGroup.Use(mid.Authenticated())
+
 		supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
 		supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
 		supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
@@ -88,7 +92,7 @@ func Register(
 		categoryGroupApi.Get("/", mid.RequireMinRole("viewer"), category_handler.Categories(logger))
 		categoryGroupApi.Get("/:id", mid.RequireMinRole("viewer"), category_handler.CategoryById(logger))
 		categoryGroupApi.Post("/", mid.RequireMinRole("admin"), category_handler.Create(logger))
-		categoryGroupApi.Patch("/:id", mid.RequireMinRole("admin"), category_handler.Update(logger))
+		categoryGroupApi.Put("/:id", mid.RequireMinRole("admin"), category_handler.Update(logger))
 		categoryGroupApi.Delete("/:id", mid.RequireMinRole("admin"), category_handler.DeleteById(logger))
 	}
 
@@ -99,7 +103,7 @@ func Register(
 		productGroupApi.Get("/", mid.RequireMinRole("viewer"), product_handler.Products(logger))
 		productGroupApi.Get("/:id", mid.RequireMinRole("viewer"), product_handler.ProductById(logger))
 		productGroupApi.Post("/", mid.RequireMinRole("staff"), product_handler.Create(logger))
-		productGroupApi.Patch("/:id", mid.RequireMinRole("staff"), product_handler.Update(logger))
+		productGroupApi.Put("/:id", mid.RequireMinRole("staff"), product_handler.Update(logger))
 		productGroupApi.Delete("/:id", mid.RequireMinRole("staff"), product_handler.DeleteById(logger))
 		productGroupApi.Get("/:id/stock-summary", mid.RequireMinRole("viewer"), product_handler.ProductStockSummary(logger))
 	}

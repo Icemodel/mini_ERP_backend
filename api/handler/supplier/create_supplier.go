@@ -22,6 +22,7 @@ import (
 //	@Failure		500	{object}	api.ErrorResponse
 //	@Router			/suppliers [post]
 var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
+
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req command.CreateSupplierRequest
@@ -33,9 +34,9 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		}
 
 		if !phoneRegex.MatchString(req.Phone) {
-            logger.Error("Invalid phone number format", "phone", req.Phone)
-            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
-        }
+			logger.Error("Invalid phone number format", "phone", req.Phone)
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
+		}
 
 		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
 		if err != nil {
