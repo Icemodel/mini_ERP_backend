@@ -4,7 +4,6 @@ import (
 	"log/slog"
 	"mini-erp-backend/api/service/supplier/command"
 	"regexp"
-	"regexp"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mehdihadeli/go-mediatr"
@@ -34,9 +33,9 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		
 		if !phoneRegex.MatchString(req.Phone) {
 			logger.Error("Invalid phone number format", "phone", req.Phone)
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
-		}
-
+            return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid phone number format"})
+        }
+		
 		result, err := mediatr.Send[*command.CreateSupplierRequest, interface{}](c.Context(), &req)
 		if err != nil {
 			logger.Error("Failed to create supplier", "error", err)

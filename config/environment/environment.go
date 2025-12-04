@@ -7,6 +7,9 @@ import (
 )
 
 var (
+	ENV                    = "ENV"
+	DsnDatabase            = "DSN_DATABASE"
+	Port                   = "PORT"
 	AccessTokenSecretKey   = "LOGIN_ACCESS_SECRET"
 	RefreshTokenSecretKey  = "LOGIN_REFRESH_SECRET"
 	AccessTokenExpMinsKey  = "LOGIN_ACCESS_EXP_MINS"
