@@ -18,6 +18,7 @@ import (
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
+	"mini-erp-backend/model"
 
 	"mini-erp-backend/api/repository"
 	_ "mini-erp-backend/docs"
