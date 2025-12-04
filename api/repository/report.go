@@ -127,16 +127,24 @@ func (r *report) GetPurchaseSummary(db *gorm.DB, year int, month int) ([]Purchas
 	firstDay := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	lastDay := firstDay.AddDate(0, 1, -1).Add(24*time.Hour - time.Second)
 
-	err := db.Model(&model.PurchaseOrder{}).
+	err := db.Table("purchase_orders").
 		Select(`
-			status,
-			COUNT(*) as total_orders,
-			SUM(total_amount) as total_amount,
-			AVG(total_amount) as average_amount
+			purchase_orders.status,
+			COUNT(DISTINCT purchase_orders.purchase_order_id) as total_orders,
+			COALESCE(SUM(purchase_order_items.quantity * products.cost_price), 0) as total_amount,
+			COALESCE(AVG(item_totals.total), 0) as average_amount
 		`).
-		Where("created_at >= ? AND created_at <= ?", firstDay, lastDay).
-		Group("status").
-		Order("status").
+		Joins("LEFT JOIN purchase_order_items ON purchase_orders.purchase_order_id = purchase_order_items.purchase_order_id").
+		Joins("LEFT JOIN products ON purchase_order_items.product_id = products.product_id").
+		Joins(`LEFT JOIN LATERAL (
+			SELECT purchase_order_id, SUM(quantity * products.cost_price) as total
+			FROM purchase_order_items
+			JOIN products ON purchase_order_items.product_id = products.product_id
+			GROUP BY purchase_order_id
+		) item_totals ON item_totals.purchase_order_id = purchase_orders.purchase_order_id`).
+		Where("purchase_orders.created_at >= ? AND purchase_orders.created_at <= ?", firstDay, lastDay).
+		Group("purchase_orders.status").
+		Order("purchase_orders.status").
 		Scan(&results).Error
 
 	return results, err
