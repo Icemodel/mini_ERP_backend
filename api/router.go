@@ -36,18 +36,13 @@ func Register(
 	// Supplier routes
 	supplierGroup := v1.Group("/suppliers")
 	{
-		// supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
-		// supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
-		// supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
-		// supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
-		// supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
+		supplierGroup.Use(mid.Authenticated())
 
-		supplierGroup.Get("/", supplier.AllSuppliers(logger))
-		supplierGroup.Get("/:id", supplier.Supplier(logger))
-		supplierGroup.Post("/", supplier.CreateSupplier(logger))
-		supplierGroup.Put("/:id", supplier.UpdateSupplier(logger))
-		supplierGroup.Delete("/:id", supplier.DeleteSupplier(logger))
-		
+		supplierGroup.Get("/", mid.RequireMinRole("viewer"), supplier.AllSuppliers(logger))
+		supplierGroup.Post("/", mid.RequireMinRole("admin"), supplier.CreateSupplier(logger))
+		supplierGroup.Get("/:id", mid.RequireMinRole("admin"), supplier.Supplier(logger))
+		supplierGroup.Put("/:id", mid.RequireMinRole("admin"), supplier.UpdateSupplier(logger))
+		supplierGroup.Delete("/:id", mid.RequireMinRole("admin"), supplier.DeleteSupplier(logger))
 	}
 
 	// Purchase Order routes
