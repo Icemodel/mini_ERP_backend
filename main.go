@@ -16,6 +16,7 @@ import (
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
+	"mini-erp-backend/model"
 
 	"mini-erp-backend/api/repository"
 	_ "mini-erp-backend/docs"
@@ -81,7 +82,7 @@ func main() {
 
 	// endregion
 
-	// if err := db.AutoMigrate(
+	if err := db.AutoMigrate(
 		//&model.User{},
 		//&model.Category{},
 		//&model.Supplier{},
@@ -89,11 +90,11 @@ func main() {
 		//&model.PurchaseOrder{},
 		//&model.AuditLog{},
 		//&model.PurchaseOrderItem{},
-		// &model.StockTransaction{},
+		&model.StockTransaction{},
 	//&model.UserSession{},
-	// ); err != nil {
-		// log.Slogger.Error("Migration failed", "error", err)
-	// }
+	); err != nil {
+		log.Slogger.Error("Migration failed", "error", err)
+	}
 
 	//middleware
 	mid := middleware.NewFiberMiddleware(
