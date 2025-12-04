@@ -100,6 +100,73 @@ definitions:
       transaction:
         $ref: '#/definitions/model.StockTransaction'
     type: object
+  command.UpdatePurchaseOrderItem:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        description: + เพิ่ม, - ลด
+        type: integer
+      reason:
+        description: REQUIRED สำหรับ ADJUST
+        type: string
+    type: object
+  command.StockAdjustResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
+  command.StockInRequest:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+      reference_id:
+        type: string
+    type: object
+  command.StockInResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
+  command.StockOutRequest:
+    properties:
+      created_by:
+        description: ผู้ทำรายการ
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+      reason:
+        type: string
+    type: object
+  command.StockOutResult:
+    properties:
+      current_stock:
+        type: integer
+      message:
+        type: string
+      transaction:
+        $ref: '#/definitions/model.StockTransaction'
+    type: object
   command.UpdatePOStatusRequest:
     properties:
       status:
@@ -214,6 +281,7 @@ definitions:
     - email
     - name
     - phone
+    - supplier_id
     type: object
   mini-erp-backend_api_service_category_command.CreateRequest:
     properties:
@@ -232,6 +300,15 @@ definitions:
       deleted:
         type: boolean
       message:
+        type: string
+    type: object
+  mini-erp-backend_api_service_category_command.UpdateRequest:
+    properties:
+      category_id:
+        type: string
+      description:
+        type: string
+      name:
         type: string
     type: object
   mini-erp-backend_api_service_category_command.UpdateRequest:
@@ -265,10 +342,67 @@ definitions:
       unit:
         type: string
     type: object
+  mini-erp-backend_api_service_product_command.CreateRequest:
+    properties:
+      category_id:
+        type: string
+      cost_price:
+        type: number
+      min_stock:
+        type: integer
+      name:
+        type: string
+      product_code:
+        type: string
+      selling_price:
+        type: number
+      unit:
+        type: string
+    type: object
   mini-erp-backend_api_service_product_command.CreateResult:
     properties:
       product:
         $ref: '#/definitions/model.Product'
+    type: object
+  mini-erp-backend_api_service_product_command.DeleteByIdResult:
+    properties:
+      deleted:
+        type: boolean
+      message:
+        type: string
+    type: object
+  mini-erp-backend_api_service_product_command.UpdateRequest:
+    properties:
+      category_id:
+        type: string
+      cost_price:
+        type: number
+      min_stock:
+        type: integer
+      name:
+        type: string
+      product_id:
+        type: string
+      selling_price:
+        type: number
+      unit:
+        type: string
+    type: object
+  mini-erp-backend_api_service_product_command.UpdateResult:
+    properties:
+      product:
+        $ref: '#/definitions/model.Product'
+    type: object
+  mini-erp-backend_api_service_product_query.StockSummary:
+    properties:
+      current_stock:
+        type: integer
+      total_adjust:
+        type: integer
+      total_in:
+        type: integer
+      total_out:
+        type: integer
     type: object
   mini-erp-backend_api_service_product_command.DeleteByIdResult:
     properties:
@@ -487,6 +621,17 @@ definitions:
       stock_summary:
         $ref: '#/definitions/mini-erp-backend_api_service_product_query.StockSummary'
     type: object
+  query.ProductStockSummaryResult:
+    properties:
+      is_low_stock:
+        type: boolean
+      min_stock:
+        type: integer
+      product:
+        $ref: '#/definitions/model.Product'
+      stock_summary:
+        $ref: '#/definitions/mini-erp-backend_api_service_product_query.StockSummary'
+    type: object
   query.ProductsResult:
     properties:
       page:
@@ -668,10 +813,13 @@ paths:
       description: Create a new category
       parameters:
       - description: Create Request
+      - description: Create Request
         in: body
+        name: request
         name: request
         required: true
         schema:
+          $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateRequest'
           $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateRequest'
       produces:
       - application/json
@@ -680,6 +828,18 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateResult'
+        "400":
+          description: 'Bad Request: Invalid input'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: 'Conflict: Category already exists'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "400":
           description: 'Bad Request: Invalid input'
           schema:
@@ -713,6 +873,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.DeleteByIdResult'
+        "404":
+          description: 'Not Found: Category does not exist'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
         "404":
           description: 'Not Found: Category does not exist'
           schema:
@@ -759,10 +931,13 @@ paths:
         required: true
         type: string
       - description: Update Request
+      - description: Update Request
         in: body
+        name: request
         name: request
         required: true
         schema:
+          $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest'
           $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest'
       produces:
       - application/json
@@ -771,6 +946,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateResult'
+        "400":
+          description: 'Bad Request: Invalid input'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Category does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "409":
+          description: 'Conflict: Category already exists'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
         "400":
           description: 'Bad Request: Invalid input'
           schema:
@@ -836,7 +1027,9 @@ paths:
       description: Create a new product
       parameters:
       - description: Create Request
+      - description: Create Request
         in: body
+        name: request
         name: request
         required: true
         schema:
@@ -925,6 +1118,8 @@ paths:
       responses:
         "200":
           description: OK
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_product_command.UpdateResult'
         "400":
@@ -948,13 +1143,20 @@ paths:
       - Product
   /products/{id}/stock-summary:
     get:
-      consumes:
+      description: Get all items for a specific purchase order
+      parameters:
+      - description: Purchase Order ID
+        in: path
+        name: po_id
+        required: true
+        type: string
+      produces:
       - application/json
       description: Get product stock summary by its ID
       parameters:
-      - description: Product ID
+      - description: Purchase Order Item ID
         in: path
-        name: id
+        name: item_id
         required: true
         type: string
       produces:
@@ -965,192 +1167,6 @@ paths:
           schema:
             $ref: '#/definitions/query.ProductStockSummaryResult'
       summary: Get Product Stock Summary
-      tags:
-      - Product
-  /purchase-order-items:
-    get:
-      description: Get all purchase order items across all purchase orders
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.PurchaseOrderItem'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: List all purchase order items
-      tags:
-      - PurchaseOrderItem
-    post:
-      consumes:
-      - application/json
-      description: Add a new item to a draft purchase order
-      parameters:
-      - description: Item information
-        in: body
-        name: item
-        required: true
-        schema:
-          $ref: '#/definitions/command.CreatePurchaseOrderItemRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/model.PurchaseOrderItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Add item to purchase order
-      tags:
-      - PurchaseOrderItem
-  /purchase-order-items/{item_id}:
-    delete:
-      description: Remove an item from a draft purchase order
-      parameters:
-      - description: Purchase Order Item ID
-        in: path
-        name: item_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Delete purchase order item
-      tags:
-      - PurchaseOrderItem
-    put:
-      consumes:
-      - application/json
-      description: Update quantity of a purchase order item (draft only)
-      parameters:
-      - description: Purchase Order Item ID
-        in: path
-        name: item_id
-        required: true
-        type: string
-      - description: Updated item information
-        in: body
-        name: item
-        required: true
-        schema:
-          $ref: '#/definitions/command.UpdatePurchaseOrderItemRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.PurchaseOrderItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Update purchase order item
-      tags:
-      - PurchaseOrderItem
-  /purchase-order-items/{po_id}:
-    get:
-      description: Get all items for a specific purchase order
-      parameters:
-      - description: Purchase Order ID
-        in: path
-        name: po_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.PurchaseOrderItem'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: List purchase order items
-      tags:
-      - PurchaseOrderItem
-  /purchase-order-items/item/{item_id}:
-    get:
-      description: Get details of a specific purchase order item
-      parameters:
-      - description: Purchase Order Item ID
-        in: path
-        name: item_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.PurchaseOrderItem'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Get purchase order item
       tags:
       - PurchaseOrderItem
   /purchase-orders:
@@ -1473,6 +1489,109 @@ paths:
       summary: Export stock summary to CSV
       tags:
       - Report
+  /stock/adjust:
+    post:
+      consumes:
+      - application/json
+      description: Adjust stock for a product
+      parameters:
+      - description: Stock Adjust Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockAdjustRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockAdjustResult'
+        "400":
+          description: 'Bad Request: Invalid input, reason required, or quantity cannot
+            be zero'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Adjust Stock
+      tags:
+      - StockTransaction
+  /stock/in:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock in for a product
+      parameters:
+      - description: Stock In Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockInRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockInResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error"s
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock In
+      tags:
+      - StockTransaction
+  /stock/out:
+    post:
+      consumes:
+      - application/json
+      description: Handle stock out for a product
+      parameters:
+      - description: Stock Out Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/command.StockOutRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/command.StockOutResult'
+        "400":
+          description: 'Bad Request: Invalid input or insufficient stock'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: 'Not Found: Product does not exist'
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Stock Out
+      tags:
+      - StockTransaction
   /stocks:
     get:
       consumes:
@@ -1511,109 +1630,6 @@ paths:
           schema:
             $ref: '#/definitions/query.StocksResult'
       summary: Get Stock Transactions list
-      tags:
-      - StockTransaction
-  /stocks/adjust:
-    post:
-      consumes:
-      - application/json
-      description: Adjust stock for a product
-      parameters:
-      - description: Stock Adjust Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockAdjustRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockAdjustResult'
-        "400":
-          description: 'Bad Request: Invalid input, reason required, or quantity cannot
-            be zero'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Adjust Stock
-      tags:
-      - StockTransaction
-  /stocks/in:
-    post:
-      consumes:
-      - application/json
-      description: Handle stock in for a product
-      parameters:
-      - description: Stock In Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockInRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockInResult'
-        "400":
-          description: 'Bad Request: Invalid input or insufficient stock'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error"s
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Stock In
-      tags:
-      - StockTransaction
-  /stocks/out:
-    post:
-      consumes:
-      - application/json
-      description: Handle stock out for a product
-      parameters:
-      - description: Stock Out Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/command.StockOutRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/command.StockOutResult'
-        "400":
-          description: 'Bad Request: Invalid input or insufficient stock'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Product does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-      summary: Stock Out
       tags:
       - StockTransaction
   /suppliers:

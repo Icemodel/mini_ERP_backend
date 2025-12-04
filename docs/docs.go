@@ -86,9 +86,12 @@ const docTemplate = `{
                     {
                         "description": "Create Request",
                         "name": "request",
+                        "description": "Create Request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "$ref": "#/definitions/mini-erp-backend_api_service_category_command.CreateRequest"
                             "$ref": "#/definitions/mini-erp-backend_api_service_category_command.CreateRequest"
                         }
                     }
@@ -98,6 +101,24 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/mini-erp-backend_api_service_category_command.CreateResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: Category already exists",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "400": {
@@ -175,9 +196,12 @@ const docTemplate = `{
                     {
                         "description": "Update Request",
                         "name": "request",
+                        "description": "Update Request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "$ref": "#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest"
                             "$ref": "#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest"
                         }
                     }
@@ -187,6 +211,30 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/mini-erp-backend_api_service_category_command.UpdateResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Category does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict: Category already exists",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
                     "400": {
@@ -241,6 +289,24 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/mini-erp-backend_api_service_category_command.DeleteByIdResult"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Category does not exist",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
@@ -340,9 +406,12 @@ const docTemplate = `{
                     {
                         "description": "Create Request",
                         "name": "request",
+                        "description": "Create Request",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
+                            "$ref": "#/definitions/mini-erp-backend_api_service_product_command.CreateRequest"
                             "$ref": "#/definitions/mini-erp-backend_api_service_product_command.CreateRequest"
                         }
                     }
@@ -356,7 +425,19 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request: Invalid input",
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
                         "schema": {
+                            "$ref": "#/definitions/mini-erp-backend_api_service_product_command.CreateResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
                             "$ref": "#/definitions/api.ErrorResponse"
                         }
                     },
@@ -510,167 +591,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Product"
+                    "PurchaseOrderItem"
                 ],
                 "summary": "Get Product Stock Summary",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Product ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/query.ProductStockSummaryResult"
-                        }
-                    }
-                }
-            }
-        },
-        "/purchase-order-items": {
-            "get": {
-                "description": "Get all purchase order items across all purchase orders",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "List all purchase order items",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.PurchaseOrderItem"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Add a new item to a draft purchase order",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "Add item to purchase order",
-                "parameters": [
-                    {
-                        "description": "Item information",
-                        "name": "item",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/command.CreatePurchaseOrderItemRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/model.PurchaseOrderItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/purchase-order-items/item/{item_id}": {
-            "get": {
-                "description": "Get details of a specific purchase order item",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "Get purchase order item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Purchase Order Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.PurchaseOrderItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/purchase-order-items/{item_id}": {
-            "put": {
-                "description": "Update quantity of a purchase order item (draft only)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "Update purchase order item",
                 "parameters": [
                     {
                         "type": "string",
@@ -693,121 +616,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.PurchaseOrderItem"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove an item from a draft purchase order",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "Delete purchase order item",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Purchase Order Item ID",
-                        "name": "item_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/purchase-order-items/{po_id}": {
-            "get": {
-                "description": "Get all items for a specific purchase order",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "PurchaseOrderItem"
-                ],
-                "summary": "List purchase order items",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Purchase Order ID",
-                        "name": "po_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.PurchaseOrderItem"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/api.ErrorResponse"
+                            "$ref": "#/definitions/query.ProductStockSummaryResult"
                         }
                     }
                 }
@@ -1297,6 +1106,162 @@ const docTemplate = `{
                 }
             }
         },
+        "/stock/adjust": {
+            "post": {
+                "description": "Adjust stock for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Adjust Stock",
+                "parameters": [
+                    {
+                        "description": "Stock Adjust Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockAdjustRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockAdjustResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input, reason required, or quantity cannot be zero",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stock/in": {
+            "post": {
+                "description": "Handle stock in for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Stock In",
+                "parameters": [
+                    {
+                        "description": "Stock In Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockInResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error\"s",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stock/out": {
+            "post": {
+                "description": "Handle stock out for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StockTransaction"
+                ],
+                "summary": "Stock Out",
+                "parameters": [
+                    {
+                        "description": "Stock Out Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/command.StockOutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/command.StockOutResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid input or insufficient stock",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: Product does not exist",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stocks": {
             "get": {
                 "description": "Get stock transactions list",
@@ -1307,6 +1272,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
+                    "StockTransaction"
                     "StockTransaction"
                 ],
                 "summary": "Get Stock Transactions list",
@@ -1901,6 +1867,107 @@ const docTemplate = `{
                 }
             }
         },
+        "command.UpdatePurchaseOrderItem": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "description": "ผู้ทำรายการ",
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "+ เพิ่ม, - ลด",
+                    "type": "integer"
+                },
+                "reason": {
+                    "description": "REQUIRED สำหรับ ADJUST",
+                    "type": "string"
+                }
+            }
+        },
+        "command.StockAdjustResult": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/model.StockTransaction"
+                }
+            }
+        },
+        "command.StockInRequest": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "description": "ผู้ทำรายการ",
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "reference_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "command.StockInResult": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/model.StockTransaction"
+                }
+            }
+        },
+        "command.StockOutRequest": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "description": "ผู้ทำรายการ",
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "reason": {
+                    "type": "string"
+                }
+            }
+        },
+        "command.StockOutResult": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "$ref": "#/definitions/model.StockTransaction"
+                }
+            }
+        },
         "command.UpdatePOStatusRequest": {
             "type": "object",
             "required": [
@@ -1954,6 +2021,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "supplier_id": {
                     "type": "string"
                 }
             }
@@ -2013,6 +2083,20 @@ const docTemplate = `{
                 }
             }
         },
+        "mini-erp-backend_api_service_category_command.UpdateRequest": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "mini-erp-backend_api_service_category_command.UpdateResult": {
             "type": "object",
             "properties": {
@@ -2047,11 +2131,99 @@ const docTemplate = `{
                 }
             }
         },
+        "mini-erp-backend_api_service_product_command.CreateRequest": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "string"
+                },
+                "cost_price": {
+                    "type": "number"
+                },
+                "min_stock": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "product_code": {
+                    "type": "string"
+                },
+                "selling_price": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
         "mini-erp-backend_api_service_product_command.CreateResult": {
             "type": "object",
             "properties": {
                 "product": {
                     "$ref": "#/definitions/model.Product"
+                }
+            }
+        },
+        "mini-erp-backend_api_service_product_command.DeleteByIdResult": {
+            "type": "object",
+            "properties": {
+                "deleted": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "mini-erp-backend_api_service_product_command.UpdateRequest": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "string"
+                },
+                "cost_price": {
+                    "type": "number"
+                },
+                "min_stock": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "selling_price": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "mini-erp-backend_api_service_product_command.UpdateResult": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/model.Product"
+                }
+            }
+        },
+        "mini-erp-backend_api_service_product_query.StockSummary": {
+            "type": "object",
+            "properties": {
+                "current_stock": {
+                    "type": "integer"
+                },
+                "total_adjust": {
+                    "type": "integer"
+                },
+                "total_in": {
+                    "type": "integer"
+                },
+                "total_out": {
+                    "type": "integer"
                 }
             }
         },
@@ -2364,6 +2536,23 @@ const docTemplate = `{
             "properties": {
                 "product": {
                     "$ref": "#/definitions/model.Product"
+                }
+            }
+        },
+        "query.ProductStockSummaryResult": {
+            "type": "object",
+            "properties": {
+                "is_low_stock": {
+                    "type": "boolean"
+                },
+                "min_stock": {
+                    "type": "integer"
+                },
+                "product": {
+                    "$ref": "#/definitions/model.Product"
+                },
+                "stock_summary": {
+                    "$ref": "#/definitions/mini-erp-backend_api_service_product_query.StockSummary"
                 }
             }
         },
