@@ -21,8 +21,6 @@ import (
 //	@Failure		400	{object}	api.ErrorResponse
 //	@Failure		500	{object}	api.ErrorResponse
 //	@Router			/suppliers [post]
-var phoneRegex = regexp.MustCompile(`^[\d\s\-\+\(\)]+$`)
-
 func CreateSupplier(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req command.CreateSupplierRequest
@@ -56,4 +54,3 @@ func CreateSupplier(logger *slog.Logger) fiber.Handler {
 		return c.Status(fiber.StatusCreated).JSON(result)
 	}
 }
-
