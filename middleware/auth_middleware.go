@@ -33,13 +33,10 @@ type corsSetUp struct {
 	AllowCredentials bool
 }
 
-// a mutex for synchronizing access to the fiberMiddlewareInstance variable
 var fiberMiddlewareLock = &sync.Mutex{}
 
-// a singleton instance of the FiberMiddleware struct
 var fiberMiddlewareInstance *FiberMiddleware
 
-// return the singleton instance of the FiberMiddleware
 func getFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
@@ -75,7 +72,6 @@ func NewFiberMiddleware(
 	return getFiberMiddlewareInstance(db, logger, jwtManager, userAuthenRepo, sessionRepo)
 }
 
-// create the fiberMiddlewareInstance and set up it
 func createFiberMiddlewareInstance(
 	db *gorm.DB,
 	logger *slog.Logger,
@@ -95,7 +91,6 @@ func createFiberMiddlewareInstance(
 
 	if allowCredential && strings.TrimSpace(allowOrigins) == "http://localhost:5173" {
 		logger.Warn("CORS config insecure: ALLOW_CREDENTIALS=true and ALLOW_ORIGINS='*'. Disabling credentials to avoid insecure setup.")
-		allowCredential = false
 	}
 
 	return &FiberMiddleware{
@@ -111,7 +106,6 @@ func createFiberMiddlewareInstance(
 	}
 }
 
-// allows servers to specify who can access its resources and what resources can access
 func (f *FiberMiddleware) CORS() fiber.Handler {
 	return cors.New(cors.Config{
 		AllowOrigins:     f.corsSetUp.AllowOrigins,
