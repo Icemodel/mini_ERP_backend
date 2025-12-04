@@ -299,15 +299,6 @@ definitions:
       name:
         type: string
     type: object
-  mini-erp-backend_api_service_category_command.UpdateRequest:
-    properties:
-      category_id:
-        type: string
-      description:
-        type: string
-      name:
-        type: string
-    type: object
   mini-erp-backend_api_service_category_command.UpdateResult:
     properties:
       category:
@@ -330,67 +321,10 @@ definitions:
       unit:
         type: string
     type: object
-  mini-erp-backend_api_service_product_command.CreateRequest:
-    properties:
-      category_id:
-        type: string
-      cost_price:
-        type: number
-      min_stock:
-        type: integer
-      name:
-        type: string
-      product_code:
-        type: string
-      selling_price:
-        type: number
-      unit:
-        type: string
-    type: object
   mini-erp-backend_api_service_product_command.CreateResult:
     properties:
       product:
         $ref: '#/definitions/model.Product'
-    type: object
-  mini-erp-backend_api_service_product_command.DeleteByIdResult:
-    properties:
-      deleted:
-        type: boolean
-      message:
-        type: string
-    type: object
-  mini-erp-backend_api_service_product_command.UpdateRequest:
-    properties:
-      category_id:
-        type: string
-      cost_price:
-        type: number
-      min_stock:
-        type: integer
-      name:
-        type: string
-      product_id:
-        type: string
-      selling_price:
-        type: number
-      unit:
-        type: string
-    type: object
-  mini-erp-backend_api_service_product_command.UpdateResult:
-    properties:
-      product:
-        $ref: '#/definitions/model.Product'
-    type: object
-  mini-erp-backend_api_service_product_query.StockSummary:
-    properties:
-      current_stock:
-        type: integer
-      total_adjust:
-        type: integer
-      total_in:
-        type: integer
-      total_out:
-        type: integer
     type: object
   mini-erp-backend_api_service_product_command.DeleteByIdResult:
     properties:
@@ -609,17 +543,6 @@ definitions:
       stock_summary:
         $ref: '#/definitions/mini-erp-backend_api_service_product_query.StockSummary'
     type: object
-  query.ProductStockSummaryResult:
-    properties:
-      is_low_stock:
-        type: boolean
-      min_stock:
-        type: integer
-      product:
-        $ref: '#/definitions/model.Product'
-      stock_summary:
-        $ref: '#/definitions/mini-erp-backend_api_service_product_query.StockSummary'
-    type: object
   query.ProductsResult:
     properties:
       page:
@@ -801,13 +724,10 @@ paths:
       description: Create a new category
       parameters:
       - description: Create Request
-      - description: Create Request
         in: body
-        name: request
         name: request
         required: true
         schema:
-          $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateRequest'
           $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateRequest'
       produces:
       - application/json
@@ -816,18 +736,6 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.CreateResult'
-        "400":
-          description: 'Bad Request: Invalid input'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "409":
-          description: 'Conflict: Category already exists'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
         "400":
           description: 'Bad Request: Invalid input'
           schema:
@@ -861,18 +769,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.DeleteByIdResult'
-        "404":
-          description: 'Not Found: Category does not exist'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "404":
           description: 'Not Found: Category does not exist'
           schema:
@@ -919,13 +815,10 @@ paths:
         required: true
         type: string
       - description: Update Request
-      - description: Update Request
         in: body
-        name: request
         name: request
         required: true
         schema:
-          $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest'
           $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateRequest'
       produces:
       - application/json
@@ -934,22 +827,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_category_command.UpdateResult'
-        "400":
-          description: 'Bad Request: Invalid input'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "404":
-          description: 'Not Found: Category does not exist'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "409":
-          description: 'Conflict: Category already exists'
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/api.ErrorResponse'
         "400":
           description: 'Bad Request: Invalid input'
           schema:
@@ -1015,9 +892,7 @@ paths:
       description: Create a new product
       parameters:
       - description: Create Request
-      - description: Create Request
         in: body
-        name: request
         name: request
         required: true
         schema:
@@ -1106,8 +981,6 @@ paths:
       responses:
         "200":
           description: OK
-        "200":
-          description: OK
           schema:
             $ref: '#/definitions/mini-erp-backend_api_service_product_command.UpdateResult'
         "400":
@@ -1131,20 +1004,13 @@ paths:
       - Product
   /products/{id}/stock-summary:
     get:
-      description: Get all items for a specific purchase order
-      parameters:
-      - description: Purchase Order ID
-        in: path
-        name: po_id
-        required: true
-        type: string
-      produces:
+      consumes:
       - application/json
       description: Get product stock summary by its ID
       parameters:
-      - description: Purchase Order Item ID
+      - description: Product ID
         in: path
-        name: item_id
+        name: id
         required: true
         type: string
       produces:

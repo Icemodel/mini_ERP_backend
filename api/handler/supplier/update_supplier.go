@@ -16,13 +16,13 @@ import (
 //	@Tags			Supplier
 //	@Accept			json
 //	@Produce		json
-//	@Param			id			path	string							true	"Supplier ID (UUID)"
+//	@Param			id			path	string	true	"Supplier ID (UUID)"
 //	@Param			supplier	body	command.UpdateSupplierRequest	true	"Updated supplier information"
 //	@Success		200
-//	@Failure		400	{object}	fiber.Map
-//	@Failure		404	{object}	fiber.Map
-//	@Failure		500	{object}	fiber.Map
-//	@Router			/api/v1/suppliers/{id} [put]
+//	@Failure		400	{object}	api.ErrorResponse
+//	@Failure		404	{object}	api.ErrorResponse
+//	@Failure		500	{object}	api.ErrorResponse
+//	@Router			/suppliers/{id} [put]
 func UpdateSupplier(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		idParam := c.Params("id")

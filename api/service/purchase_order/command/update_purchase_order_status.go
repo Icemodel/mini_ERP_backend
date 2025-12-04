@@ -13,11 +13,11 @@ import (
 )
 
 type UpdatePOStatus struct {
-	logger     *slog.Logger
-	db         *gorm.DB
-	PORepo     repository.PurchaseOrder
+	logger    *slog.Logger
+	db        *gorm.DB
+	PORepo    repository.PurchaseOrder
 	POItemRepo repository.PurchaseOrderItem
-	StockRepo  repository.StockTransaction
+	StockRepo repository.StockTransaction
 }
 
 type UpdatePOStatusRequest struct {
@@ -38,11 +38,11 @@ func NewUpdatePOStatus(
 	stockRepo repository.StockTransaction,
 ) *UpdatePOStatus {
 	return &UpdatePOStatus{
-		logger:     logger,
-		db:         db,
-		PORepo:     poRepo,
+		logger:    logger,
+		db:        db,
+		PORepo:    poRepo,
 		POItemRepo: poItemRepo,
-		StockRepo:  stockRepo,
+		StockRepo: stockRepo,
 	}
 }
 

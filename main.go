@@ -15,13 +15,13 @@ import (
 	"mini-erp-backend/config/environment"
 	"mini-erp-backend/lib/jwt"
 	"mini-erp-backend/lib/logging"
-	"mini-erp-backend/model"
 
 	"mini-erp-backend/api/repository"
 	_ "mini-erp-backend/docs"
 	"mini-erp-backend/middleware"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
 )
 
@@ -43,6 +43,7 @@ func main() {
 	log := logging.New()
 	environment.LoadEnvironment()
 
+	app.Use(cors.New())
 	jwtManager := jwt.New(log.Slogger)
 
 	db := database.Connect(environment.GetString(environment.DsnDatabase))
@@ -119,5 +120,5 @@ func main() {
 
 	//region service
 
-	app.Listen(":" + environment.GetString(environment.Port))
+	app.Listen(":" + environment.GetString("PORT"))
 }
