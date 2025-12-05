@@ -37,23 +37,32 @@ func NewUpdateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplie
 }
 
 func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest) (*UpdateSupplierResult, error) {
-	// Check if supplier exists
+
+	// Validate input
+	if cmd.SupplierId == uuid.Nil {
+		h.logger.Error("Supplier ID is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Check if at least one field is provided for update
+	if cmd.Name == "" && cmd.Phone == "" && cmd.Email == "" && cmd.Address == "" {
+		h.logger.Warn("No fields to update")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Check if supplier exists 
 	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
 	}
-	existingSupplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
+	existingSupplier, err := h.SupplierRepo.Search(
+		h.db.WithContext(ctx),
+		supplier_id,
+		"",
+	)
 	if err != nil {
 		h.logger.Error("Supplier not found", "supplier_id", cmd.SupplierId)
 		return nil, err
 	}
-
-	// Begin transaction
-	tx := h.db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	if cmd.Name != "" {
 		existingSupplier.Name = cmd.Name
@@ -62,7 +71,7 @@ func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest)
 	if cmd.Phone != "" {
 		existingSupplier.Phone = cmd.Phone
 	}
-
+	
 	if cmd.Email != "" {
 		existingSupplier.Email = cmd.Email
 	}
@@ -70,6 +79,14 @@ func (h *UpdateSupplier) Handle(ctx context.Context, cmd *UpdateSupplierRequest)
 	if cmd.Address != "" {
 		existingSupplier.Address = cmd.Address
 	}
+
+	// Begin transaction 
+	tx := h.db.WithContext(ctx).Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
 	// Save to database
 	if err := h.SupplierRepo.UpdateBySupplierId(tx, cmd.SupplierId, existingSupplier); err != nil {

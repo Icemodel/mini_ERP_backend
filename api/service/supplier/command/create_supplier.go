@@ -37,20 +37,43 @@ func NewCreateSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplie
 
 func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest) (*CreateSupplierResult, error) {
 
-	// Check if email already exists
+	if cmd.Name == "" {
+		h.logger.Error("Supplier name is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	if cmd.Email == "" {
+		h.logger.Error("Supplier email is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	if cmd.Phone == "" {
+		h.logger.Error("Supplier phone is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	if cmd.Address == "" {
+		h.logger.Error("Supplier address is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Check if email already exists 
 	email := map[string]interface{}{
 		"email": cmd.Email,
 	}
-
-	existingSupplier, err := h.SupplierRepo.Search(h.db, email, "")
+	existingSupplier, err := h.SupplierRepo.Search(
+		h.db.WithContext(ctx),
+		email,
+		"",
+	)
 
 	if err == nil && existingSupplier != nil {
 		h.logger.Warn("Supplier with this email already exists", "email", cmd.Email)
 		return nil, gorm.ErrDuplicatedKey
 	}
 
-	// Begin transaction
-	tx := h.db.Begin()
+	// Begin transaction 
+	tx := h.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
@@ -64,26 +87,6 @@ func (h *CreateSupplier) Handle(ctx context.Context, cmd *CreateSupplierRequest)
 		Phone:      cmd.Phone,
 		Email:      cmd.Email,
 		Address:    cmd.Address,
-	}
-
-	if supplier.Name == "" {
-		h.logger.Error("Supplier name is required")
-		return nil, gorm.ErrInvalidData
-	}
-
-	if supplier.Email == "" {
-		h.logger.Error("Supplier email is required")
-		return nil, gorm.ErrInvalidData
-	}
-
-	if supplier.Phone == "" {
-		h.logger.Error("Supplier phone is required")
-		return nil, gorm.ErrInvalidData
-	}
-
-	if supplier.Address == "" {
-		h.logger.Error("Supplier address is required")
-		return nil, gorm.ErrInvalidData
 	}
 
 	// Save to database

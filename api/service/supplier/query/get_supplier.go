@@ -33,11 +33,21 @@ func NewSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplier) *Su
 }
 
 func (h *Supplier) Handle(ctx context.Context, req *SupplierRequest) (*SupplierResult, error) {
-	// Find supplier by ID
+	// Validate input
+	if req.SupplierId == uuid.Nil {
+		h.logger.Error("Supplier ID is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Find supplier by ID 
 	supplier_id := map[string]interface{}{
 		"supplier_id": req.SupplierId,
 	}
-	supplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
+	supplier, err := h.SupplierRepo.Search(
+		h.db.WithContext(ctx),
+		supplier_id,
+		"",
+	)
 
 	if err != nil {
 		h.logger.Error("Failed to get supplier", "supplier_id", req.SupplierId, "error", err)

@@ -33,19 +33,29 @@ func NewDeleteSupplier(logger *slog.Logger, db *gorm.DB, repo repository.Supplie
 }
 
 func (h *DeleteSupplier) Handle(ctx context.Context, cmd *DeleteSupplierRequest) (*DeleteSupplierResult, error) {
-	// Check if supplier exists
+	// Validate input
+	if cmd.SupplierId == uuid.Nil {
+		h.logger.Error("Supplier ID is required")
+		return nil, gorm.ErrInvalidData
+	}
+
+	// Check if supplier exists 
 	supplier_id := map[string]interface{}{
 		"supplier_id": cmd.SupplierId,
 	}
-	supplier, err := h.SupplierRepo.Search(h.db, supplier_id, "")
+	supplier, err := h.SupplierRepo.Search(
+		h.db.WithContext(ctx),
+		supplier_id,
+		"",
+	)
 	if err != nil {
 		h.logger.Error("Supplier not found", "supplier_id", cmd.SupplierId)
 		return nil, err
 	}
 
-	// Delete from database
-	if err := h.SupplierRepo.Delete(h.db, supplier); err != nil {
-		h.db.Rollback()
+	// Delete from database 
+	if err := h.SupplierRepo.Delete(h.db.WithContext(ctx), supplier); err != nil {
+		h.logger.Error("Failed to delete supplier", "error", err)
 		return nil, err
 	}
 

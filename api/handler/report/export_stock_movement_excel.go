@@ -18,9 +18,9 @@ import (
 //	@Param			from	query		string	true	"From date (DD-MM-YYYY)"
 //	@Param			to		query		string	true	"To date (DD-MM-YYYY)"
 //	@Success		200		{file}		file
-//	@Failure		400		{object}	fiber.Map
-//	@Failure		500		{object}	fiber.Map
-//	@Router			/api/v1/reports/stock-movements/export [get]
+//	@Failure		400		{object}	api.ErrorResponse
+//	@Failure		500		{object}	api.ErrorResponse
+//	@Router			/reports/stock-movements/export [get]
 func ExportStockMovementExcel(logger *slog.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		fromStr := c.Query("from")

@@ -38,9 +38,12 @@ func (h *AllSuppliers) Handle(ctx context.Context, req *AllSuppliersRequest) (*A
 		orderBy = "created_at ASC"
 	}
 
-	// Get all suppliers from database
-	conditions := map[string]interface{}{}
-	suppliers, err := h.SupplierRepo.Searches(h.db, conditions, orderBy)
+	// Get all suppliers from database (ใช้ context)
+	suppliers, err := h.SupplierRepo.Searches(
+		h.db.WithContext(ctx),
+		map[string]interface{}{},
+		orderBy,
+	)
 	if err != nil {
 		h.logger.Error("Failed to get all suppliers", "error", err)
 		return nil, err
